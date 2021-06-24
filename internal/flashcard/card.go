@@ -71,13 +71,13 @@ type Card struct {
 }
 
 // Advance advances supermemo state for a card.
-func (c *Card) Advance(now time.Time, score ReviewScore) {
+func (c *Card) Advance(now time.Time, score ReviewScore) Card {
 	c.ReviewedAt = now
 
 	if score < ReviewScoreNormal {
 		c.Repetitions = 0
 		c.Interval = 1
-		return
+		return *c
 	}
 
 	switch c.Repetitions {
@@ -90,6 +90,8 @@ func (c *Card) Advance(now time.Time, score ReviewScore) {
 	}
 	c.Repetitions++
 	c.EasinessFactor = calcNextEasinessFactor(c.EasinessFactor, MinimalEasinessFactor, score)
+
+	return *c
 }
 
 func calcNextInterval(interval int, easinessFactor float64) int {
