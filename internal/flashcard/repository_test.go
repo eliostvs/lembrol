@@ -130,15 +130,15 @@ func TestDeckRepository_Save(t *testing.T) {
 		location := test.TempDirCopy(t, emptyDeckLocation)
 		repo := newRepository(t, location)
 		originalDeck, _ := repo.Open("Empty")
-		originalDeck.Add("question", "answer")
+		card := originalDeck.Add("question", "answer")
 
 		err := repo.Save(originalDeck)
 
 		assert.NoError(t, err)
 		newDeck, _ := flashcard.OpenDeck(filepath.Join(location, "empty.toml"), nil)
 		assert.Equal(t, 1, newDeck.Total())
-		assert.Equal(t, "question", newDeck.List()[0].Question)
-		assert.Equal(t, "answer", newDeck.List()[0].Answer)
+		assert.Equal(t, card.Question, newDeck.List()[0].Question)
+		assert.Equal(t, card.Answer, newDeck.List()[0].Answer)
 	})
 }
 
