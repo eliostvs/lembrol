@@ -108,10 +108,11 @@ func TestReview_Rate(t *testing.T) {
 					current:   2,
 					completed: 1,
 				},
-			}, {
+			},
+			{
 				name: "current is never greater than total",
 				args: args{
-					deck:  "Golang One",
+					deck:  oneCardDeck,
 					time:  time.Now(),
 					score: flashcard.ReviewScoreNormal,
 				},
@@ -137,6 +138,15 @@ func TestReview_Rate(t *testing.T) {
 				assert.Equal(t, tt.want.completed, review.Completed())
 			})
 		}
+	})
+
+	t.Run("updates decks", func(t *testing.T) {
+		review := newReview(t, oneCardDeck, withTestClock(time.Now()))
+
+		card, err := review.Rate(flashcard.ReviewScoreNormal)
+		assert.NoError(t, err)
+
+		assert.ElementsMatch(t, review.Deck().List(), []*flashcard.Card{card})
 	})
 
 	t.Run("advances calculates the card next review date", func(t *testing.T) {
@@ -178,17 +188,6 @@ func TestReview_Deck(t *testing.T) {
 	}
 }
 
-func newReview(t *testing.T, deckName string, cfgOpts ...configOption) *flashcard.Review {
-	t.Helper()
-
-	opts := option{clock: flashcard.NewClock()}
-	for _, cfg := range cfgOpts {
-		cfg(&opts)
-	}
-
-	return flashcard.NewReview(newDeck(t, deckName, cfgOpts...), opts.clock)
-}
-
 func TestReview_Skip(t *testing.T) {
 	t.Run("returns error when session has not due cards", func(t *testing.T) {
 		review := newReview(t, largeDeck, withTestClock(beforeOldestCard))
@@ -210,4 +209,15 @@ func TestReview_Skip(t *testing.T) {
 		nextCard, _ = review.CurrentCard()
 		assert.Equal(t, card, nextCard)
 	})
+}
+
+func newReview(t *testing.T, deckName string, cfgOpts ...configOption) *flashcard.Review {
+	t.Helper()
+
+	opts := option{clock: flashcard.NewClock()}
+	for _, cfg := range cfgOpts {
+		cfg(&opts)
+	}
+
+	return flashcard.NewReview(newDeck(t, deckName, cfgOpts...), opts.clock)
 }

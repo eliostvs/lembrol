@@ -68,6 +68,7 @@ func (r *Review) Rate(score ReviewScore) (*Card, error) {
 	card.Advance(r.clock.Now(), score)
 	r.queue = r.queue[1:]
 	r.completed++
+	r.deck.Update(*card)
 	return card, nil
 }
 

@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	smallDeck = "Golang Small"
-	largeDeck = "Golang Large"
+	smallDeck   = "Golang Small"
+	largeDeck   = "Golang Large"
+	oneCardDeck = "Golang One"
 )
 
 func TestOpenDeck(t *testing.T) {
