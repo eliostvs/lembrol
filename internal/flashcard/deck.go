@@ -107,7 +107,7 @@ func (d *Deck) Total() int {
 
 // Add adds a new card to the deck.
 func (d *Deck) Add(question, answer string) *Card {
-	card := NewCard(gonanoid.Must(), question, answer, d.clock.Now())
+	card := NewCard(question, answer, d.clock.Now())
 	d.cards[card.id] = card
 	return card
 }

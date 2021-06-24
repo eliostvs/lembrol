@@ -5,6 +5,8 @@ import (
 	"math"
 	"strconv"
 	"time"
+
+	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 // ErrInvalidScore is returned by NewReviewScore
@@ -48,9 +50,9 @@ const (
 )
 
 // NewCard create a new Card instance.
-func NewCard(id, question, answer string, today time.Time) *Card {
+func NewCard(question, answer string, today time.Time) *Card {
 	return &Card{
-		id:             id,
+		id:             gonanoid.Must(),
 		Question:       question,
 		Answer:         answer,
 		ReviewedAt:     today,
