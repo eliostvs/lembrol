@@ -112,6 +112,11 @@ func (d *Deck) Add(question, answer string) *Card {
 	return card
 }
 
+// Update update a card in the deck.
+func (d *Deck) Update(card Card) {
+	d.cards[card.id] = &card
+}
+
 // Id returns the deck identifier.
 func (d *Deck) Id() string {
 	return d.id

@@ -175,9 +175,25 @@ func TestDeck_Add(t *testing.T) {
 	assert.Equal(t, card.ReviewedAt, now)
 }
 
+func TestDeck_Update(t *testing.T) {
+	deck := newDeck(t, "Empty", withDeck("./testdata/empty"))
+	card := deck.Add("Question", "Answer")
+
+	card.Question = "Not Question"
+	deck.Update(*card)
+
+	assert.ElementsMatch(t, deck.List(), []*flashcard.Card{card})
+}
+
 // Test Options & Factories
 
 type configOption func(*option)
+
+func withDeck(location string) configOption {
+	return func(o *option) {
+		o.decksLocation = location
+	}
+}
 
 func withTestClock(t time.Time) configOption {
 	return func(o *option) {
