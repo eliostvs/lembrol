@@ -1,0 +1,25 @@
+linters:
+  disable:
+    - scopelint
+    - exhaustive
+  enable:
+    - goimports
+    - gomnd
+    - ifshort
+    - importas
+    - misspell
+    - nakedret
+    - predeclared
+    - thelper
+    - unconvert
+    - wastedassign
+    - dupl
+    - forcetypeassert
+    - goconst
+    - godot
+    - gomnd
+  presets:
+    - bugs
+    - unused
+    - complexity
+  fast: false

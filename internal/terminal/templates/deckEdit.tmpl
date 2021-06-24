@@ -1,0 +1,11 @@
+   {{"Decks" | title}}
+
+   {{"Rename this deck?" | style "green" }}
+   {{range $i, $_ := .Page.Items .Decks}}{{$focus := $.Page.HasFocus $i}}
+{{if $focus}}{{" │ Name:" | style "green"}}{{$.Form.View "name"}}{{else}}   {{printf "• %s" .Name | style "white"}}{{end}}
+{{if $focus}}{{" │ " | style "green"}}{{else}}   {{end}}{{printf "%d card%s | %d due" .Total (pluralize .Total "s") (len .DueCards) | style (yesno $focus "darkgreen" "normal")}}
+   {{end}}
+   
+   {{.Page.Paginator}}
+
+{{with $text := help .Width "enter: rename" "esc: cancel" | style "gray"}}{{$text}}{{end}}

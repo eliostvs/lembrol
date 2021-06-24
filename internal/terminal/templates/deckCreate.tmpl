@@ -1,0 +1,8 @@
+   {{"Add Deck" | title}}
+
+   {{"Choose a deck name" | style (yesno (.Form.Error "name") "red" "white")}}
+   
+   {{.Form.View "name"}}
+   
+   
+{{with $text := help .Width "enter: create" "esc: cancel" | style "gray"}}{{$text}}{{end}}

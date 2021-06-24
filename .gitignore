@@ -1,0 +1,7 @@
+coverage.*
+.tool-versions
+.idea
+.env
+remember
+*.log
+*.toml

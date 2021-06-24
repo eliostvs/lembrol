@@ -1,0 +1,12 @@
+   {{"Deck" | title}}
+
+   {{.Deck.Name | style "indigo"}}
+   {{"Delete this card?" | style "red"}}
+   {{range $i, $_ := .Page.Items .Cards}}{{$focus := $.Page.HasFocus $i}}
+{{if $focus}}{{" │ " | style "red"}}{{else}}   {{end}}{{printf "• %s" .Question | truncate $.Width | style (yesno $focus "red" "white")}}
+{{if $focus}}{{" │ " | style "red"}}{{else}}   {{end}}{{printf "Last review %s" (.ReviewedAt | naturaltime ) | style (yesno $focus "darkred" "lightgray")}}{{if .Due $.Clock.Now}}{{printf " • due" | style (yesno $focus "red" "darkred")}}{{end}}
+   {{end}}
+   
+   {{.Page.Paginator}}
+
+{{with $text := help .Width "enter: delete" "esc: cancel" "q: quit"| style "gray"}}{{$text}}{{end}}
