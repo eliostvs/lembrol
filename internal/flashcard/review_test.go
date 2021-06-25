@@ -52,7 +52,7 @@ func TestReview_CurrentCard(t *testing.T) {
 		review := newReview(t, largeDeck, withTestClock(beforeOldestCard))
 		card, err := review.CurrentCard()
 
-		assert.Nil(t, card)
+		assert.Equal(t, flashcard.Card{}, card)
 		assert.Error(t, err)
 	})
 }
@@ -64,7 +64,7 @@ func TestReview_Rate(t *testing.T) {
 		card, err := review.Rate(flashcard.ReviewScoreNormal)
 
 		assert.Error(t, err)
-		assert.Nil(t, card)
+		assert.Equal(t, flashcard.Card{}, card)
 	})
 
 	t.Run("advances card", func(t *testing.T) {
@@ -146,7 +146,7 @@ func TestReview_Rate(t *testing.T) {
 		card, err := review.Rate(flashcard.ReviewScoreNormal)
 		assert.NoError(t, err)
 
-		assert.ElementsMatch(t, review.Deck().List(), []*flashcard.Card{card})
+		assert.ElementsMatch(t, review.Deck().List(), []flashcard.Card{card})
 	})
 
 	t.Run("advances calculates the card next review date", func(t *testing.T) {

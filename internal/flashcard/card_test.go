@@ -161,11 +161,11 @@ func TestCard_Advance(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.card.Advance(now, tt.score)
+			card := tt.card.Advance(now, tt.score)
 
-			assert.Equal(t, tt.want.repetitions, tt.card.Repetitions)
-			assert.Equal(t, tt.want.nextReview, tt.card.NextReviewAt())
-			assert.GreaterOrEqual(t, tt.want.easinessFactor, tt.card.EasinessFactor)
+			assert.Equal(t, tt.want.repetitions, card.Repetitions)
+			assert.Equal(t, tt.want.nextReview, card.NextReviewAt())
+			assert.GreaterOrEqual(t, tt.want.easinessFactor, card.EasinessFactor)
 		})
 	}
 }

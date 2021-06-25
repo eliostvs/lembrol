@@ -124,15 +124,7 @@ func TestDeck_Remove(t *testing.T) {
 	t.Run("returns error when parameter is missing", func(t *testing.T) {
 		deck := newDeck(t, smallDeck)
 
-		err := deck.Remove(&flashcard.Card{})
-
-		assert.ErrorIs(t, err, flashcard.ErrCardNotExist)
-	})
-
-	t.Run("returns error when card is not found", func(t *testing.T) {
-		deck := newDeck(t, smallDeck)
-
-		err := deck.Remove(nil)
+		err := deck.Remove(flashcard.Card{})
 
 		assert.ErrorIs(t, err, flashcard.ErrCardNotExist)
 	})
@@ -181,9 +173,9 @@ func TestDeck_Update(t *testing.T) {
 	card := deck.Add("Question", "Answer")
 
 	card.Question = "Not Question"
-	deck.Update(*card)
+	deck.Update(card)
 
-	assert.ElementsMatch(t, deck.List(), []*flashcard.Card{card})
+	assert.ElementsMatch(t, deck.List(), []flashcard.Card{card})
 }
 
 // Test Options & Factories

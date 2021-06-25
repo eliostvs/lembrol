@@ -38,7 +38,7 @@ func newCardModel(deck *flashcard.Deck, clock flashcard.Clock, repository *flash
 }
 
 type cardModel struct {
-	Cards []*flashcard.Card
+	Cards []flashcard.Card
 	Clock flashcard.Clock
 	Deck  *flashcard.Deck
 	Form  form
@@ -59,15 +59,15 @@ func (m cardModel) Template() string {
 
 type (
 	createdCardMsg struct {
-		*flashcard.Card
+		flashcard.Card
 	}
 
 	deletedCardMsg struct {
-		*flashcard.Card
+		flashcard.Card
 	}
 
 	editedCardMsg struct {
-		*flashcard.Card
+		flashcard.Card
 	}
 )
 
@@ -100,6 +100,7 @@ func (m cardModel) Update(width int, msg tea.Msg) (cardModel, tea.Cmd) {
 		if m.status == cardEditing {
 			currentCard.Answer = m.Form.Value("answer")
 			currentCard.Question = m.Form.Value("question")
+			m.Deck.Update(currentCard)
 			return m, updateCard(currentCard, m.Deck, m.repository)
 		}
 
@@ -165,20 +166,20 @@ func (m cardModel) Update(width int, msg tea.Msg) (cardModel, tea.Cmd) {
 	return m, cmd
 }
 
-func hasCards(cards []*flashcard.Card) bool {
+func hasCards(cards []flashcard.Card) bool {
 	return len(cards) > 0
 }
 
-func currentCard(index int, cards []*flashcard.Card) *flashcard.Card {
+func currentCard(index int, cards []flashcard.Card) flashcard.Card {
 	for i, card := range cards {
 		if index == i {
 			return card
 		}
 	}
-	return nil
+	return flashcard.Card{}
 }
 
-func updateCardList(original []*flashcard.Card, changed *flashcard.Card) (cards []*flashcard.Card) {
+func updateCardList(original []flashcard.Card, changed flashcard.Card) (cards []flashcard.Card) {
 	for _, card := range original {
 		if card.Id() == changed.Id() {
 			cards = append(cards, changed)
@@ -189,7 +190,7 @@ func updateCardList(original []*flashcard.Card, changed *flashcard.Card) (cards 
 	return cards
 }
 
-func removeCard(original []*flashcard.Card, deleted *flashcard.Card) (cards []*flashcard.Card) {
+func removeCard(original []flashcard.Card, deleted flashcard.Card) (cards []flashcard.Card) {
 	for _, card := range original {
 		if card.Id() != deleted.Id() {
 			cards = append(cards, card)
@@ -237,7 +238,7 @@ func createCard(question, answer string, deck *flashcard.Deck, repository *flash
 	}
 }
 
-func updateCard(card *flashcard.Card, deck *flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
+func updateCard(card flashcard.Card, deck *flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		if err := repository.Save(deck); err != nil {
 			return failed(err)
@@ -247,7 +248,7 @@ func updateCard(card *flashcard.Card, deck *flashcard.Deck, repository *flashcar
 	}
 }
 
-func deleteCard(card *flashcard.Card, deck *flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
+func deleteCard(card flashcard.Card, deck *flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		if err := deck.Remove(card); err != nil {
 			return failed(err)

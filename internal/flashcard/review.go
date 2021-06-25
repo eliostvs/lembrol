@@ -17,7 +17,7 @@ func NewReview(deck *Deck, clock Clock) *Review {
 	return &Review{queue: dueCards, deck: deck, clock: clock}
 }
 
-func shuffle(cards []*Card) {
+func shuffle(cards []Card) {
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(cards), func(i, j int) { cards[i], cards[j] = cards[j], cards[i] })
 }
@@ -25,7 +25,7 @@ func shuffle(cards []*Card) {
 // Review represents a review session.
 type Review struct {
 	deck      *Deck
-	queue     []*Card
+	queue     []Card
 	clock     Clock
 	completed int
 }
@@ -53,10 +53,10 @@ func (r *Review) Completed() int {
 	return r.completed
 }
 
-func (r *Review) Rate(score ReviewScore) (*Card, error) {
+func (r *Review) Rate(score ReviewScore) (Card, error) {
 	card, err := r.CurrentCard()
 	if err != nil {
-		return nil, err
+		return card, err
 	}
 
 	if score == ReviewScoreAgain {
@@ -65,10 +65,10 @@ func (r *Review) Rate(score ReviewScore) (*Card, error) {
 		return card, nil
 	}
 
-	card.Advance(r.clock.Now(), score)
+	card = card.Advance(r.clock.Now(), score)
 	r.queue = r.queue[1:]
 	r.completed++
-	r.deck.Update(*card)
+	r.deck.Update(card)
 	return card, nil
 }
 
@@ -86,9 +86,9 @@ func (r *Review) Skip() error {
 }
 
 // CurrentCard returns the card being reviewed.
-func (r *Review) CurrentCard() (*Card, error) {
+func (r *Review) CurrentCard() (Card, error) {
 	if len(r.queue) == 0 {
-		return nil, ErrEmptyReview
+		return Card{}, ErrEmptyReview
 	}
 	return r.queue[0], nil
 }

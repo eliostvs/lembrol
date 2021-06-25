@@ -19,7 +19,7 @@ var (
 
 type file struct {
 	Name  string
-	Cards []*Card
+	Cards []Card
 }
 
 // NewRepository create a new Repository by reading all decks

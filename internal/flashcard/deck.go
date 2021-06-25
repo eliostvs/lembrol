@@ -21,7 +21,7 @@ func OpenDeck(filename string, clock Clock) (*Deck, error) {
 		return nil, fmt.Errorf("unmarshall deck '%s' : %w", filename, err)
 	}
 
-	cards := make(map[string]*Card, len(d.Cards))
+	cards := make(map[string]Card, len(d.Cards))
 	for _, card := range d.Cards {
 		card.id = gonanoid.Must()
 		cards[card.id] = card
@@ -36,7 +36,7 @@ func newDeck(name, dir string, clock Clock) *Deck {
 		Name:     name,
 		filename: filepath.Join(dir, slugify.Slugify(name)+".toml"),
 		clock:    clock,
-		cards:    make(map[string]*Card),
+		cards:    make(map[string]Card),
 	}
 }
 
@@ -44,15 +44,15 @@ func newDeck(name, dir string, clock Clock) *Deck {
 type Deck struct {
 	Name string
 
-	cards    map[string]*Card
+	cards    map[string]Card
 	id       string
 	filename string
 	clock    Clock
 }
 
 // List returns a collection of cards order by the time of the last review and question.
-func (d *Deck) List() []*Card {
-	cards := make([]*Card, 0, len(d.cards))
+func (d *Deck) List() []Card {
+	cards := make([]Card, 0, len(d.cards))
 	for _, card := range d.cards {
 		cards = append(cards, card)
 	}
@@ -68,10 +68,10 @@ func (d *Deck) List() []*Card {
 }
 
 // DueCards returns a collection of cards that needs review.
-func (d *Deck) DueCards() []*Card {
+func (d *Deck) DueCards() []Card {
 	date := d.clock.Now()
 
-	dueCards := make([]*Card, 0, len(d.cards))
+	dueCards := make([]Card, 0, len(d.cards))
 	for _, card := range d.cards {
 		if card.Due(date) {
 			dueCards = append(dueCards, card)
@@ -82,11 +82,7 @@ func (d *Deck) DueCards() []*Card {
 }
 
 // Remove excludes card from the deck.
-func (d *Deck) Remove(card *Card) error {
-	if card == nil {
-		return ErrCardNotExist
-	}
-
+func (d *Deck) Remove(card Card) error {
 	if _, ok := d.cards[card.id]; !ok {
 		return ErrCardNotExist
 	}
@@ -106,7 +102,7 @@ func (d *Deck) Total() int {
 }
 
 // Add adds a new card to the deck.
-func (d *Deck) Add(question, answer string) *Card {
+func (d *Deck) Add(question, answer string) Card {
 	card := NewCard(question, answer, d.clock.Now())
 	d.cards[card.id] = card
 	return card
@@ -114,7 +110,7 @@ func (d *Deck) Add(question, answer string) *Card {
 
 // Update update a card in the deck.
 func (d *Deck) Update(card Card) {
-	d.cards[card.id] = &card
+	d.cards[card.id] = card
 }
 
 // Id returns the deck identifier.

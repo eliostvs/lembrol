@@ -50,8 +50,8 @@ const (
 )
 
 // NewCard create a new Card instance.
-func NewCard(question, answer string, today time.Time) *Card {
-	return &Card{
+func NewCard(question, answer string, today time.Time) Card {
+	return Card{
 		id:             gonanoid.Must(),
 		Question:       question,
 		Answer:         answer,
@@ -73,13 +73,13 @@ type Card struct {
 }
 
 // Advance advances supermemo state for a card.
-func (c *Card) Advance(now time.Time, score ReviewScore) Card {
+func (c Card) Advance(now time.Time, score ReviewScore) Card {
 	c.ReviewedAt = now
 
 	if score < ReviewScoreNormal {
 		c.Repetitions = 0
 		c.Interval = 1
-		return *c
+		return c
 	}
 
 	switch c.Repetitions {
@@ -93,7 +93,7 @@ func (c *Card) Advance(now time.Time, score ReviewScore) Card {
 	c.Repetitions++
 	c.EasinessFactor = calcNextEasinessFactor(c.EasinessFactor, MinimalEasinessFactor, score)
 
-	return *c
+	return c
 }
 
 func calcNextInterval(interval int, easinessFactor float64) int {
@@ -112,16 +112,16 @@ func roundNearest(x float64) float64 {
 }
 
 // NextReviewAt returns next review timestamp for a card.
-func (c *Card) NextReviewAt() time.Time {
+func (c Card) NextReviewAt() time.Time {
 	return c.ReviewedAt.Add(time.Duration(hoursPerDay*c.Interval) * time.Hour)
 }
 
 // Due reports whether the card is due at the instant t.
-func (c *Card) Due(t time.Time) bool {
+func (c Card) Due(t time.Time) bool {
 	return c.NextReviewAt().Before(t)
 }
 
 // Id returns card identifier.
-func (c *Card) Id() string {
+func (c Card) Id() string {
 	return c.id
 }
