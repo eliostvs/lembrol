@@ -78,10 +78,9 @@ func TestDeckRepository_Open(t *testing.T) {
 	t.Run("returns err when deck not exist", func(t *testing.T) {
 		repo := newRepository(t, manyDecksLocation)
 
-		deck, err := repo.Open("Not Found")
+		_, err := repo.Open("Not Found")
 
 		assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
-		assert.Nil(t, deck)
 	})
 
 	t.Run("returns deck", func(t *testing.T) {
@@ -110,18 +109,10 @@ func TestDeckRepository_Save(t *testing.T) {
 		assert.Equal(t, originalDeck.Name, newDeck.Name)
 	})
 
-	t.Run("returns error when parameter is missing", func(t *testing.T) {
-		repo := newRepository(t, t.TempDir())
-
-		err := repo.Save(nil)
-
-		assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
-	})
-
 	t.Run("returns error when deck is not found", func(t *testing.T) {
 		repo := newRepository(t, manyDecksLocation)
 
-		err := repo.Save(&flashcard.Deck{})
+		err := repo.Save(flashcard.Deck{})
 
 		assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
 	})
@@ -130,7 +121,7 @@ func TestDeckRepository_Save(t *testing.T) {
 		location := test.TempDirCopy(t, emptyDeckLocation)
 		repo := newRepository(t, location)
 		originalDeck, _ := repo.Open("Empty")
-		card := originalDeck.Add("question", "answer")
+		_, card := originalDeck.Add("question", "answer")
 
 		err := repo.Save(originalDeck)
 
@@ -161,8 +152,7 @@ func TestDeckRepository_Create(t *testing.T) {
 		t.Cleanup(cleanup)
 		repo := newRepository(t, location)
 
-		deck, err := repo.Create("Foo Bar")
-		assert.Nil(t, deck)
+		_, err := repo.Create("Foo Bar")
 		assert.Error(t, err)
 	})
 }
@@ -195,18 +185,10 @@ func TestDeckRepository_Remove(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("returns error when parameter is missing", func(t *testing.T) {
-		repo := newRepository(t, t.TempDir())
-
-		err := repo.Remove(nil)
-
-		assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
-	})
-
 	t.Run("returns error when deck is not found", func(t *testing.T) {
 		repo := newRepository(t, manyDecksLocation)
 
-		err := repo.Remove(&flashcard.Deck{})
+		err := repo.Remove(flashcard.Deck{})
 
 		assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
 	})

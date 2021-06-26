@@ -25,14 +25,17 @@ func TestOpenDeck(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		repo, err := flashcard.OpenDeck(location, nil)
+		_, err := flashcard.OpenDeck(location, nil)
 
 		assert.Error(t, err)
-		assert.Nil(t, repo)
 	})
 }
 
 func TestDeck_DueCards(t *testing.T) {
+	t.Run("empty deck", func(t *testing.T) {
+		assert.Equal(t, []flashcard.Card{}, flashcard.Deck{}.DueCards())
+	})
+
 	tests := []struct {
 		name string
 		args time.Time
@@ -124,7 +127,7 @@ func TestDeck_Remove(t *testing.T) {
 	t.Run("returns error when parameter is missing", func(t *testing.T) {
 		deck := newDeck(t, smallDeck)
 
-		err := deck.Remove(flashcard.Card{})
+		_, err := deck.Remove(flashcard.Card{})
 
 		assert.ErrorIs(t, err, flashcard.ErrCardNotExist)
 	})
@@ -134,11 +137,11 @@ func TestDeck_Remove(t *testing.T) {
 		card := deck.List()[0]
 		total := deck.Total()
 
-		err := deck.Remove(card)
+		newDeck, err := deck.Remove(card)
 
 		assert.NoError(t, err)
-		assert.Equal(t, total-1, deck.Total())
-		assert.NotContains(t, deck.List(), card)
+		assert.Equal(t, total-1, newDeck.Total())
+		assert.NotContains(t, newDeck.List(), card)
 	})
 }
 
@@ -159,9 +162,9 @@ func TestDeck_Add(t *testing.T) {
 	repo := newRepository(t, t.TempDir(), withTestClock(now))
 	deck, _ := repo.Create("currentDeck")
 
-	card := deck.Add("Question", "Answer")
+	newDeck, card := deck.Add("Question", "Answer")
 
-	assert.Equal(t, 1, deck.Total())
+	assert.Equal(t, 1, newDeck.Total())
 	require.NotNil(t, card)
 	assert.Equal(t, card.Question, "Question")
 	assert.Equal(t, card.Answer, "Answer")
@@ -170,12 +173,12 @@ func TestDeck_Add(t *testing.T) {
 
 func TestDeck_Update(t *testing.T) {
 	deck := newDeck(t, "Empty", withDeck("./testdata/empty"))
-	card := deck.Add("Question", "Answer")
+	newDeck, card := deck.Add("Question", "Answer")
 
 	card.Question = "Not Question"
-	deck.Update(card)
+	deck.Change(card)
 
-	assert.ElementsMatch(t, deck.List(), []flashcard.Card{card})
+	assert.ElementsMatch(t, newDeck.List(), []flashcard.Card{card})
 }
 
 // Test Options & Factories
@@ -199,7 +202,7 @@ type option struct {
 	decksLocation string
 }
 
-func newDeck(t *testing.T, deckName string, cfgOpts ...configOption) *flashcard.Deck {
+func newDeck(t *testing.T, deckName string, cfgOpts ...configOption) flashcard.Deck {
 	t.Helper()
 
 	opts := option{

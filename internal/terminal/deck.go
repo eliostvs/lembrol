@@ -27,7 +27,7 @@ func (s deckStatus) template() string {
 	}[s]
 }
 
-func newDeckModel(decks []*flashcard.Deck, r *flashcard.Repository) deckModel {
+func newDeckModel(decks []flashcard.Deck, r *flashcard.Repository) deckModel {
 	return deckModel{
 		Decks:      decks,
 		Page:       newPosition(len(decks)),
@@ -36,7 +36,7 @@ func newDeckModel(decks []*flashcard.Deck, r *flashcard.Repository) deckModel {
 }
 
 type deckModel struct {
-	Decks []*flashcard.Deck
+	Decks []flashcard.Deck
 	Form  form
 	Page  *position
 
@@ -53,15 +53,15 @@ func (m deckModel) Template() string {
 // UPDATE
 
 type deletedDeckMsg struct {
-	*flashcard.Deck
+	flashcard.Deck
 }
 
 type renamedDeckMsg struct {
-	*flashcard.Deck
+	flashcard.Deck
 }
 
 type createdDeckMsg struct {
-	*flashcard.Deck
+	flashcard.Deck
 }
 
 // nolint:cyclop,gocognit,gocyclo
@@ -118,7 +118,7 @@ func (m deckModel) Update(msg tea.Msg) (deckModel, tea.Cmd) {
 			}
 
 		case "s":
-			if m.status == deckBrowsing && hasDueCards(currentDeck) {
+			if m.status == deckBrowsing && currentDeck.HasDueCards() {
 				return m, startReview(currentDeck)
 			}
 
@@ -156,28 +156,20 @@ func (m deckModel) Update(msg tea.Msg) (deckModel, tea.Cmd) {
 	return m, cmd
 }
 
-func hasDecks(decks []*flashcard.Deck) bool {
+func hasDecks(decks []flashcard.Deck) bool {
 	return len(decks) > 0
 }
 
-func currentDeck(index int, decks []*flashcard.Deck) *flashcard.Deck {
+func currentDeck(index int, decks []flashcard.Deck) flashcard.Deck {
 	for i, deck := range decks {
 		if index == i {
 			return deck
 		}
 	}
-	return nil
+	return flashcard.Deck{}
 }
 
-func hasDueCards(d *flashcard.Deck) bool {
-	if d == nil {
-		return false
-	}
-
-	return d.HasDueCards()
-}
-
-func updateDeck(old []*flashcard.Deck, changed *flashcard.Deck) (decks []*flashcard.Deck) {
+func updateDeck(old []flashcard.Deck, changed flashcard.Deck) (decks []flashcard.Deck) {
 	for _, deck := range old {
 		if deck.Id() == changed.Id() {
 			decks = append(decks, changed)
@@ -188,7 +180,7 @@ func updateDeck(old []*flashcard.Deck, changed *flashcard.Deck) (decks []*flashc
 	return decks
 }
 
-func removeDeck(original []*flashcard.Deck, deleted *flashcard.Deck) (decks []*flashcard.Deck) {
+func removeDeck(original []flashcard.Deck, deleted flashcard.Deck) (decks []flashcard.Deck) {
 	for _, deck := range original {
 		if deck.Id() != deleted.Id() {
 			decks = append(decks, deck)
@@ -219,7 +211,7 @@ func createDeck(name string, repo *flashcard.Repository) tea.Cmd {
 	}
 }
 
-func renameDeck(name string, deck *flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
+func renameDeck(name string, deck flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		deck.Name = name
 		if err := repo.Save(deck); err != nil {
@@ -229,7 +221,7 @@ func renameDeck(name string, deck *flashcard.Deck, repo *flashcard.Repository) t
 	}
 }
 
-func deleteDeck(deck *flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
+func deleteDeck(deck flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		if err := repo.Remove(deck); err != nil {
 			return failed(err)

@@ -11,7 +11,7 @@ var ErrEmptyReview = errors.New("no cards in queue")
 
 // NewReview returns a new Review from a given a deck.
 // It get the due cards from the deck an shuffle them.
-func NewReview(deck *Deck, clock Clock) *Review {
+func NewReview(deck Deck, clock Clock) *Review {
 	dueCards := deck.DueCards()
 	shuffle(dueCards)
 	return &Review{queue: dueCards, deck: deck, clock: clock}
@@ -24,7 +24,7 @@ func shuffle(cards []Card) {
 
 // Review represents a review session.
 type Review struct {
-	deck      *Deck
+	deck      Deck
 	queue     []Card
 	clock     Clock
 	completed int
@@ -68,7 +68,7 @@ func (r *Review) Rate(score ReviewScore) (Card, error) {
 	card = card.Advance(r.clock.Now(), score)
 	r.queue = r.queue[1:]
 	r.completed++
-	r.deck.Update(card)
+	r.deck = r.deck.Change(card)
 	return card, nil
 }
 
@@ -94,6 +94,6 @@ func (r *Review) CurrentCard() (Card, error) {
 }
 
 // Deck returns the deck being reviewed.
-func (r *Review) Deck() *Deck {
+func (r *Review) Deck() Deck {
 	return r.deck
 }

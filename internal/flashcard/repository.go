@@ -39,23 +39,23 @@ func NewRepository(path string, clock Clock) (*Repository, error) {
 // Repository defines storage interface that manages a set of decks.
 type Repository struct {
 	path  string
-	decks map[string]*Deck
+	decks map[string]Deck
 	clock Clock
 }
 
 // Open returns a deck given a name.
-func (r Repository) Open(name string) (*Deck, error) {
+func (r Repository) Open(name string) (Deck, error) {
 	for _, deck := range r.decks {
 		if deck.Name == name {
 			return deck, nil
 		}
 	}
-	return nil, ErrDeckNotExist
+	return Deck{}, ErrDeckNotExist
 }
 
 // List returns the available deck names.
-func (r *Repository) List() []*Deck {
-	decks := make([]*Deck, 0, len(r.decks))
+func (r *Repository) List() []Deck {
+	decks := make([]Deck, 0, len(r.decks))
 	for _, deck := range r.decks {
 		decks = append(decks, deck)
 	}
@@ -73,24 +73,20 @@ func (r *Repository) Total() int {
 }
 
 // Create creates a new deck from a given name.
-func (r *Repository) Create(name string) (*Deck, error) {
+func (r *Repository) Create(name string) (Deck, error) {
 	deck := newDeck(name, r.path, r.clock)
 
 	r.decks[deck.id] = deck
 	if err := r.Save(deck); err != nil {
 		delete(r.decks, deck.id)
-		return nil, err
+		return Deck{}, err
 	}
 
 	return deck, nil
 }
 
 // Save persists the changes in a deck.
-func (r *Repository) Save(deck *Deck) error {
-	if deck == nil {
-		return ErrDeckNotExist
-	}
-
+func (r *Repository) Save(deck Deck) error {
 	if _, ok := r.decks[deck.id]; !ok {
 		return ErrDeckNotExist
 	}
@@ -108,11 +104,7 @@ func (r *Repository) Save(deck *Deck) error {
 }
 
 // Remove removes the deck from the repository.
-func (r *Repository) Remove(deck *Deck) error {
-	if deck == nil {
-		return ErrDeckNotExist
-	}
-
+func (r *Repository) Remove(deck Deck) error {
 	if _, ok := r.decks[deck.id]; !ok {
 		return ErrDeckNotExist
 	}
@@ -137,13 +129,13 @@ func assureDirExist(path string) error {
 	return nil
 }
 
-func loadDecks(path string, clock Clock) (map[string]*Deck, error) {
+func loadDecks(path string, clock Clock) (map[string]Deck, error) {
 	files, err := filepath.Glob(path + "/*.toml")
 	if err != nil {
 		return nil, fmt.Errorf("find decks: %w", err)
 	}
 
-	decks := make(map[string]*Deck, len(files))
+	decks := make(map[string]Deck, len(files))
 	for _, file := range files {
 		deck, err := OpenDeck(file, clock)
 		if err != nil {

@@ -52,7 +52,7 @@ var (
 		"truncate":    truncateTag,
 		"currentDeck": currentDeck,
 		"hasDecks":    hasDecks,
-		"hasDueCards": func(index int, decks []*flashcard.Deck) bool {
+		"hasDueCards": func(index int, decks []flashcard.Deck) bool {
 			if len(decks) == 0 {
 				return false
 			}

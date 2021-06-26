@@ -27,7 +27,7 @@ func (s cardStatus) template() string {
 	}[s]
 }
 
-func newCardModel(deck *flashcard.Deck, clock flashcard.Clock, repository *flashcard.Repository) cardModel {
+func newCardModel(deck flashcard.Deck, clock flashcard.Clock, repository *flashcard.Repository) cardModel {
 	return cardModel{
 		Cards:      deck.List(),
 		Clock:      clock,
@@ -40,7 +40,7 @@ func newCardModel(deck *flashcard.Deck, clock flashcard.Clock, repository *flash
 type cardModel struct {
 	Cards []flashcard.Card
 	Clock flashcard.Clock
-	Deck  *flashcard.Deck
+	Deck  flashcard.Deck
 	Form  form
 	Page  *position
 	Title string
@@ -100,7 +100,7 @@ func (m cardModel) Update(width int, msg tea.Msg) (cardModel, tea.Cmd) {
 		if m.status == cardEditing {
 			currentCard.Answer = m.Form.Value("answer")
 			currentCard.Question = m.Form.Value("question")
-			m.Deck.Update(currentCard)
+			m.Deck = m.Deck.Change(currentCard)
 			return m, updateCard(currentCard, m.Deck, m.repository)
 		}
 
@@ -226,9 +226,9 @@ func initCardForm(question, answer string, width int) (form, tea.Cmd) {
 	), cmd
 }
 
-func createCard(question, answer string, deck *flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
+func createCard(question, answer string, deck flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
-		card := deck.Add(question, answer)
+		deck, card := deck.Add(question, answer)
 
 		if err := repository.Save(deck); err != nil {
 			return failed(err)
@@ -238,7 +238,7 @@ func createCard(question, answer string, deck *flashcard.Deck, repository *flash
 	}
 }
 
-func updateCard(card flashcard.Card, deck *flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
+func updateCard(card flashcard.Card, deck flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		if err := repository.Save(deck); err != nil {
 			return failed(err)
@@ -248,9 +248,9 @@ func updateCard(card flashcard.Card, deck *flashcard.Deck, repository *flashcard
 	}
 }
 
-func deleteCard(card flashcard.Card, deck *flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
+func deleteCard(card flashcard.Card, deck flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
-		if err := deck.Remove(card); err != nil {
+		if _, err := deck.Remove(card); err != nil {
 			return failed(err)
 		}
 
