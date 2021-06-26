@@ -38,7 +38,7 @@ func newDeckModel(decks []flashcard.Deck, r *flashcard.Repository) deckModel {
 type deckModel struct {
 	Decks []flashcard.Deck
 	Form  form
-	Page  *position
+	Page  position
 
 	status     deckStatus
 	repository *flashcard.Repository

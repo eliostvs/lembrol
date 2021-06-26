@@ -42,7 +42,7 @@ type cardModel struct {
 	Clock flashcard.Clock
 	Deck  flashcard.Deck
 	Form  form
-	Page  *position
+	Page  position
 	Title string
 
 	repository *flashcard.Repository
