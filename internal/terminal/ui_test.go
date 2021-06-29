@@ -1335,6 +1335,19 @@ func TestQuestion(t *testing.T) {
 				assert.Contains(t, m.View(), nextQuestion)
 			})
 	})
+
+	t.Run("do not shows skip in the last question", func(t *testing.T) {
+		newTestModel(test.TempDirCopy(t, fewDecks)).
+			init().
+			SendKeyType(tea.KeyDown).
+			SendKeyRune(studyKey).
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune(flashcard.ReviewScoreNormal.String()).
+			Peek(func(m tea.Model) {
+				assert.Contains(t, m.View(), "2 of 2")
+				assert.NotContains(t, m.View(), "skip")
+			})
+	})
 }
 
 // Answer

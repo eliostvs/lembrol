@@ -5,4 +5,4 @@
    
 {{.CurrentCard.Question | wrap $.Width | blockquote | style "fuchsia"}}
    {{end}}
-{{with $text := help .Width (yesno (gt .Review.Total 1) "s: skip" "") "enter: answer" "esc: close" "q: quit" | style "gray"}}{{$text}}{{end}}
+{{with $text := help .Width (yesno (gt .Review.Left 1) "s: skip" "") "enter: answer" "esc: close" "q: quit" | style "gray"}}{{$text}}{{end}}
