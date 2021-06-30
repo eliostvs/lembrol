@@ -162,7 +162,7 @@ func (m cardModel) Update(width int, msg tea.Msg) (cardModel, tea.Cmd) {
 		}
 	}
 
-	m.Form, cmd = m.Form.Update(msg)
+	m.Form, cmd = m.Form.Width(width).Update(msg)
 	return m, cmd
 }
 

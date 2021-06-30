@@ -54,6 +54,14 @@ func (f form) Focus(index int) (form, tea.Cmd) {
 	return f, cmd
 }
 
+func (f form) Width(width int) form {
+	for i := range f.fields {
+		f.fields[i].model.Width = width
+	}
+
+	return f
+}
+
 func (f form) Error(name string) bool {
 	for _, field := range f.fields {
 		if field.name == name {
