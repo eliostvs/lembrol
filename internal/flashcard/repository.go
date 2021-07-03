@@ -18,6 +18,11 @@ var (
 	ErrCardNotExist = errors.New("card not exist")
 )
 
+type deckFile struct {
+	Name  string
+	Cards map[string]Card
+}
+
 // NewRepository create a new Repository by reading all decks
 // from a given folder.
 func NewRepository(directory string, clock Clock) (*Repository, error) {
@@ -58,10 +63,6 @@ func (r *Repository) Total() int {
 	return len(r.decks)
 }
 
-func (r *Repository) path(name string) string {
-	return filepath.Join(r.directory, slugify.Slugify(name)+".toml")
-}
-
 // Create creates a new deck from a given name.
 func (r *Repository) Create(name string) (Deck, error) {
 	deck := Deck{
@@ -78,6 +79,10 @@ func (r *Repository) Create(name string) (Deck, error) {
 	}
 
 	return deck, nil
+}
+
+func (r *Repository) path(name string) string {
+	return filepath.Join(r.directory, slugify.Slugify(name)+".toml")
 }
 
 // Open returns a deck given a name.
@@ -132,11 +137,6 @@ func assureDirExist(path string) error {
 		return os.MkdirAll(path, 0777)
 	}
 	return nil
-}
-
-type deckFile struct {
-	Name  string
-	Cards map[string]Card
 }
 
 func OpenDeck(path string, clock Clock) (Deck, error) {
