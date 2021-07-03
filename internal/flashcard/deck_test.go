@@ -160,7 +160,7 @@ func TestDeck_List(t *testing.T) {
 func TestDeck_Add(t *testing.T) {
 	now := time.Now()
 	repo := newRepository(t, t.TempDir(), withTestClock(now))
-	deck, _ := repo.Create("currentDeck")
+	deck, _ := repo.Create("deck")
 
 	newDeck, card := deck.Add("Question", "Answer")
 
