@@ -18,11 +18,6 @@ var (
 	ErrCardNotExist = errors.New("card not exist")
 )
 
-type file struct {
-	Name  string
-	Cards []Card
-}
-
 // NewRepository create a new Repository by reading all decks
 // from a given folder.
 func NewRepository(directory string, clock Clock) (*Repository, error) {
@@ -75,7 +70,12 @@ func (r *Repository) Total() int {
 
 // Create creates a new deck from a given name.
 func (r *Repository) Create(name string) (Deck, error) {
-	deck := newDeck(r.path(name), name, r.clock, make(map[string]Card))
+	deck := Deck{
+		Name:  name,
+		cards: make(map[string]Card),
+		clock: r.clock,
+		id:    r.path(name),
+	}
 
 	r.decks[deck.id] = deck
 	if err := r.Save(deck); err != nil {
@@ -96,7 +96,7 @@ func (r *Repository) Save(deck Deck) error {
 		return ErrDeckNotExist
 	}
 
-	data, err := toml.Marshal(file{Name: deck.Name, Cards: deck.List()})
+	data, err := toml.Marshal(deckFile{deck.Name, deck.cards})
 	if err != nil {
 		return fmt.Errorf("marshall deck: %w", err)
 	}
@@ -132,6 +132,30 @@ func assureDirExist(path string) error {
 		return os.MkdirAll(path, 0777)
 	}
 	return nil
+}
+
+type deckFile struct {
+	Name  string
+	Cards map[string]Card
+}
+
+func OpenDeck(path string, clock Clock) (Deck, error) {
+	tree, err := toml.LoadFile(path)
+	if err != nil {
+		return Deck{}, fmt.Errorf("open deck file '%s' : %w", path, err)
+	}
+
+	var file deckFile
+	if err := tree.Unmarshal(&file); err != nil {
+		return Deck{}, fmt.Errorf("unmarshall deck '%s' : %w", path, err)
+	}
+
+	for id, card := range file.Cards {
+		card.id = id
+		file.Cards[id] = card
+	}
+
+	return Deck{Name: file.Name, cards: file.Cards, id: path, clock: clock}, nil
 }
 
 func loadDecks(path string, clock Clock) (map[string]Deck, error) {

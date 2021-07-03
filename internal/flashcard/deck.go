@@ -1,41 +1,8 @@
 package flashcard
 
 import (
-	"fmt"
 	"sort"
-
-	gonanoid "github.com/matoous/go-nanoid/v2"
-	"github.com/pelletier/go-toml"
 )
-
-func OpenDeck(path string, clock Clock) (Deck, error) {
-	tree, err := toml.LoadFile(path)
-	if err != nil {
-		return Deck{}, fmt.Errorf("open deck file '%s' : %w", path, err)
-	}
-
-	var f file
-	if err := tree.Unmarshal(&f); err != nil {
-		return Deck{}, fmt.Errorf("unmarshall deck '%s' : %w", path, err)
-	}
-
-	cards := make(map[string]Card, len(f.Cards))
-	for _, card := range f.Cards {
-		card.id = gonanoid.Must()
-		cards[card.id] = card
-	}
-
-	return newDeck(path, f.Name, clock, cards), nil
-}
-
-func newDeck(id string, name string, clock Clock, cards map[string]Card) Deck {
-	return Deck{
-		Name:  name,
-		cards: cards,
-		clock: clock,
-		id:    id,
-	}
-}
 
 // Deck represents a named collection of cards.
 type Deck struct {
