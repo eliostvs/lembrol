@@ -39,16 +39,6 @@ type Repository struct {
 	clock     Clock
 }
 
-// Open returns a deck given a name.
-func (r Repository) Open(name string) (Deck, error) {
-	for _, deck := range r.decks {
-		if deck.Name == name {
-			return deck, nil
-		}
-	}
-	return Deck{}, ErrDeckNotExist
-}
-
 // List returns the available deck names.
 func (r *Repository) List() []Deck {
 	decks := make([]Deck, 0, len(r.decks))
@@ -66,6 +56,10 @@ func (r *Repository) List() []Deck {
 // Total returns the number of decks.
 func (r *Repository) Total() int {
 	return len(r.decks)
+}
+
+func (r *Repository) path(name string) string {
+	return filepath.Join(r.directory, slugify.Slugify(name)+".toml")
 }
 
 // Create creates a new deck from a given name.
@@ -86,8 +80,14 @@ func (r *Repository) Create(name string) (Deck, error) {
 	return deck, nil
 }
 
-func (r *Repository) path(name string) string {
-	return filepath.Join(r.directory, slugify.Slugify(name)+".toml")
+// Open returns a deck given a name.
+func (r Repository) Open(name string) (Deck, error) {
+	for _, deck := range r.decks {
+		if deck.Name == name {
+			return deck, nil
+		}
+	}
+	return Deck{}, ErrDeckNotExist
 }
 
 // Save persists the changes in a deck.
