@@ -1,0 +1,11 @@
+name = 1
+
+[Cards]
+
+[Cards.1]
+Answer = "import \"os\"\n\nos.Remove(path) error"
+EasinessFactor = 2.5
+Interval = 0
+Question = "How do you delete a file?"
+Repetitions = 0
+ReviewedAt = 2021-01-02T15:04:05Z

@@ -1,0 +1,11 @@
+Name = "Golang One"
+
+[Cards]
+
+[Cards.1]
+  Answer = "if _, ok := map[key]; ok {}"
+  EasinessFactor = 2.5
+  Interval = 0
+  Question = "How do you check if a map has a certain key?"
+  Repetitions = 0
+  ReviewedAt = 2021-01-02T15:04:05Z

@@ -1,0 +1,11 @@
+Name = "S"
+
+[Cards]
+
+[Cards.1]
+  Answer = "A"
+  EasinessFactor = 2.5
+  Interval = 0
+  Question = "Q"
+  Repetitions = 0
+  ReviewedAt = 2021-01-08T15:04:05Z
