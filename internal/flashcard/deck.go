@@ -48,19 +48,14 @@ func (d Deck) DueCards() []Card {
 	return cards
 }
 
-// Remove excludes card from the deck.
-func (d Deck) Remove(card Card) (Deck, error) {
-	if _, ok := d.cards[card.id]; !ok {
-		return Deck{}, ErrCardNotExist
-	}
-
-	delete(d.cards, card.id)
-	return d, nil
-}
-
 // HasDueCards says if the deck has due cards.
 func (d Deck) HasDueCards() bool {
 	return len(d.DueCards()) > 0
+}
+
+// Id returns the deck identifier.
+func (d Deck) Id() string {
+	return d.id
 }
 
 // Total returns number of cards in the deck.
@@ -81,7 +76,12 @@ func (d Deck) Change(card Card) Deck {
 	return d
 }
 
-// Id returns the deck identifier.
-func (d Deck) Id() string {
-	return d.id
+// Remove excludes card from the deck.
+func (d Deck) Remove(card Card) (Deck, error) {
+	if _, ok := d.cards[card.id]; !ok {
+		return Deck{}, ErrCardNotExist
+	}
+
+	delete(d.cards, card.id)
+	return d, nil
 }
