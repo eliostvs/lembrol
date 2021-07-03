@@ -2,41 +2,38 @@ package flashcard
 
 import (
 	"fmt"
-	"path/filepath"
 	"sort"
 
-	"github.com/avelino/slugify"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pelletier/go-toml"
 )
 
-func OpenDeck(filename string, clock Clock) (Deck, error) {
-	tree, err := toml.LoadFile(filename)
+func OpenDeck(path string, clock Clock) (Deck, error) {
+	tree, err := toml.LoadFile(path)
 	if err != nil {
-		return Deck{}, fmt.Errorf("open deck file '%s' : %w", filename, err)
+		return Deck{}, fmt.Errorf("open deck file '%s' : %w", path, err)
 	}
 
-	var d file
-	if err := tree.Unmarshal(&d); err != nil {
-		return Deck{}, fmt.Errorf("unmarshall deck '%s' : %w", filename, err)
+	var f file
+	if err := tree.Unmarshal(&f); err != nil {
+		return Deck{}, fmt.Errorf("unmarshall deck '%s' : %w", path, err)
 	}
 
-	cards := make(map[string]Card, len(d.Cards))
-	for _, card := range d.Cards {
+	cards := make(map[string]Card, len(f.Cards))
+	for _, card := range f.Cards {
 		card.id = gonanoid.Must()
 		cards[card.id] = card
 	}
 
-	return Deck{filename: filename, clock: clock, id: gonanoid.Must(), cards: cards, Name: d.Name}, nil
+	return newDeck(path, f.Name, clock, cards), nil
 }
 
-func newDeck(name, dir string, clock Clock) Deck {
+func newDeck(id string, name string, clock Clock, cards map[string]Card) Deck {
 	return Deck{
-		id:       gonanoid.Must(),
-		Name:     name,
-		filename: filepath.Join(dir, slugify.Slugify(name)+".toml"),
-		clock:    clock,
-		cards:    make(map[string]Card),
+		Name:  name,
+		cards: cards,
+		clock: clock,
+		id:    id,
 	}
 }
 
@@ -44,10 +41,9 @@ func newDeck(name, dir string, clock Clock) Deck {
 type Deck struct {
 	Name string
 
-	cards    map[string]Card
-	id       string
-	filename string
-	clock    Clock
+	cards map[string]Card
+	id    string
+	clock Clock
 }
 
 // List returns a collection of cards order by the time of the last review and question.

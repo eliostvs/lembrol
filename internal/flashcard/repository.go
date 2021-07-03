@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/avelino/slugify"
 	"github.com/pelletier/go-toml"
 )
 
@@ -24,23 +25,23 @@ type file struct {
 
 // NewRepository create a new Repository by reading all decks
 // from a given folder.
-func NewRepository(path string, clock Clock) (*Repository, error) {
-	if err := assureDirExist(path); err != nil {
+func NewRepository(directory string, clock Clock) (*Repository, error) {
+	if err := assureDirExist(directory); err != nil {
 		return nil, err
 	}
 
-	decks, err := loadDecks(path, clock)
+	decks, err := loadDecks(directory, clock)
 	if err != nil {
 		return nil, err
 	}
-	return &Repository{decks: decks, clock: clock, path: path}, nil
+	return &Repository{decks: decks, clock: clock, directory: directory}, nil
 }
 
 // Repository defines storage interface that manages a set of decks.
 type Repository struct {
-	path  string
-	decks map[string]Deck
-	clock Clock
+	directory string
+	decks     map[string]Deck
+	clock     Clock
 }
 
 // Open returns a deck given a name.
@@ -74,7 +75,7 @@ func (r *Repository) Total() int {
 
 // Create creates a new deck from a given name.
 func (r *Repository) Create(name string) (Deck, error) {
-	deck := newDeck(name, r.path, r.clock)
+	deck := newDeck(r.path(name), name, r.clock, make(map[string]Card))
 
 	r.decks[deck.id] = deck
 	if err := r.Save(deck); err != nil {
@@ -83,6 +84,10 @@ func (r *Repository) Create(name string) (Deck, error) {
 	}
 
 	return deck, nil
+}
+
+func (r *Repository) path(name string) string {
+	return filepath.Join(r.directory, slugify.Slugify(name)+".toml")
 }
 
 // Save persists the changes in a deck.
@@ -96,7 +101,7 @@ func (r *Repository) Save(deck Deck) error {
 		return fmt.Errorf("marshall deck: %w", err)
 	}
 
-	if err := os.WriteFile(deck.filename, data, 0644); err != nil {
+	if err := os.WriteFile(deck.id, data, 0644); err != nil {
 		return fmt.Errorf("write deck: %w", err)
 	}
 
@@ -109,7 +114,7 @@ func (r *Repository) Remove(deck Deck) error {
 		return ErrDeckNotExist
 	}
 
-	if err := os.Remove(deck.filename); err != nil {
+	if err := os.Remove(deck.id); err != nil {
 		return fmt.Errorf("remove deck '%s': %w", deck.Name, err)
 	}
 
