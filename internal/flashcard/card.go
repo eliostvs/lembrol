@@ -49,6 +49,11 @@ const (
 	hoursPerDay       = 24
 )
 
+type Stats struct {
+	Algorithm string
+	Data      []string
+}
+
 // NewCard create a new Card instance.
 func NewCard(question, answer string, today time.Time) Card {
 	return Card{
@@ -73,13 +78,14 @@ type Card struct {
 }
 
 // Advance advances supermemo state for a card.
-func (c Card) Advance(ts time.Time, score ReviewScore) Card {
+func (c Card) Advance(ts time.Time, score ReviewScore) (Card, Stats) {
+	previous := c
 	c.ReviewedAt = ts
 
 	if score < ReviewScoreNormal {
 		c.Repetitions = 0
 		c.Interval = 1
-		return c
+		return c, c.stats(ts, score, previous)
 	}
 
 	switch c.Repetitions {
@@ -93,7 +99,7 @@ func (c Card) Advance(ts time.Time, score ReviewScore) Card {
 	c.Repetitions++
 	c.EasinessFactor = c.nextEasinessFactor(score)
 
-	return c
+	return c, c.stats(ts, score, previous)
 }
 
 func (c Card) nextInterval() float64 {
@@ -104,6 +110,21 @@ func (c Card) nextInterval() float64 {
 func (c Card) nextEasinessFactor(score ReviewScore) float64 {
 	newEasinessFactor := roundNearest(c.EasinessFactor + (0.1 - (5-float64(score))*(0.08+(5-float64(score))*0.02)))
 	return math.Max(MinEasinessFactor, newEasinessFactor)
+}
+
+func (Card) stats(ts time.Time, score ReviewScore, previous Card) Stats {
+	return Stats{
+		Algorithm: "sm2",
+		Data: []string{
+			ts.Format(time.RFC3339),
+			previous.id,
+			score.String(),
+			previous.ReviewedAt.Format(time.RFC3339),
+			strconv.Itoa(previous.Repetitions),
+			strconv.FormatFloat(previous.Interval, 'f', 2, 64),
+			strconv.FormatFloat(previous.EasinessFactor, 'f', 2, 64),
+		},
+	}
 }
 
 // NextReviewAt returns next review timestamp for a card.
