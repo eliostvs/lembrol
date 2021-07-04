@@ -66,15 +66,15 @@ type Card struct {
 	Answer         string
 	ReviewedAt     time.Time
 	EasinessFactor float64
-	Interval       int
+	Interval       float64
 	Repetitions    int
 
 	id string
 }
 
 // Advance advances supermemo state for a card.
-func (c Card) Advance(now time.Time, score ReviewScore) Card {
-	c.ReviewedAt = now
+func (c Card) Advance(ts time.Time, score ReviewScore) Card {
+	c.ReviewedAt = ts
 
 	if score < ReviewScoreNormal {
 		c.Repetitions = 0
@@ -96,8 +96,8 @@ func (c Card) Advance(now time.Time, score ReviewScore) Card {
 	return c
 }
 
-func (c Card) nextInterval() int {
-	return int(math.Ceil(float64(c.Interval) * c.EasinessFactor))
+func (c Card) nextInterval() float64 {
+	return math.Ceil(c.Interval * c.EasinessFactor)
 }
 
 // nolint:gomnd

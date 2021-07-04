@@ -3,7 +3,7 @@ Name = "Sort"
 [Cards.1]
   Answer = "Answer"
   EasinessFactor = 0.0
-  Interval = 0
+  Interval = 0.0
   Question = "D"
   Repetitions = 0
   ReviewedAt = 2021-01-01T00:00:00Z
@@ -11,7 +11,7 @@ Name = "Sort"
 [Cards.2]
   Answer = "Answer"
   EasinessFactor = 0.0
-  Interval = 0
+  Interval = 0.0
   Question = "C"
   Repetitions = 0
   ReviewedAt = 2021-01-02T00:00:00Z
@@ -19,7 +19,7 @@ Name = "Sort"
 [Cards.3]
   Answer = "Answer"
   EasinessFactor = 0.0
-  Interval = 0
+  Interval = 0.0
   Question = "B"
   Repetitions = 0
   ReviewedAt = 2021-01-02T01:00:00Z
@@ -27,7 +27,7 @@ Name = "Sort"
 [Cards.4]
   Answer = "Answer"
   EasinessFactor = 0.0
-  Interval = 0
+  Interval = 0.0
   Question = "A"
   Repetitions = 0
   ReviewedAt = 2021-01-02T01:00:00Z

@@ -3,7 +3,7 @@ Name = "Golang E"
 [Cards.1]
   Answer = "Answer A"
   EasinessFactor = 2.5
-  Interval = 0
+  Interval = 0.0
   Question = "Question A"
   Repetitions = 0
   ReviewedAt = 2021-01-08T15:04:05Z
@@ -11,7 +11,7 @@ Name = "Golang E"
 [Cards.2]
   Answer = "Answer B"
   EasinessFactor = 2.5
-  Interval = 0
+  Interval = 0.0
   Question = "Question B"
   Repetitions = 0
   ReviewedAt = 2021-01-06T15:04:05Z
@@ -19,7 +19,7 @@ Name = "Golang E"
 [Cards.3]
   Answer = "Answer C"
   EasinessFactor = 2.5
-  Interval = 0
+  Interval = 0.0
   Question = "Question C"
   Repetitions = 0
   ReviewedAt = 2021-01-06T15:04:05Z

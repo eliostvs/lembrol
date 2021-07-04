@@ -3,7 +3,7 @@ Name = "Golang A"
 [Cards.1]
   Answer = "Answer A"
   EasinessFactor = 2.5
-  Interval = 0
+  Interval = 0.0
   Question = "Question A"
   Repetitions = 0
   ReviewedAt = 2021-01-08T15:04:05Z
@@ -11,7 +11,7 @@ Name = "Golang A"
 [Cards.2]
   Answer = "Answer B"
   EasinessFactor = 2.5
-  Interval = 0
+  Interval = 0.0
   Question = "Question B"
   Repetitions = 0
   ReviewedAt = 2021-01-06T15:04:05Z
@@ -19,7 +19,7 @@ Name = "Golang A"
 [Cards.3]
   Answer = "Answer C"
   EasinessFactor = 2.5
-  Interval = 0
+  Interval = 0.0
   Question = "Question C"
   Repetitions = 0
   ReviewedAt = 2021-01-06T15:04:05Z
@@ -27,7 +27,7 @@ Name = "Golang A"
 [Cards.4]
   Answer = "Answer D"
   EasinessFactor = 2.5
-  Interval = 0
+  Interval = 0.0
   Question = "Question D"
   Repetitions = 0
   ReviewedAt = 2021-01-04T15:04:05Z
@@ -35,7 +35,7 @@ Name = "Golang A"
 [Cards.5]
   Answer = "Answer E"
   EasinessFactor = 2.5
-  Interval = 0
+  Interval = 0.0
   Question = "Question E"
   Repetitions = 0
   ReviewedAt = 2021-01-04T15:04:05Z
@@ -43,7 +43,7 @@ Name = "Golang A"
 [Cards.6]
   Answer = "Answer F"
   EasinessFactor = 2.5
-  Interval = 0
+  Interval = 0.0
   Question = "Question F"
   Repetitions = 0
   ReviewedAt = 2021-01-02T15:04:05Z
