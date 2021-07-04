@@ -1,7 +1,5 @@
 Name = "S"
 
-[Cards]
-
 [Cards.1]
   Answer = "A"
   EasinessFactor = 2.5

@@ -1,7 +1,5 @@
 name = 1
 
-[Cards]
-
 [Cards.1]
 Answer = "import \"os\"\n\nos.Remove(path) error"
 EasinessFactor = 2.5

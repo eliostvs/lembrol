@@ -1,7 +1,5 @@
 Name = "Sort"
 
-[Cards]
-
 [Cards.1]
   Answer = "Answer"
   EasinessFactor = 0.0

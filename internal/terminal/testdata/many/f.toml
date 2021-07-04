@@ -1,7 +1,5 @@
 Name = "Golang F"
 
-[Cards]
-
 [Cards.1]
   Answer = "Answer A"
   EasinessFactor = 2.5

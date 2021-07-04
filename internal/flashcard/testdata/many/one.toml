@@ -1,7 +1,5 @@
 Name = "Golang One"
 
-[Cards]
-
 [Cards.1]
   Answer = "if _, ok := map[key]; ok {}"
   EasinessFactor = 2.5
