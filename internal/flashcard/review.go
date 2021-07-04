@@ -53,23 +53,23 @@ func (r *Review) Completed() int {
 	return r.completed
 }
 
-func (r *Review) Rate(score ReviewScore) (Card, error) {
+func (r *Review) Rate(score ReviewScore) (Stats, error) {
 	card, err := r.CurrentCard()
 	if err != nil {
-		return card, err
+		return Stats{}, err
 	}
 
 	if score == ReviewScoreAgain {
 		r.queue = r.queue[1:]
 		r.queue = append(r.queue, card)
-		return card, nil
+		return Stats{}, nil
 	}
 
-	card, _ = card.Advance(r.clock.Now(), score)
+	card, stats := card.Advance(r.clock.Now(), score)
 	r.queue = r.queue[1:]
 	r.completed++
 	r.deck = r.deck.Change(card)
-	return card, nil
+	return stats, nil
 }
 
 // Skip moves the current card to the end of the queue.

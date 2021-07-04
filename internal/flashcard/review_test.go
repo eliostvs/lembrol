@@ -61,10 +61,10 @@ func TestReview_Rate(t *testing.T) {
 	t.Run("return error when queue is empty", func(t *testing.T) {
 		review := newReview(t, smallDeck, withTestClock(beforeOldestCard))
 
-		card, err := review.Rate(flashcard.ReviewScoreNormal)
+		stats, err := review.Rate(flashcard.ReviewScoreNormal)
 
 		assert.Error(t, err)
-		assert.Equal(t, flashcard.Card{}, card)
+		assert.Equal(t, flashcard.Stats{}, stats)
 	})
 
 	t.Run("advances card", func(t *testing.T) {
@@ -128,10 +128,9 @@ func TestReview_Rate(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				review := newReview(t, tt.args.deck, withTestClock(tt.args.time))
 
-				card, err := review.Rate(tt.args.score)
+				_, err := review.Rate(tt.args.score)
 				assert.NoError(t, err)
 
-				assert.NotNil(t, card)
 				assert.Equal(t, tt.want.left, review.Left())
 				assert.Equal(t, tt.want.current, review.Current())
 				assert.Equal(t, tt.want.total, review.Total())
@@ -140,21 +139,13 @@ func TestReview_Rate(t *testing.T) {
 		}
 	})
 
-	t.Run("updates decks", func(t *testing.T) {
+	t.Run("updates deck", func(t *testing.T) {
 		review := newReview(t, oneCardDeck, withTestClock(time.Now()))
 
-		card, err := review.Rate(flashcard.ReviewScoreNormal)
+		_, err := review.Rate(flashcard.ReviewScoreHard)
 		assert.NoError(t, err)
 
-		assert.ElementsMatch(t, review.Deck().List(), []flashcard.Card{card})
-	})
-
-	t.Run("advances calculates the card next review date", func(t *testing.T) {
-		review := newReview(t, smallDeck, withTestClock(time.Now()))
-
-		card, err := review.Rate(flashcard.ReviewScoreHard)
-		assert.NoError(t, err)
-
+		card := review.Deck().List()[0]
 		assert.True(t, card.ReviewedAt.After(oldestCard.ReviewedAt))
 	})
 }
