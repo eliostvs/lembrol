@@ -44,9 +44,9 @@ const (
 
 	// InitialEasinessFactor defines the initial easiness factor.
 	InitialEasinessFactor = 2.5
-	// MinimalEasinessFactor defines the minimal easiness factor possible.
-	MinimalEasinessFactor = 1.3
-	hoursPerDay           = 24
+	// MinEasinessFactor defines the minimal easiness factor possible.
+	MinEasinessFactor = 1.3
+	hoursPerDay       = 24
 )
 
 // NewCard create a new Card instance.
@@ -88,27 +88,22 @@ func (c Card) Advance(now time.Time, score ReviewScore) Card {
 	case 1:
 		c.Interval = 6
 	default:
-		c.Interval = calcNextInterval(c.Interval, c.EasinessFactor)
+		c.Interval = c.nextInterval()
 	}
 	c.Repetitions++
-	c.EasinessFactor = calcNextEasinessFactor(c.EasinessFactor, MinimalEasinessFactor, score)
+	c.EasinessFactor = c.nextEasinessFactor(score)
 
 	return c
 }
 
-func calcNextInterval(interval int, easinessFactor float64) int {
-	return int(math.Ceil(float64(interval) * easinessFactor))
+func (c Card) nextInterval() int {
+	return int(math.Ceil(float64(c.Interval) * c.EasinessFactor))
 }
 
 // nolint:gomnd
-func calcNextEasinessFactor(easinessFactor, minEasinessFactor float64, score ReviewScore) float64 {
-	newEasinessFactor := roundNearest(easinessFactor + (0.1 - (5-float64(score))*(0.08+(5-float64(score))*0.02)))
-	return math.Max(minEasinessFactor, newEasinessFactor)
-}
-
-// nolint:gomnd
-func roundNearest(x float64) float64 {
-	return math.Round(x*100) / 100
+func (c Card) nextEasinessFactor(score ReviewScore) float64 {
+	newEasinessFactor := roundNearest(c.EasinessFactor + (0.1 - (5-float64(score))*(0.08+(5-float64(score))*0.02)))
+	return math.Max(MinEasinessFactor, newEasinessFactor)
 }
 
 // NextReviewAt returns next review timestamp for a card.
@@ -124,4 +119,9 @@ func (c Card) Due(t time.Time) bool {
 // Id returns card identifier.
 func (c Card) Id() string {
 	return c.id
+}
+
+// nolint:gomnd
+func roundNearest(x float64) float64 {
+	return math.Round(x*100) / 100
 }
