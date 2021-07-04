@@ -1,6 +1,7 @@
 package flashcard
 
 import (
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"os"
@@ -116,7 +117,7 @@ func (r *Repository) Create(name string) (Deck, error) {
 		Name:  name,
 		cards: make(map[string]Card),
 		clock: r.clock,
-		id:    r.path(name),
+		id:    r.deckPath(name),
 	}
 
 	r.decks[deck.id] = deck
@@ -128,7 +129,7 @@ func (r *Repository) Create(name string) (Deck, error) {
 	return deck, nil
 }
 
-func (r *Repository) path(name string) string {
+func (r *Repository) deckPath(name string) string {
 	return filepath.Join(r.directory, slugify.Slugify(name)+".toml")
 }
 
@@ -142,7 +143,7 @@ func (r Repository) Open(name string) (Deck, error) {
 	return Deck{}, ErrDeckNotExist
 }
 
-// Save persists the changes in a deck.
+// Save writes changes to disk.
 func (r *Repository) Save(deck Deck) error {
 	if _, ok := r.decks[deck.id]; !ok {
 		return ErrDeckNotExist
@@ -173,4 +174,18 @@ func (r *Repository) Remove(deck Deck) error {
 	delete(r.decks, deck.id)
 
 	return nil
+}
+
+// SaveStats writes stats to disk.
+func (r *Repository) SaveStats(stats Stats) error {
+	f, err := os.OpenFile(r.statsPath(stats.Algorithm), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	w := csv.NewWriter(f)
+	return w.WriteAll([][]string{stats.Data})
+}
+
+func (r *Repository) statsPath(name string) string {
+	return filepath.Join(r.directory, name+".csv")
 }

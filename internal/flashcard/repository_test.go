@@ -1,6 +1,7 @@
 package flashcard_test
 
 import (
+	"encoding/csv"
 	"os"
 	"path/filepath"
 	"testing"
@@ -213,6 +214,36 @@ func TestDeckRepository_Total(t *testing.T) {
 			assert.Equal(t, repo.Total(), tt.want)
 		})
 	}
+}
+
+func TestRepository_SaveStats(t *testing.T) {
+	t.Run("returns error when save stats fail", func(t *testing.T) {
+		dirCopy, cleanup := test.TempReadOnlyDirCopy(t, t.TempDir())
+		defer cleanup()
+		repo := newRepository(t, dirCopy)
+		stats := flashcard.Stats{Algorithm: "Algorithm", Data: []string{"data"}}
+
+		err := repo.SaveStats(stats)
+
+		assert.Error(t, err)
+	})
+
+	t.Run("save stats to disk", func(t *testing.T) {
+		location := t.TempDir()
+		repo := newRepository(t, location)
+		stats := flashcard.Stats{Algorithm: "testcsv", Data: []string{"data"}}
+
+		err := repo.SaveStats(stats)
+		assert.NoError(t, err)
+
+		file, err := os.Open(filepath.Join(location, "testcsv.csv"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		reader := csv.NewReader(file)
+		records, _ := reader.ReadAll()
+		assert.Equal(t, [][]string{{"data"}}, records)
+	})
 }
 
 func newRepository(t *testing.T, deckLocation string, cfgOpts ...configOption) *flashcard.Repository {
