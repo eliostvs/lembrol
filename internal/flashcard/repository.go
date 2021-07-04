@@ -37,6 +37,53 @@ func NewRepository(directory string, clock Clock) (*Repository, error) {
 	return &Repository{decks: decks, clock: clock, directory: directory}, nil
 }
 
+func assureDirExist(path string) error {
+	_, err := os.Stat(path)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	if err != nil {
+		return os.MkdirAll(path, 0777)
+	}
+	return nil
+}
+
+func loadDecks(path string, clock Clock) (map[string]Deck, error) {
+	files, err := filepath.Glob(path + "/*.toml")
+	if err != nil {
+		return nil, fmt.Errorf("find decks: %w", err)
+	}
+
+	decks := make(map[string]Deck, len(files))
+	for _, file := range files {
+		deck, err := OpenDeck(file, clock)
+		if err != nil {
+			return nil, err
+		}
+		decks[deck.id] = deck
+	}
+	return decks, nil
+}
+
+func OpenDeck(path string, clock Clock) (Deck, error) {
+	tree, err := toml.LoadFile(path)
+	if err != nil {
+		return Deck{}, fmt.Errorf("open deck file '%s' : %w", path, err)
+	}
+
+	var file deckFile
+	if err := tree.Unmarshal(&file); err != nil {
+		return Deck{}, fmt.Errorf("unmarshall deck '%s' : %w", path, err)
+	}
+
+	for id, card := range file.Cards {
+		card.id = id
+		file.Cards[id] = card
+	}
+
+	return Deck{Name: file.Name, cards: file.Cards, id: path, clock: clock}, nil
+}
+
 // Repository defines storage interface that manages a set of decks.
 type Repository struct {
 	directory string
@@ -126,51 +173,4 @@ func (r *Repository) Remove(deck Deck) error {
 	delete(r.decks, deck.id)
 
 	return nil
-}
-
-func assureDirExist(path string) error {
-	_, err := os.Stat(path)
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
-	if err != nil {
-		return os.MkdirAll(path, 0777)
-	}
-	return nil
-}
-
-func OpenDeck(path string, clock Clock) (Deck, error) {
-	tree, err := toml.LoadFile(path)
-	if err != nil {
-		return Deck{}, fmt.Errorf("open deck file '%s' : %w", path, err)
-	}
-
-	var file deckFile
-	if err := tree.Unmarshal(&file); err != nil {
-		return Deck{}, fmt.Errorf("unmarshall deck '%s' : %w", path, err)
-	}
-
-	for id, card := range file.Cards {
-		card.id = id
-		file.Cards[id] = card
-	}
-
-	return Deck{Name: file.Name, cards: file.Cards, id: path, clock: clock}, nil
-}
-
-func loadDecks(path string, clock Clock) (map[string]Deck, error) {
-	files, err := filepath.Glob(path + "/*.toml")
-	if err != nil {
-		return nil, fmt.Errorf("find decks: %w", err)
-	}
-
-	decks := make(map[string]Deck, len(files))
-	for _, file := range files {
-		deck, err := OpenDeck(file, clock)
-		if err != nil {
-			return nil, err
-		}
-		decks[deck.id] = deck
-	}
-	return decks, nil
 }
