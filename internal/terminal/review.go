@@ -119,7 +119,9 @@ func scoreCard(repo *flashcard.Repository, review *flashcard.Review, input strin
 			return failed(err)
 		}
 
-		_ = repo.SaveStats(stats)
+		if stats != nil {
+			_ = repo.SaveStats(stats)
+		}
 
 		if review.Left() == 0 {
 			return reviewedMsg{}

@@ -64,7 +64,7 @@ type createdDeckMsg struct {
 	flashcard.Deck
 }
 
-// nolint:cyclop,gocognit,gocyclo
+// nolint:cyclop,gocognit
 func (m deckModel) Update(msg tea.Msg) (deckModel, tea.Cmd) {
 	hasDecks := hasDecks(m.Decks)
 	currentDeck := currentDeck(m.Page.Item(), m.Decks)

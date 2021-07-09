@@ -56,13 +56,13 @@ func (r *Review) Completed() int {
 func (r *Review) Rate(score ReviewScore) (Stats, error) {
 	card, err := r.CurrentCard()
 	if err != nil {
-		return Stats{}, err
+		return nil, err
 	}
 
 	if score == ReviewScoreAgain {
 		r.queue = r.queue[1:]
 		r.queue = append(r.queue, card)
-		return Stats{}, nil
+		return nil, nil
 	}
 
 	card, stats := card.Advance(r.clock.Now(), score)

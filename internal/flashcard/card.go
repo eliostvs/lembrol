@@ -1,6 +1,7 @@
 package flashcard
 
 import (
+	"encoding/json"
 	"errors"
 	"math"
 	"strconv"
@@ -49,9 +50,24 @@ const (
 	hoursPerDay       = 24
 )
 
-type Stats struct {
-	Algorithm string
-	Data      []string
+type Stats interface {
+	json.Marshaler
+}
+
+type SM2Stats struct {
+	Algorithm      string `json:"algorithm"`
+	Card           string `json:"card"`
+	Timestamp      string `json:"timestamp"`
+	Score          string `json:"score"`
+	LastReview     string `json:"last_review"`
+	Repetitions    int    `json:"repetitions"`
+	Interval       string `json:"interval"`
+	EasinessFactor string `json:"easiness_factor"`
+}
+
+func (s *SM2Stats) MarshalJSON() ([]byte, error) {
+	type Alias SM2Stats
+	return json.Marshal(&struct{ *Alias }{Alias: (*Alias)(s)})
 }
 
 // NewCard create a new Card instance.
@@ -106,24 +122,21 @@ func (c Card) nextInterval() float64 {
 	return math.Ceil(c.Interval * c.EasinessFactor)
 }
 
-// nolint:gomnd
 func (c Card) nextEasinessFactor(score ReviewScore) float64 {
 	newEasinessFactor := roundNearest(c.EasinessFactor + (0.1 - (5-float64(score))*(0.08+(5-float64(score))*0.02)))
 	return math.Max(MinEasinessFactor, newEasinessFactor)
 }
 
 func (Card) stats(ts time.Time, score ReviewScore, previous Card) Stats {
-	return Stats{
-		Algorithm: "sm2",
-		Data: []string{
-			ts.Format(time.RFC3339),
-			previous.id,
-			score.String(),
-			previous.ReviewedAt.Format(time.RFC3339),
-			strconv.Itoa(previous.Repetitions),
-			strconv.FormatFloat(previous.Interval, 'f', 2, 64),
-			strconv.FormatFloat(previous.EasinessFactor, 'f', 2, 64),
-		},
+	return &SM2Stats{
+		Algorithm:      "sm2",
+		Timestamp:      ts.Format(time.RFC3339),
+		Card:           previous.id,
+		Score:          score.String(),
+		LastReview:     previous.ReviewedAt.Format(time.RFC3339),
+		Repetitions:    previous.Repetitions,
+		Interval:       strconv.FormatFloat(previous.Interval, 'f', 2, 64),
+		EasinessFactor: strconv.FormatFloat(previous.EasinessFactor, 'f', 2, 64),
 	}
 }
 
@@ -142,7 +155,6 @@ func (c Card) Id() string {
 	return c.id
 }
 
-// nolint:gomnd
 func roundNearest(x float64) float64 {
 	return math.Round(x*100) / 100
 }

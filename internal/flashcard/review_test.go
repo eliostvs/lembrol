@@ -64,7 +64,7 @@ func TestReview_Rate(t *testing.T) {
 		stats, err := review.Rate(flashcard.ReviewScoreNormal)
 
 		assert.Error(t, err)
-		assert.Equal(t, flashcard.Stats{}, stats)
+		assert.Nil(t, stats)
 	})
 
 	t.Run("advances card", func(t *testing.T) {

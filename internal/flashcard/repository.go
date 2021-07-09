@@ -1,7 +1,6 @@
 package flashcard
 
 import (
-	"encoding/csv"
 	"errors"
 	"fmt"
 	"os"
@@ -178,14 +177,24 @@ func (r *Repository) Remove(deck Deck) error {
 
 // SaveStats writes stats to disk.
 func (r *Repository) SaveStats(stats Stats) error {
-	f, err := os.OpenFile(r.statsPath(stats.Algorithm), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	data, err := stats.MarshalJSON()
 	if err != nil {
-		return err
+		return fmt.Errorf("marshal stats: %w", err)
 	}
-	w := csv.NewWriter(f)
-	return w.WriteAll([][]string{stats.Data})
+	f, err := os.OpenFile(r.statsPath(), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("open stats file: %w", err)
+	}
+	_, err = f.Write(append(data, '\n'))
+	if err1 := f.Close(); err1 != nil && err == nil {
+		err = err1
+	}
+	if err != nil {
+		return fmt.Errorf("write stats: %w", err)
+	}
+	return nil
 }
 
-func (r *Repository) statsPath(name string) string {
-	return filepath.Join(r.directory, name+".csv")
+func (r *Repository) statsPath() string {
+	return filepath.Join(r.directory, "stats.jsonl")
 }

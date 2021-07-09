@@ -2,24 +2,28 @@ linters:
   disable:
     - scopelint
     - exhaustive
+    - funlen
   enable:
-    - goimports
-    - gomnd
-    - ifshort
-    - importas
-    - misspell
-    - nakedret
-    - predeclared
-    - thelper
-    - unconvert
-    - wastedassign
     - dupl
     - forcetypeassert
     - goconst
     - godot
-    - gomnd
+    - goimports
+    - ifshort
+    - importas
+    - misspell
+    - nakedret
+    - nolintlint
+    - predeclared
+    - thelper
+    - unconvert
+    - wastedassign
   presets:
     - bugs
     - unused
     - complexity
   fast: false
+linters-settings:
+  gosec:
+    config:
+      G306: "0644"
