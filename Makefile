@@ -68,7 +68,7 @@ build: clean dev
 
 .PHONY: run
 run: dev
-	go run $(BINARY_DIR) -log debug.log $(args)
+	go run $(BINARY_DIR) $(args)
 
 .PHONY: format
 format: dev

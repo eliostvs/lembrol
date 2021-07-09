@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -27,7 +26,6 @@ func CLI(args []string, version string, output io.Writer) int {
 		fl.PrintDefaults()
 	}
 	decksLocation := fl.String("decks", ".", "deck files location")
-	logfileLocation := fl.String("log", "", "log file location")
 
 	if err := fl.Parse(args[1:]); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -36,14 +34,7 @@ func CLI(args []string, version string, output io.Writer) int {
 		return paramErrResult
 	}
 
-	if *logfileLocation != "" {
-		if _, err := tea.LogToFile(*logfileLocation, "remember"); err != nil {
-			log.Fatal(err)
-		}
-	}
-
 	program := tea.NewProgram(NewModel(*decksLocation))
-
 	if err := program.Start(); err != nil {
 		fmt.Fprintf(output, "failed: %v", err)
 		return programErrResult
