@@ -4,3 +4,4 @@ coverage.*
 .env
 remember
 *.log
+.__dev

@@ -1,3 +1,7 @@
+ifeq ($(origin .RECIPEPREFIX), undefined)
+  $(error This Make does not support .RECIPEPREFIX. Please use GNU Make 4.0 or later)
+endif
+
 .DELETE_ON_ERROR:
 .ONESHELL:
 .SILENT:
@@ -7,34 +11,29 @@ MAKEFLAGS      += --no-builtin-rules
 MAKEFLAGS      += --warn-undefined-variables
 SHELL          = bash
 
-ifeq ($(origin .RECIPEPREFIX), undefined)
-  $(error This Make does not support .RECIPEPREFIX. Please use GNU Make 4.0 or later)
-endif
-
 BINARY         = remember
+BINARY_DIR     = ./cmd/$(BINARY)
 LDFLAGS        += -X "main.version=${VERSION}"
-LINTER_VERSION = v1.38.0
+LINTER         = v1.41.0
+DEV_MARKER     = .__dev
 VERSION        ?= $(shell git describe --tags $(shell git rev-list --tags --max-count=1) 2>/dev/null || echo "dev")
 args           ?=
 pkg            ?=./...
 
 .PHONY: help
 help:
-	$(info Available targets:)
+	$(info Available tasks:)
 	$(info | build              Create binary)
-	$(info | clean              Delete binary and temp files)
+	$(info | clean              Delete binary and development files)
+	$(info | dev                Download development dependencies)
 	$(info | format             Format files using goimports)
 	$(info | help               Show this help message)
-	$(info | outdated           List outdated dependencies)
-	$(info | install            Download dependencies)
-	$(info | install-all        Download dependencies and lint)
 	$(info | lint               Run lint)
+	$(info | outdated           List outdated dependencies)
 	$(info | run [args]         Run app in development mode)
 	$(info | test [args] [pkg]  Run tests)
 	$(info | test-all           Run lint and tests)
 	$(info | test-report        Open coverage report)
-	$(info | tidy               Add missing and remove unused dependencies)
-	$(info | tools              Download tools)
 	$(info | upgrade [pkg]      Upgrade dependencies)
 
 .PHONY: clean
@@ -43,18 +42,15 @@ clean:
 	rm coverage.out 2> /dev/null || true
 	rm coverage.html 2> /dev/null || true
 
-.PHONY: tidy
-tidy:
-	go mod tidy
-
-.PHONY: install
-install:
+$(DEV_MARKER):
 	go mod download
-
-.PHONY: tools
-tools:
 	go get golang.org/x/tools/cmd/goimports
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOBIN) $(LINTER_VERSION)
+	go mod tidy
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOBIN) $(LINTER)
+	touch $(DEV_MARKER)
+
+.PHONY: dev
+dev: $(DEV_MARKER)
 
 .PHONY: outdated
 outdated:
@@ -66,30 +62,35 @@ upgrade:
 	go mod tidy
 
 .PHONY: build
-build:
+build: clean dev
 	echo "version: $(VERSION)"
-	CGO_ENABLED=0 GOARCH=amd64 go build -o $(BINARY) -ldflags '$(LDFLAGS)' ./cmd/remember
+	CGO_ENABLED=0 GOARCH=amd64 go build -o $(BINARY) -ldflags '$(LDFLAGS)' $(BINARY_DIR)
 
 .PHONY: run
-run: 
-	go run ./cmd/remember -log debug.log $(args)
+run: dev
+	go run $(BINARY_DIR) -log debug.log $(args)
 
 .PHONY: format
-format:
+format: dev
 	goimports -l -w .
 
 .PHONY: lint
-lint:
+lint: dev
 	golangci-lint run
 
 .PHONY: test
-test:
+test: dev
 	go test $(args) -v -race -cover -coverprofile=coverage.out $(pkg)
-	go tool cover -html=coverage.out -o coverage.html
-
-.PHONY: test-report
-test-report: clean test
-	xdg-open coverage.html
 
 .PHONY: test-all
 test-all: lint test
+
+.PHONY: test-report
+test-report: test
+	go tool cover -html=coverage.out -o coverage.html
+ifeq ($(UNAME_S),Linux)
+	xdg-open coverage.html
+endif
+ifeq ($(UNAME_S),Darwin)
+	open coverage.html
+endif
