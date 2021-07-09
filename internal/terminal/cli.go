@@ -15,14 +15,16 @@ const (
 	successResult    = 0
 )
 
-func CLI(args []string, version string, output io.Writer) int {
+var Version = "0.0.0-dev"
+
+func CLI(args []string, output io.Writer) int {
 	fl := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	fl.SetOutput(output)
 	fl.Usage = func() {
-		fmt.Fprintf(fl.Output(), "\nLearning things through spaced repetition.\n\n")
-		fmt.Fprintf(fl.Output(), "Usage:\n  %s [options]\n\n", args[0])
-		fmt.Fprintf(fl.Output(), "Example:\n  %s -decks ./decks/location\n\n", args[0])
-		fmt.Fprintln(fl.Output(), "Options:")
+		fmt.Fprintf(fl.Output(), "%s %s", args[0], Version)
+		fmt.Fprintf(fl.Output(), "\n\nLearning things through spaced repetition.")
+		fmt.Fprintf(fl.Output(), "\n\nUSAGE:\n  %s [options]", args[0])
+		fmt.Fprintln(fl.Output(), "\n\nOPTIONS:")
 		fl.PrintDefaults()
 	}
 	decksLocation := fl.String("decks", ".", "deck files location")
