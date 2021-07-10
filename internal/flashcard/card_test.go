@@ -9,19 +9,6 @@ import (
 	"github.com/eliostvs/remembercli/internal/flashcard"
 )
 
-var (
-	oldestCard = flashcard.Card{
-		Question:       "How do you delete a file?",
-		Answer:         "import \"os\"\n\nos.Remove(path) error",
-		EasinessFactor: 2.5,
-		Interval:       0,
-		Repetitions:    0,
-		ReviewedAt:     time.Date(2021, 1, 2, 15, 4, 5, 0, time.UTC),
-	}
-	afterOldestCard  = oldestCard.ReviewedAt.Add(24 * time.Hour)
-	beforeOldestCard = oldestCard.ReviewedAt.Add(-24 * time.Hour)
-)
-
 func TestCard_Advance(t *testing.T) {
 	now := time.Now()
 	tomorrow := now.Add(time.Hour * 24)
@@ -295,3 +282,20 @@ func TestNewReviewScore(t *testing.T) {
 		})
 	}
 }
+
+/*
+ Test Utilities
+*/
+
+var (
+	oldestCard = flashcard.Card{
+		Question:       "How do you delete a file?",
+		Answer:         "import \"os\"\n\nos.Remove(path) error",
+		EasinessFactor: 2.5,
+		Interval:       0,
+		Repetitions:    0,
+		ReviewedAt:     time.Date(2021, 1, 2, 15, 4, 5, 0, time.UTC),
+	}
+	afterOldestCard  = oldestCard.ReviewedAt.Add(24 * time.Hour)
+	beforeOldestCard = oldestCard.ReviewedAt.Add(-24 * time.Hour)
+)
