@@ -12,12 +12,6 @@ import (
 	"github.com/eliostvs/remembercli/internal/test"
 )
 
-var (
-	smallDeck   = "Golang Small"
-	largeDeck   = "Golang Large"
-	oneCardDeck = "Golang One"
-)
-
 func TestOpenDeck(t *testing.T) {
 	t.Run("returns error when deck file is invalid", func(t *testing.T) {
 		location := t.TempDir() + "/foo.toml"
@@ -36,41 +30,43 @@ func TestDeck_DueCards(t *testing.T) {
 		assert.Equal(t, []flashcard.Card{}, flashcard.Deck{}.DueCards())
 	})
 
-	tests := []struct {
-		name string
-		args time.Time
-		deck string
-		want int
-	}{
-		{
-			name: "one day after oldest card",
-			args: afterOldestCard,
-			want: 1,
-		},
-		{
-			name: "two days after oldest card",
-			args: afterOldestCard.Add(2 * time.Hour * 24),
-			want: 3,
-		},
-		{
-			name: "four days after oldest card",
-			args: afterOldestCard.Add(4 * time.Hour * 24),
-			want: 5,
-		},
-		{
-			name: "six days after oldest card",
-			args: afterOldestCard.Add(6 * time.Hour * 24),
-			want: 7,
-		},
-	}
+	t.Run("non empty deck", func(t *testing.T) {
+		tests := []struct {
+			name string
+			args time.Time
+			deck string
+			want int
+		}{
+			{
+				name: "one day after oldest card",
+				args: afterOldestCard,
+				want: 1,
+			},
+			{
+				name: "two days after oldest card",
+				args: afterOldestCard.Add(2 * time.Hour * 24),
+				want: 3,
+			},
+			{
+				name: "four days after oldest card",
+				args: afterOldestCard.Add(4 * time.Hour * 24),
+				want: 5,
+			},
+			{
+				name: "six days after oldest card",
+				args: afterOldestCard.Add(6 * time.Hour * 24),
+				want: 7,
+			},
+		}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			deck := newDeck(t, largeDeck, withTestClock(tt.args))
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				deck := newDeck(t, largeDeck, withTestClock(tt.args))
 
-			assert.Len(t, deck.DueCards(), tt.want)
-		})
-	}
+				assert.Len(t, deck.DueCards(), tt.want)
+			})
+		}
+	})
 }
 
 func TestDeck_Total(t *testing.T) {
@@ -181,7 +177,15 @@ func TestDeck_Update(t *testing.T) {
 	assert.ElementsMatch(t, newDeck.List(), []flashcard.Card{card})
 }
 
-// Test Options & Factories
+/*
+ Test Utilities
+*/
+
+var (
+	smallDeck   = "Golang Small"
+	largeDeck   = "Golang Large"
+	oneCardDeck = "Golang One"
+)
 
 type configOption func(*option)
 
