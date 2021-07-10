@@ -21,182 +21,9 @@ import (
 	"github.com/eliostvs/remembercli/internal/test"
 )
 
-const (
-	manyDecks      = "./testdata/many"
-	fewDecks       = "./testdata/few"
-	singleCardDeck = "./testdata/single"
-	emptyDeck      = "./testdata/empty"
-	noneDeck       = "./testdata/none"
-	invalidDeck    = "./testdata/invalid"
-	shortNamesDeck = "./testdata/short"
-	longNamesDeck  = "./testdata/long"
-
-	createKey   = "a"
-	quitKey     = "q"
-	studyKey    = "s"
-	skipKey     = "s"
-	deleteKey   = "x"
-	renameKey   = "r"
-	vimKeyDown  = "j"
-	vimKeyLeft  = "h"
-	vimKeyRight = "l"
-	vimKeyUp    = "k"
-	editKey     = "e"
-
-	activePrompt = "│ "
-	itemPrompt   = "• "
-)
-
-var (
-	latestCard = flashcard.Card{
-		Question:   "Question A",
-		Answer:     "Answer A",
-		ReviewedAt: time.Date(2021, 1, 8, 15, 4, 0, 0, time.UTC),
-	}
-
-	secondLatestCard = flashcard.Card{
-		Question:   "Question B",
-		Answer:     "Answer B",
-		ReviewedAt: time.Date(2021, 1, 6, 15, 4, 0, 0, time.UTC),
-	}
-
-	oldestCard = flashcard.Card{
-		Question:   "Question F",
-		Answer:     "Answer F",
-		ReviewedAt: time.Date(2021, 1, 2, 15, 4, 0, 0, time.UTC),
-	}
-)
-
-func newMsgQueue() msgQueue {
-	return msgQueue{list.New()}
-}
-
-type msgQueue struct {
-	data *list.List
-}
-
-func (q msgQueue) Enqueue(msg tea.Msg) {
-	q.data.PushBack(msg)
-}
-
-func (q msgQueue) Dequeue() tea.Msg {
-	elem := q.data.Front()
-
-	if elem == nil {
-		panic("queue is empty!")
-	}
-
-	q.data.Remove(elem)
-	return elem.Value
-}
-
-func (q msgQueue) Empty() bool {
-	return q.data.Len() == 0
-}
-
-func newTestModel(location string, opts ...terminal.ModelOption) *testModel {
-	return &testModel{
-		m: terminal.NewModel(location, append(opts, terminal.WithInitialDelay(0))...),
-		q: newMsgQueue(),
-	}
-}
-
-type testModel struct {
-	m tea.Model
-	c tea.Cmd
-	q msgQueue
-}
-
-// the tea.Batch used in the Model.init method returns a private value, batchMsg, that is a slice of Cmd,
-// so we are using the reflect package to iterate over it.
-func (m *testModel) init() *testModel {
-	return m.processMsg(m.processCmd(m.m.Init()))
-}
-
-func (m *testModel) processMsg(msgs []tea.Msg) *testModel {
-	for _, msg := range msgs {
-		m.q.Enqueue(msg)
-	}
-
-	for !m.q.Empty() {
-		msg := m.q.Dequeue()
-		if m.skip(msg) {
-			continue
-		}
-
-		m.m, m.c = m.m.Update(msg)
-		if m.c != nil {
-			for _, msg := range m.processCmd(m.c) {
-				m.q.Enqueue(msg)
-			}
-		}
-	}
-
-	return m
-}
-
-func (m *testModel) skip(msg tea.Msg) bool {
-	_, ok := msg.(spinner.TickMsg)
-	return ok
-}
-
-func (m *testModel) processCmd(cmd tea.Cmd) []tea.Msg {
-	val := reflect.ValueOf(cmd())
-
-	if val.Kind() != reflect.Slice {
-		return []tea.Msg{val.Interface()}
-	}
-
-	var msgs []tea.Msg
-	for i := 0; i < val.Len(); i++ {
-		msgs = append(msgs, val.Index(i).Call(nil)[0].Interface())
-	}
-
-	return msgs
-}
-
-func (m *testModel) SendMsg(msg tea.Msg) *testModel {
-	return m.processMsg([]tea.Msg{msg})
-}
-
-func (m *testModel) SendBatch(msgs []tea.Msg) *testModel {
-	return m.processMsg(msgs)
-}
-
-func (m *testModel) SendKeyRune(r string) *testModel {
-	return m.SendMsg(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(r)})
-}
-
-func (m *testModel) SendKeyType(t tea.KeyType) *testModel {
-	return m.SendMsg(tea.KeyMsg{Type: t})
-}
-
-func (m *testModel) SendText(text string) *testModel {
-	for _, char := range text {
-		m = m.SendKeyRune(string(char))
-	}
-	return m
-}
-
-func (m *testModel) Get() (tea.Model, tea.Cmd) {
-	return m.m, m.c
-}
-
-func (m *testModel) Peek(fn func(tea.Model)) *testModel {
-	fn(m.m)
-	return m
-}
-
-func (m *testModel) Print() *testModel {
-	return m.Peek(func(m tea.Model) { fmt.Println(m.View()) })
-}
-
-func (m *testModel) ForceUpdate(msg tea.Msg) *testModel {
-	m.m, m.c = m.m.Update(msg)
-	return m
-}
-
-// Loading
+/*
+ Loading
+*/
 
 func TestLoading(t *testing.T) {
 	t.Run("goes to home page when loading is successful", func(t *testing.T) {
@@ -236,7 +63,9 @@ func TestLoading(t *testing.T) {
 	})
 }
 
-// Error
+/*
+ Error
+*/
 
 func TestError(t *testing.T) {
 	t.Run("shows error page", func(t *testing.T) {
@@ -251,7 +80,9 @@ func TestError(t *testing.T) {
 	})
 }
 
-// Decks
+/*
+ Decks
+*/
 
 func TestDecks(t *testing.T) {
 	t.Run("shows home page with no decks", func(t *testing.T) {
@@ -720,7 +551,9 @@ func TestDeckDelete(t *testing.T) {
 	})
 }
 
-// Cards
+/*
+ Cards
+*/
 
 func TestCards(t *testing.T) {
 	t.Run("shows deck with no cards", func(t *testing.T) {
@@ -1231,7 +1064,9 @@ func TestCardDelete(t *testing.T) {
 	})
 }
 
-// Question
+/*
+ Question
+*/
 
 func TestQuestion(t *testing.T) {
 	t.Run("shows question page", func(t *testing.T) {
@@ -1350,7 +1185,9 @@ func TestQuestion(t *testing.T) {
 	})
 }
 
-// Answer
+/*
+ Answer
+*/
 
 func TestAnswer(t *testing.T) {
 	t.Run("shows answer page", func(t *testing.T) {
@@ -1484,7 +1321,9 @@ func TestAnswer(t *testing.T) {
 	})
 }
 
-// Review
+/*
+ Review
+*/
 
 func TestReview(t *testing.T) {
 	t.Run("shows review page", func(t *testing.T) {
@@ -1526,4 +1365,183 @@ func TestReview(t *testing.T) {
 
 		assert.Contains(t, m.View(), "Thanks for using RememberCLI")
 	})
+}
+
+/*
+ Test Utilities
+*/
+
+const (
+	manyDecks      = "./testdata/many"
+	fewDecks       = "./testdata/few"
+	singleCardDeck = "./testdata/single"
+	emptyDeck      = "./testdata/empty"
+	noneDeck       = "./testdata/none"
+	invalidDeck    = "./testdata/invalid"
+	shortNamesDeck = "./testdata/short"
+	longNamesDeck  = "./testdata/long"
+
+	createKey   = "a"
+	quitKey     = "q"
+	studyKey    = "s"
+	skipKey     = "s"
+	deleteKey   = "x"
+	renameKey   = "r"
+	vimKeyDown  = "j"
+	vimKeyLeft  = "h"
+	vimKeyRight = "l"
+	vimKeyUp    = "k"
+	editKey     = "e"
+
+	activePrompt = "│ "
+	itemPrompt   = "• "
+)
+
+var (
+	latestCard = flashcard.Card{
+		Question:   "Question A",
+		Answer:     "Answer A",
+		ReviewedAt: time.Date(2021, 1, 8, 15, 4, 0, 0, time.UTC),
+	}
+
+	secondLatestCard = flashcard.Card{
+		Question:   "Question B",
+		Answer:     "Answer B",
+		ReviewedAt: time.Date(2021, 1, 6, 15, 4, 0, 0, time.UTC),
+	}
+
+	oldestCard = flashcard.Card{
+		Question:   "Question F",
+		Answer:     "Answer F",
+		ReviewedAt: time.Date(2021, 1, 2, 15, 4, 0, 0, time.UTC),
+	}
+)
+
+func newMsgQueue() msgQueue {
+	return msgQueue{list.New()}
+}
+
+type msgQueue struct {
+	data *list.List
+}
+
+func (q msgQueue) Enqueue(msg tea.Msg) {
+	q.data.PushBack(msg)
+}
+
+func (q msgQueue) Dequeue() tea.Msg {
+	elem := q.data.Front()
+
+	if elem == nil {
+		panic("queue is empty!")
+	}
+
+	q.data.Remove(elem)
+	return elem.Value
+}
+
+func (q msgQueue) Empty() bool {
+	return q.data.Len() == 0
+}
+
+func newTestModel(location string, opts ...terminal.ModelOption) *testModel {
+	return &testModel{
+		m: terminal.NewModel(location, append(opts, terminal.WithInitialDelay(0))...),
+		q: newMsgQueue(),
+	}
+}
+
+type testModel struct {
+	m tea.Model
+	c tea.Cmd
+	q msgQueue
+}
+
+// the tea.Batch used in the Model.init method returns a private value, batchMsg, that is a slice of Cmd,
+// so we are using the reflect package to iterate over it.
+func (m *testModel) init() *testModel {
+	return m.processMsg(m.processCmd(m.m.Init()))
+}
+
+func (m *testModel) processMsg(msgs []tea.Msg) *testModel {
+	for _, msg := range msgs {
+		m.q.Enqueue(msg)
+	}
+
+	for !m.q.Empty() {
+		msg := m.q.Dequeue()
+		if m.skip(msg) {
+			continue
+		}
+
+		m.m, m.c = m.m.Update(msg)
+		if m.c != nil {
+			for _, msg := range m.processCmd(m.c) {
+				m.q.Enqueue(msg)
+			}
+		}
+	}
+
+	return m
+}
+
+func (m *testModel) skip(msg tea.Msg) bool {
+	_, ok := msg.(spinner.TickMsg)
+	return ok
+}
+
+func (m *testModel) processCmd(cmd tea.Cmd) []tea.Msg {
+	val := reflect.ValueOf(cmd())
+
+	if val.Kind() != reflect.Slice {
+		return []tea.Msg{val.Interface()}
+	}
+
+	var msgs []tea.Msg
+	for i := 0; i < val.Len(); i++ {
+		msgs = append(msgs, val.Index(i).Call(nil)[0].Interface())
+	}
+
+	return msgs
+}
+
+func (m *testModel) SendMsg(msg tea.Msg) *testModel {
+	return m.processMsg([]tea.Msg{msg})
+}
+
+func (m *testModel) SendBatch(msgs []tea.Msg) *testModel {
+	return m.processMsg(msgs)
+}
+
+func (m *testModel) SendKeyRune(r string) *testModel {
+	return m.SendMsg(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(r)})
+}
+
+func (m *testModel) SendKeyType(t tea.KeyType) *testModel {
+	return m.SendMsg(tea.KeyMsg{Type: t})
+}
+
+func (m *testModel) SendText(text string) *testModel {
+	for _, char := range text {
+		m = m.SendKeyRune(string(char))
+	}
+	return m
+}
+
+func (m *testModel) Get() (tea.Model, tea.Cmd) {
+	return m.m, m.c
+}
+
+func (m *testModel) Peek(fn func(tea.Model)) *testModel {
+	fn(m.m)
+	return m
+}
+
+func (m *testModel) Print() *testModel {
+	return m.Peek(func(m tea.Model) { fmt.Println(m.View()) })
+}
+
+func (m *testModel) ForceUpdate(msg tea.Msg) *testModel {
+	m.m, m.c = m.m.Update(msg)
+	return m
 }
