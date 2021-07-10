@@ -206,7 +206,7 @@ func TestDecks(t *testing.T) {
 			SendKeyRune(quitKey).
 			Get()
 
-		assert.Contains(t, m.View(), "Thanks for using RememberCLI!")
+		assert.Contains(t, m.View(), "Thanks for using Remember CLI!")
 	})
 
 	t.Run("ignores actions when there are no decks", func(t *testing.T) {
@@ -514,7 +514,7 @@ func TestDeckDelete(t *testing.T) {
 			SendKeyRune(quitKey).
 			Get()
 
-		assert.Contains(t, m.View(), "Thanks for using RememberCLI!")
+		assert.Contains(t, m.View(), "Thanks for using Remember CLI!")
 	})
 
 	t.Run("goes to home page when deck is deleted", func(t *testing.T) {
@@ -735,7 +735,7 @@ func TestCards(t *testing.T) {
 			SendKeyRune(quitKey).
 			Get()
 
-		assert.Contains(t, m.View(), "Thanks for using RememberCLI!")
+		assert.Contains(t, m.View(), "Thanks for using Remember CLI!")
 	})
 }
 
@@ -1060,7 +1060,7 @@ func TestCardDelete(t *testing.T) {
 			SendKeyRune(quitKey).
 			Get()
 
-		assert.Contains(t, m.View(), "Thanks for using RememberCLI!")
+		assert.Contains(t, m.View(), "Thanks for using Remember CLI!")
 	})
 }
 
@@ -1135,7 +1135,7 @@ func TestQuestion(t *testing.T) {
 			SendKeyRune(quitKey).
 			Get()
 
-		assert.Contains(t, m.View(), "Thanks for using RememberCLI!")
+		assert.Contains(t, m.View(), "Thanks for using Remember CLI!")
 	})
 
 	t.Run("skips the current card", func(t *testing.T) {
@@ -1317,7 +1317,7 @@ func TestAnswer(t *testing.T) {
 			SendKeyRune(quitKey).
 			Get()
 
-		assert.Contains(t, m.View(), "Thanks for using RememberCLI!")
+		assert.Contains(t, m.View(), "Thanks for using Remember CLI!")
 	})
 }
 
@@ -1363,7 +1363,7 @@ func TestReview(t *testing.T) {
 			SendKeyRune(quitKey).
 			Get()
 
-		assert.Contains(t, m.View(), "Thanks for using RememberCLI")
+		assert.Contains(t, m.View(), "Thanks for using Remember CLI")
 	})
 }
 
