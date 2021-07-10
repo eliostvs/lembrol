@@ -24,7 +24,7 @@ func (s reviewStatus) template() string {
 	}[s]
 }
 
-func newReviewModel(review *flashcard.Review, repository *flashcard.Repository) reviewModel {
+func newReviewModel(review flashcard.Review, repository *flashcard.Repository) reviewModel {
 	return reviewModel{
 		Review:     review,
 		repository: repository,
@@ -32,7 +32,7 @@ func newReviewModel(review *flashcard.Review, repository *flashcard.Repository) 
 }
 
 type reviewModel struct {
-	Review *flashcard.Review
+	Review flashcard.Review
 
 	repository *flashcard.Repository
 	status     reviewStatus
@@ -48,9 +48,11 @@ func (m reviewModel) Template() string {
 
 type (
 	scoredMsg struct {
-		*flashcard.Review
+		flashcard.Review
 	}
-	reviewedMsg struct{}
+	reviewedMsg struct {
+		flashcard.Review
+	}
 )
 
 // nolint:cyclop
@@ -62,6 +64,7 @@ func (m reviewModel) Update(msg tea.Msg) (reviewModel, tea.Cmd) {
 		return m, nil
 
 	case reviewedMsg:
+		m.Review = msg.Review
 		m.status = reviewFinished
 		return m, nil
 
@@ -89,7 +92,7 @@ func (m reviewModel) Update(msg tea.Msg) (reviewModel, tea.Cmd) {
 
 		case "0", "1", "2", "3", "4":
 			if m.status == reviewAnswer {
-				return m, scoreCard(m.repository, m.Review, msg.String())
+				return m, scoreCard(msg.String(), m.Review, m.repository)
 			}
 		}
 	}
@@ -97,23 +100,24 @@ func (m reviewModel) Update(msg tea.Msg) (reviewModel, tea.Cmd) {
 	return m, nil
 }
 
-func skipCard(review *flashcard.Review) tea.Cmd {
+func skipCard(review flashcard.Review) tea.Cmd {
 	return func() tea.Msg {
-		if err := review.Skip(); err != nil {
+		review, err := review.Skip()
+		if err != nil {
 			return failed(err)
 		}
-		return scoredMsg{Review: review}
+		return scoredMsg{review}
 	}
 }
 
-func scoreCard(repo *flashcard.Repository, review *flashcard.Review, input string) tea.Cmd {
+func scoreCard(input string, review flashcard.Review, repo *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		score, err := flashcard.NewReviewScore(input)
 		if err != nil {
 			return failed(err)
 		}
 
-		stats, err := review.Rate(score)
+		stats, review, err := review.Rate(score)
 		if err != nil {
 			return failed(err)
 		}
@@ -127,9 +131,9 @@ func scoreCard(repo *flashcard.Repository, review *flashcard.Review, input strin
 		}
 
 		if review.Left() == 0 {
-			return reviewedMsg{}
+			return reviewedMsg{review}
 		}
 
-		return scoredMsg{Review: review}
+		return scoredMsg{review}
 	}
 }
