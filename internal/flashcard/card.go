@@ -50,6 +50,8 @@ const (
 	hoursPerDay       = 24
 )
 
+// Stats is the revised card statistics.
+// Each algorithm will have a different format, but all must be able to serialize to json.
 type Stats interface {
 	json.Marshaler
 }
