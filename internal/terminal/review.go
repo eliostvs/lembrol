@@ -47,7 +47,9 @@ func (m reviewModel) Template() string {
 // UPDATE
 
 type (
-	scoredMsg   struct{}
+	scoredMsg struct {
+		*flashcard.Review
+	}
 	reviewedMsg struct{}
 )
 
@@ -55,6 +57,7 @@ type (
 func (m reviewModel) Update(msg tea.Msg) (reviewModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case scoredMsg:
+		m.Review = msg.Review
 		m.status = reviewQuestion
 		return m, nil
 
@@ -99,7 +102,7 @@ func skipCard(review *flashcard.Review) tea.Cmd {
 		if err := review.Skip(); err != nil {
 			return failed(err)
 		}
-		return nil
+		return scoredMsg{Review: review}
 	}
 }
 
@@ -127,6 +130,6 @@ func scoreCard(repo *flashcard.Repository, review *flashcard.Review, input strin
 			return reviewedMsg{}
 		}
 
-		return scoredMsg{}
+		return scoredMsg{Review: review}
 	}
 }
