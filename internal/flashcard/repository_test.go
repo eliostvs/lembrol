@@ -13,12 +13,6 @@ import (
 	"github.com/eliostvs/remembercli/internal/test"
 )
 
-var (
-	manyDecksLocation   = "./testdata/many"
-	emptyDeckLocation   = "./testdata/empty"
-	invalidDeckLocation = "./testdata/invalid"
-)
-
 func TestNewDeckRepository(t *testing.T) {
 	t.Run("returns error deck format is invalid", func(t *testing.T) {
 		repo, err := flashcard.NewRepository(invalidDeckLocation, nil)
@@ -243,6 +237,16 @@ func TestRepository_SaveStats(t *testing.T) {
 		assert.Equal(t, want, string(stats))
 	})
 }
+
+/*
+ Test Utilities
+*/
+
+var (
+	manyDecksLocation   = "./testdata/many"
+	emptyDeckLocation   = "./testdata/empty"
+	invalidDeckLocation = "./testdata/invalid"
+)
 
 type customString string
 
