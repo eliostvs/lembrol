@@ -15,56 +15,43 @@ func TestNewReview(t *testing.T) {
 	tests := []struct {
 		name  string
 		clock flashcard.Clock
+		deck  string
 		want  int
 	}{
 		{
 			name:  "when deck has no due cards",
 			clock: test.NewClock(beforeOldestCard),
+			deck:  largeDeck,
 			want:  0,
 		},
 		{
 			name:  "when deck has due cards",
 			clock: flashcard.NewClock(),
+			deck:  largeDeck,
 			want:  7,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			review := flashcard.NewReview(newDeck(t, largeDeck, func(o *option) {
+			review := flashcard.NewReview(newDeck(t, tt.deck, func(o *option) {
 				o.clock = tt.clock
 			}), tt.clock)
 
 			assert.Equal(t, tt.want, review.Left())
+			assert.Equal(t, tt.deck, review.Deck().Name)
 		})
 	}
 }
 
-func TestReview_CurrentCard(t *testing.T) {
-	t.Run("returns card when session has cards", func(t *testing.T) {
-		review := newReview(t, largeDeck)
-		card, err := review.CurrentCard()
-
-		assert.NoError(t, err)
-		assert.NotNil(t, card)
-	})
-
-	t.Run("returns error when session has not due cards", func(t *testing.T) {
-		review := newReview(t, largeDeck, withTestClock(beforeOldestCard))
-		card, err := review.CurrentCard()
-
-		assert.Equal(t, flashcard.Card{}, card)
-		assert.Error(t, err)
-	})
-}
-
 func TestReview_Rate(t *testing.T) {
-	t.Run("return error when queue is empty", func(t *testing.T) {
+	t.Run("returns error when queue is empty", func(t *testing.T) {
 		review := newReview(t, smallDeck, withTestClock(beforeOldestCard))
 
-		stats, err := review.Rate(flashcard.ReviewScoreNormal)
+		stats, review, err := review.Rate(flashcard.ReviewScoreNormal)
 
-		assert.Error(t, err)
 		assert.Nil(t, stats)
+		assert.Equal(t, flashcard.Review{}, review)
+		assert.ErrorIs(t, err, flashcard.ErrEmptyReview)
 	})
 
 	t.Run("advances card", func(t *testing.T) {
@@ -127,63 +114,34 @@ func TestReview_Rate(t *testing.T) {
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				review := newReview(t, tt.args.deck, withTestClock(tt.args.time))
+				card, _ := review.CurrentCard()
 
-				_, err := review.Rate(tt.args.score)
+				assert.Contains(t, review.Deck().DueCards(), card)
+				stats, newReview, err := review.Rate(tt.args.score)
+
+				if tt.args.score == flashcard.ReviewScoreAgain {
+					assert.Nil(t, stats)
+				} else {
+					assert.NotNil(t, stats)
+				}
+
 				assert.NoError(t, err)
-
-				assert.Equal(t, tt.want.left, review.Left())
-				assert.Equal(t, tt.want.current, review.Current())
-				assert.Equal(t, tt.want.total, review.Total())
-				assert.Equal(t, tt.want.completed, review.Completed())
+				assert.Equal(t, tt.want.left, newReview.Left())
+				assert.Equal(t, tt.want.current, newReview.Current())
+				assert.Equal(t, tt.want.total, newReview.Total())
+				assert.Equal(t, tt.want.completed, newReview.Completed())
 			})
 		}
 	})
-
-	t.Run("updates deck", func(t *testing.T) {
-		review := newReview(t, oneCardDeck, withTestClock(time.Now()))
-
-		_, err := review.Rate(flashcard.ReviewScoreHard)
-		assert.NoError(t, err)
-
-		card := review.Deck().List()[0]
-		assert.True(t, card.ReviewedAt.After(oldestCard.ReviewedAt))
-	})
-}
-
-func TestReview_Deck(t *testing.T) {
-	tests := []struct {
-		name string
-		args string
-		want string
-	}{
-		{
-			name: "small deck",
-			args: smallDeck,
-			want: "Golang Small",
-		},
-		{
-			name: "large deck",
-			args: largeDeck,
-			want: "Golang Large",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			review := newReview(t, tt.args)
-
-			got := review.Deck()
-
-			require.NotNil(t, got)
-			assert.Equal(t, tt.want, got.Name)
-		})
-	}
 }
 
 func TestReview_Skip(t *testing.T) {
-	t.Run("returns error when session has not due cards", func(t *testing.T) {
+	t.Run("returns error when queue is empty", func(t *testing.T) {
 		review := newReview(t, largeDeck, withTestClock(beforeOldestCard))
-		err := review.Skip()
 
+		review, err := review.Skip()
+
+		assert.Equal(t, flashcard.Review{}, review)
 		assert.ErrorIs(t, err, flashcard.ErrEmptyReview)
 	})
 
@@ -191,24 +149,33 @@ func TestReview_Skip(t *testing.T) {
 		review := newReview(t, smallDeck)
 		card, _ := review.CurrentCard()
 
-		assert.NoError(t, review.Skip())
+		review, err := review.Skip()
+		require.NoError(t, err)
+
 		nextCard, _ := review.CurrentCard()
 		assert.NotEqual(t, card, nextCard)
 
-		assert.NoError(t, review.Skip())
-		assert.NoError(t, review.Skip())
+		review, err = review.Skip()
+		require.NoError(t, err)
+		review, err = review.Skip()
+		require.NoError(t, err)
+
 		nextCard, _ = review.CurrentCard()
 		assert.Equal(t, card, nextCard)
 	})
 }
 
-func newReview(t *testing.T, deckName string, cfgOpts ...configOption) *flashcard.Review {
+/*
+ Test Utilities
+*/
+
+func newReview(t *testing.T, deck string, configs ...configOption) flashcard.Review {
 	t.Helper()
 
 	opts := option{clock: flashcard.NewClock()}
-	for _, cfg := range cfgOpts {
-		cfg(&opts)
+	for _, config := range configs {
+		config(&opts)
 	}
 
-	return flashcard.NewReview(newDeck(t, deckName, cfgOpts...), opts.clock)
+	return flashcard.NewReview(newDeck(t, deck, configs...), opts.clock)
 }

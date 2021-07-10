@@ -11,10 +11,10 @@ var ErrEmptyReview = errors.New("no cards in queue")
 
 // NewReview returns a new Review from a given a deck.
 // It get the due cards from the deck an shuffle them.
-func NewReview(deck Deck, clock Clock) *Review {
+func NewReview(deck Deck, clock Clock) Review {
 	dueCards := deck.DueCards()
 	shuffle(dueCards)
-	return &Review{queue: dueCards, deck: deck, clock: clock}
+	return Review{queue: dueCards, deck: deck, clock: clock}
 }
 
 func shuffle(cards []Card) {
@@ -31,17 +31,17 @@ type Review struct {
 }
 
 // Total returns the number of cards in the review session.
-func (r *Review) Total() int {
+func (r Review) Total() int {
 	return r.completed + r.Left()
 }
 
 // Left returns the number of cards left to review.
-func (r *Review) Left() int {
+func (r Review) Left() int {
 	return len(r.queue)
 }
 
 // Current returns the number of cards already reviewed.
-func (r *Review) Current() int {
+func (r Review) Current() int {
 	if r.completed == r.Total() {
 		return r.Total()
 	}
@@ -49,44 +49,44 @@ func (r *Review) Current() int {
 }
 
 // Completed returns the number of cards already reviewed.
-func (r *Review) Completed() int {
+func (r Review) Completed() int {
 	return r.completed
 }
 
-func (r *Review) Rate(score ReviewScore) (Stats, error) {
+func (r Review) Rate(score ReviewScore) (Stats, Review, error) {
 	card, err := r.CurrentCard()
 	if err != nil {
-		return nil, err
+		return nil, Review{}, err
 	}
 
 	if score == ReviewScoreAgain {
 		r.queue = r.queue[1:]
 		r.queue = append(r.queue, card)
-		return nil, nil
+		return nil, r, nil
 	}
 
 	card, stats := card.Advance(r.clock.Now(), score)
 	r.queue = r.queue[1:]
 	r.completed++
 	r.deck = r.deck.Change(card)
-	return stats, nil
+	return stats, r, nil
 }
 
 // Skip moves the current card to the end of the queue.
-func (r *Review) Skip() error {
+func (r Review) Skip() (Review, error) {
 	card, err := r.CurrentCard()
 	if err != nil {
-		return err
+		return Review{}, err
 	}
 
 	r.queue = r.queue[1:]
 	r.queue = append(r.queue, card)
 
-	return nil
+	return r, nil
 }
 
 // CurrentCard returns the card being reviewed.
-func (r *Review) CurrentCard() (Card, error) {
+func (r Review) CurrentCard() (Card, error) {
 	if len(r.queue) == 0 {
 		return Card{}, ErrEmptyReview
 	}
@@ -94,6 +94,6 @@ func (r *Review) CurrentCard() (Card, error) {
 }
 
 // Deck returns the deck being reviewed.
-func (r *Review) Deck() Deck {
+func (r Review) Deck() Deck {
 	return r.deck
 }
