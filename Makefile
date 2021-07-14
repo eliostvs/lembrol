@@ -44,8 +44,7 @@ clean:
 
 $(DEV_MARKER):
 	go mod download
-	go get golang.org/x/tools/cmd/goimports
-	go mod tidy
+	go install golang.org/x/tools/cmd/goimports@latest
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOBIN) $(LINTER)
 	touch $(DEV_MARKER)
 
