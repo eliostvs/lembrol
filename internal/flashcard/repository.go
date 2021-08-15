@@ -181,10 +181,12 @@ func (r *Repository) SaveStats(stats Stats) error {
 	if err != nil {
 		return fmt.Errorf("marshal stats: %w", err)
 	}
+
 	f, err := os.OpenFile(r.statsPath(), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("open stats file: %w", err)
 	}
+
 	_, err = f.Write(append(data, '\n'))
 	if err1 := f.Close(); err1 != nil && err == nil {
 		err = err1
@@ -192,6 +194,7 @@ func (r *Repository) SaveStats(stats Stats) error {
 	if err != nil {
 		return fmt.Errorf("write stats: %w", err)
 	}
+
 	return nil
 }
 
