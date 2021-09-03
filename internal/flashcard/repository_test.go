@@ -171,7 +171,6 @@ func TestDeckRepository_Remove(t *testing.T) {
 	t.Run("return error when remove resource fails", func(t *testing.T) {
 		location, cleanup := test.TempReadOnlyDirCopy(t, manyDecksLocation)
 		t.Cleanup(cleanup)
-
 		repo := newRepository(t, location)
 		deck, _ := repo.Open(smallDeck)
 
@@ -212,25 +211,27 @@ func TestDeckRepository_Total(t *testing.T) {
 
 func TestRepository_SaveStats(t *testing.T) {
 	t.Run("returns error when save stats fail", func(t *testing.T) {
-		dirCopy, cleanup := test.TempReadOnlyDirCopy(t, t.TempDir())
-		defer cleanup()
-		repo := newRepository(t, dirCopy)
-		stats := flashcard.SM2Stats{}
+		location, cleanup := test.TempReadOnlyDirCopy(t, manyDecksLocation)
+		t.Cleanup(cleanup)
+		repo := newRepository(t, location)
+		deck, _ := repo.Open(smallDeck)
+		var stats flashcard.SM2Stats
 
-		err := repo.SaveStats(&stats)
+		err := repo.SaveStats(deck, &stats)
 
 		assert.Error(t, err)
 	})
 
 	t.Run("save stats to disk", func(t *testing.T) {
-		location := t.TempDir()
+		location := test.TempDirCopy(t, manyDecksLocation)
 		repo := newRepository(t, location)
+		deck, _ := repo.Open(smallDeck)
 
 		s := customString("json")
-		err := repo.SaveStats(&s)
+		err := repo.SaveStats(deck, &s)
 		assert.NoError(t, err)
 
-		stats, err := os.ReadFile(filepath.Join(location, "stats.jsonl"))
+		stats, err := os.ReadFile(filepath.Join(location, "golang-small-stats.jsonl"))
 		require.NoError(t, err)
 		want := `"json"
 `

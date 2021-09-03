@@ -176,13 +176,13 @@ func (r *Repository) Remove(deck Deck) error {
 }
 
 // SaveStats writes stats to disk.
-func (r *Repository) SaveStats(stats Stats) error {
+func (r *Repository) SaveStats(deck Deck, stats Stats) error {
 	data, err := stats.MarshalJSON()
 	if err != nil {
 		return fmt.Errorf("marshal stats: %w", err)
 	}
 
-	f, err := os.OpenFile(r.statsPath(), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(r.statsPath(deck), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("open stats file: %w", err)
 	}
@@ -198,6 +198,6 @@ func (r *Repository) SaveStats(stats Stats) error {
 	return nil
 }
 
-func (r *Repository) statsPath() string {
-	return filepath.Join(r.directory, "stats.jsonl")
+func (r *Repository) statsPath(d Deck) string {
+	return filepath.Join(r.directory, slugify.Slugify(d.Name)+"-stats.jsonl")
 }

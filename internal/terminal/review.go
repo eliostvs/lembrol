@@ -127,7 +127,9 @@ func scoreCard(input string, review flashcard.Review, repo *flashcard.Repository
 		}
 
 		if stats != nil {
-			_ = repo.SaveStats(stats)
+			if err := repo.SaveStats(review.Deck(), stats); err != nil {
+				return failed(err)
+			}
 		}
 
 		if review.Left() == 0 {
