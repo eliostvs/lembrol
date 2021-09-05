@@ -41,6 +41,10 @@ func (f field) View() string {
 	return f.model.View()
 }
 
+func (f field) Value() string {
+	return f.model.Value()
+}
+
 // Form Type
 
 func submit(f form) tea.Cmd {
@@ -108,7 +112,7 @@ func (f form) isValid() bool {
 func (f form) Value(name string) string {
 	for _, field := range f.fields {
 		if field.Match(name) {
-			return field.model.Value()
+			return field.Value()
 		}
 	}
 	return ""
