@@ -353,7 +353,7 @@ func TestDeckRename(t *testing.T) {
 			SendKeyType(tea.KeyRight).
 			SendKeyRune(renameKey).
 			SendKeyType(tea.KeyBackspace).
-			SendKeyRune("q").
+			SendKeyRune("Q").
 			SendKeyType(tea.KeyEnter).
 			Get()
 
@@ -361,7 +361,7 @@ func TestDeckRename(t *testing.T) {
 
 		assert.Contains(t, view, "Decks")
 		assert.NotContains(t, view, "Rename this deck?")
-		assert.Contains(t, view, activePrompt+itemPrompt+"Golang q")
+		assert.Contains(t, view, activePrompt+itemPrompt+"Golang Q")
 	})
 
 	t.Run("goes to error page when deck rename fails", func(t *testing.T) {
