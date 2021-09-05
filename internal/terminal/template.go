@@ -15,7 +15,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dustin/go-humanize"
 	"github.com/muesli/reflow/truncate"
-	"github.com/muesli/reflow/wordwrap"
 
 	"github.com/eliostvs/remembercli/internal/flashcard"
 )
@@ -54,7 +53,6 @@ var (
 		"markdown":    Markdown,
 		"yesno":       yesno,
 		"pluralize":   pluralize,
-		"wrap":        wrap,
 		"truncate":    truncateTag,
 		"currentDeck": currentDeck,
 		"hasDecks":    hasDecks,
@@ -116,10 +114,6 @@ func pluralize(val int, suffix string) string {
 		return suffix
 	}
 	return ""
-}
-
-func wrap(width int, s string) string {
-	return wordwrap.String(s, width)
 }
 
 func truncateTag(width int, s string) string {
