@@ -2,11 +2,11 @@ ifeq ($(origin .RECIPEPREFIX), undefined)
   $(error This Make does not support .RECIPEPREFIX. Please use GNU Make 4.0 or later)
 endif
 
+.DEFAULT_GOAL  = help
 .DELETE_ON_ERROR:
 .ONESHELL:
-.SILENT:
 .SHELLFLAGS    := -eu -o pipefail -c
-.DEFAULT_GOAL  = help
+.SILENT:
 MAKEFLAGS      += --no-builtin-rules
 MAKEFLAGS      += --warn-undefined-variables
 SHELL          = bash
