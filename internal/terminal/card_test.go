@@ -316,7 +316,7 @@ func TestCardEdit(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			init().
 			SendKeyType(tea.KeyEnter).
-			SendKeyRune("e").
+			SendKeyRune(editKey).
 			Get()
 
 		view := m.View()
