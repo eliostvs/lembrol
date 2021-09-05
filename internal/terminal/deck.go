@@ -101,7 +101,7 @@ func (m deckModel) Update(msg tea.Msg) (deckModel, tea.Cmd) {
 		case "a":
 			if m.status == deckBrowsing {
 				m.status = deckCreating
-				m.Form = initDeckForm("", "> ")
+				m.Form = createDeckForm("", "> ")
 				return m, textinput.Blink
 			}
 
@@ -113,7 +113,7 @@ func (m deckModel) Update(msg tea.Msg) (deckModel, tea.Cmd) {
 		case "r":
 			if m.status == deckBrowsing && hasDecks {
 				m.status = deckEditing
-				m.Form = initDeckForm(currentDeck.Name, " ")
+				m.Form = createDeckForm(currentDeck.Name, " ")
 				return m, textinput.Blink
 			}
 
@@ -189,7 +189,7 @@ func removeDeck(original []flashcard.Deck, deleted flashcard.Deck) (decks []flas
 	return decks
 }
 
-func initDeckForm(name, prompt string) form {
+func createDeckForm(name, prompt string) form {
 	input := textinput.NewModel()
 	input.CharLimit = 30
 	input.SetValue(name)
