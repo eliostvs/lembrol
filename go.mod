@@ -7,9 +7,9 @@ require (
 	github.com/avelino/slugify v0.0.0-20180501145920-855f152bd774
 	github.com/charmbracelet/bubbles v0.8.0
 	github.com/charmbracelet/bubbletea v0.14.1
+	github.com/charmbracelet/glamour v0.3.0
 	github.com/charmbracelet/lipgloss v0.3.0
 	github.com/containerd/console v1.0.2 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/mattn/go-isatty v0.0.13 // indirect
