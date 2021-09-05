@@ -27,6 +27,14 @@ func (f field) Blur() field {
 	return f
 }
 
+func (f field) Update(msg tea.Msg) (field, tea.Cmd) {
+	var cmd tea.Cmd
+	f.model, cmd = f.model.Update(msg)
+	return f, cmd
+}
+
+// Form Type
+
 func submit(f form) tea.Cmd {
 	return func() tea.Msg {
 		return submittedFormMsg{f}
@@ -140,11 +148,11 @@ func (f form) Update(msg tea.Msg) (form, tea.Cmd) {
 func (f form) updateFields(msg tea.Msg) (form, tea.Cmd) {
 	var (
 		cmds []tea.Cmd
+		cmd  tea.Cmd
 	)
 
 	for i := range f.fields {
-		var cmd tea.Cmd
-		f.fields[i].model, cmd = f.fields[i].model.Update(msg)
+		f.fields[i], cmd = f.fields[i].Update(msg)
 		if cmd != nil {
 			cmds = append(cmds, cmd)
 		}
