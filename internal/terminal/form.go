@@ -14,6 +14,19 @@ type field struct {
 	model textinput.Model
 }
 
+func (f field) Focus() (field, tea.Cmd) {
+	f.model.PromptStyle = Fuchsia
+	f.model.TextStyle = Fuchsia
+	return f, f.model.Focus()
+}
+
+func (f field) Blur() field {
+	f.model.PromptStyle = DarkFuchsia
+	f.model.TextStyle = DarkFuchsia
+	f.model.Blur()
+	return f
+}
+
 func submit(f form) tea.Cmd {
 	return func() tea.Msg {
 		return submittedFormMsg{f}
@@ -41,13 +54,9 @@ func (f form) Focus(index int) (form, tea.Cmd) {
 
 	for i := range f.fields {
 		if i == index {
-			f.fields[i].model.PromptStyle = Fuchsia
-			f.fields[i].model.TextStyle = Fuchsia
-			cmd = f.fields[i].model.Focus()
+			f.fields[i], cmd = f.fields[i].Focus()
 		} else {
-			f.fields[i].model.PromptStyle = DarkFuchsia
-			f.fields[i].model.TextStyle = DarkFuchsia
-			f.fields[i].model.Blur()
+			f.fields[i] = f.fields[i].Blur()
 		}
 	}
 
