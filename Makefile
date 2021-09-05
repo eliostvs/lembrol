@@ -13,12 +13,19 @@ SHELL          = bash
 
 BINARY         = remember
 BINARY_DIR     = ./cmd/$(BINARY)
+DEV_MARKER     = .__dev
 LDFLAGS        += -X "main.version=${VERSION}"
 LINTER         = v1.41.1
-DEV_MARKER     = .__dev
+OSFLAG         ?=
 VERSION        ?= $(shell git describe --tags $(shell git rev-list --tags --max-count=1) 2>/dev/null || echo "dev")
 args           ?=
 pkg            ?=./...
+
+ifeq ($(OS),Windows_NT)
+	OSFLAG = "windows"
+else
+	OSFLAG = $(shell uname -s)
+endif
 
 .PHONY: help
 help:
@@ -87,9 +94,9 @@ test-all: lint test
 .PHONY: test-report
 test-report: test
 	go tool cover -html=coverage.out -o coverage.html
-ifeq ($(UNAME_S),Linux)
+ifeq ($(OSFLAG),Linux)
 	xdg-open coverage.html
 endif
-ifeq ($(UNAME_S),Darwin)
+ifeq ($(OSFLAG),Darwin)
 	open coverage.html
 endif
