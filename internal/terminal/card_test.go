@@ -414,6 +414,30 @@ func TestCardEdit(t *testing.T) {
 			assert.Contains(t, m.View(), "Edit Card")
 		})
 	})
+
+	t.Run("Write multiline text", func(t *testing.T) {
+		m, _ := newTestModel(test.TempDirCopy(t, emptyDeck)).
+			init().
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune(createKey).
+			SendText("Question first line").
+			SendMsg(breakLineMsg).
+			SendText("Question second line").
+			SendKeyType(tea.KeyDown).
+			SendText("Answer first line").
+			SendMsg(breakLineMsg).
+			SendText("Answer second line").
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune(editKey).
+			Get()
+
+		view := m.View()
+
+		assert.Contains(t, view, "> Question first line")
+		assert.Contains(t, view, "> Question second line")
+		assert.Contains(t, view, "> Answer first line")
+		assert.Contains(t, view, "> Answer second line")
+	})
 }
 
 func TestCardDelete(t *testing.T) {

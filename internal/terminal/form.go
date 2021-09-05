@@ -5,13 +5,37 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func newField(name string, model textinput.Model) field {
-	return field{name: name, model: model}
+// Field Type
+
+type fieldOption func(field) field
+
+func withMultiline() fieldOption {
+	return func(f field) field {
+		f.multiline = true
+		return f
+	}
+}
+
+func withPrefix(prefix string) fieldOption {
+	return func(f field) field {
+		f.prefix = prefix
+		return f
+	}
+}
+
+func newField(name string, model textinput.Model, options ...fieldOption) field {
+	f := field{name: name, model: model}
+	for _, option := range options {
+		f = option(f)
+	}
+	return f
 }
 
 type field struct {
-	name  string
-	model textinput.Model
+	name      string
+	model     textinput.Model
+	multiline bool
+	prefix    string
 }
 
 func (f field) Focus() (field, tea.Cmd) {
@@ -42,7 +66,19 @@ func (f field) IsValid() bool {
 }
 
 func (f field) View() string {
-	return f.model.View()
+	return decodeMultiline(f.model.View(), f.prefix)
+}
+
+func (f field) Focused() bool {
+	return f.model.Focused()
+}
+
+func (f field) BreakLine() field {
+	if !f.multiline {
+		return f
+	}
+	f.model, _ = f.model.Update(encodedEnterMsg)
+	return f
 }
 
 func (f field) Value() string {
@@ -150,6 +186,14 @@ func (f form) Update(msg tea.Msg) (form, tea.Cmd) {
 
 		case "tab", tea.KeyDown.String():
 			return f.Next()
+
+		case "alt+enter":
+			for i := range f.fields {
+				if f.fields[i].Focused() {
+					f.fields[i] = f.fields[i].BreakLine()
+					return f, nil
+				}
+			}
 
 		case tea.KeyEnter.String():
 			if f.isValid() {

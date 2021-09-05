@@ -11,6 +11,8 @@ import (
 
 type cardStatus int
 
+const editCardFieldPrefix = "   > "
+
 const (
 	cardBrowsing cardStatus = iota
 	cardCreating
@@ -221,8 +223,8 @@ func createCardForm(question, answer string, width int) (form, tea.Cmd) {
 	answerInput.Blur()
 
 	return newForm(
-		newField("question", questionInput),
-		newField("answer", answerInput),
+		newField("question", questionInput, withMultiline(), withPrefix(editCardFieldPrefix)),
+		newField("answer", answerInput, withMultiline(), withPrefix(editCardFieldPrefix)),
 	), cmd
 }
 

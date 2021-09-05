@@ -377,6 +377,22 @@ func TestDeckRename(t *testing.T) {
 
 		assert.Contains(t, m.View(), "Error")
 	})
+
+	t.Run("Don't write multiline text", func(t *testing.T) {
+		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
+			init().
+			SendKeyRune(renameKey).
+			SendKeyType(tea.KeyBackspace).
+			SendMsg(breakLineMsg).
+			SendMsg(breakLineMsg).
+			SendKeyRune("Q").
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune(renameKey).
+			Print().
+			Get()
+
+		assert.Contains(t, m.View(), "Golang Q")
+	})
 }
 
 func TestDeckDelete(t *testing.T) {

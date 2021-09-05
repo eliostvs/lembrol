@@ -10,6 +10,7 @@ import (
 	"text/template"
 	"time"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dustin/go-humanize"
@@ -22,7 +23,11 @@ import (
 //go:embed templates
 var files embed.FS
 
+const encodedEnter = "¬"
+
 var (
+	encodedEnterMsg = tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(encodedEnter)}
+
 	title = lipgloss.NewStyle().
 		Foreground(lipgloss.AdaptiveColor{Dark: "#FFFDF5", Light: "#FFFDF5"}).
 		Background(lipgloss.Color("#5A56E0")).
@@ -81,13 +86,17 @@ func styleTag(name, s string) string {
 	}
 }
 
+func decodeMultiline(content, prefix string) string {
+	return strings.Replace(content, encodedEnter, "\n"+prefix, -1)
+}
+
 func Markdown(width int, in string) (string, error) {
 	r, _ := glamour.NewTermRenderer(
 		glamour.WithEnvironmentConfig(),
 		glamour.WithWordWrap(width),
 	)
 
-	lines, err := r.Render(in)
+	lines, err := r.Render(decodeMultiline(in, ""))
 	if err != nil {
 		return "", err
 	}

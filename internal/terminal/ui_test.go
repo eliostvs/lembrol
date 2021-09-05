@@ -31,6 +31,8 @@ func TestMain(m *testing.M) {
  Test Utilities
 */
 
+var breakLineMsg = tea.KeyMsg{Type: tea.KeyEnter, Alt: true}
+
 func assertContainsMarkdown(t *testing.T, contains string, width int, content string) {
 	t.Helper()
 	content, _ = terminal.Markdown(width-terminal.HorizontalPadding, content)
