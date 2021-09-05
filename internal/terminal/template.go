@@ -10,6 +10,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dustin/go-humanize"
 	"github.com/muesli/reflow/truncate"
@@ -45,7 +46,7 @@ var (
 		"help":        helpTag,
 		"style":       styleTag,
 		"naturaltime": naturalTime,
-		"blockquote":  blockquote,
+		"markdown":    Markdown,
 		"yesno":       yesno,
 		"pluralize":   pluralize,
 		"wrap":        wrap,
@@ -80,14 +81,18 @@ func styleTag(name, s string) string {
 	}
 }
 
-func blockquote(s string) string {
-	b := strings.Builder{}
-	for _, line := range strings.Split(s, "\n") {
-		b.WriteString(" │ ")
-		b.WriteString(line)
-		b.WriteString("\n")
+func Markdown(width int, in string) (string, error) {
+	r, _ := glamour.NewTermRenderer(
+		glamour.WithEnvironmentConfig(),
+		glamour.WithWordWrap(width),
+	)
+
+	lines, err := r.Render(in)
+	if err != nil {
+		return "", err
 	}
-	return b.String()
+
+	return strings.ReplaceAll(lines, "\n", "\n "), nil
 }
 
 func yesno(val interface{}, yes, no string) string {

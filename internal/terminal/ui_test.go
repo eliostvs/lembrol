@@ -1105,17 +1105,19 @@ func TestQuestion(t *testing.T) {
 			})
 	})
 
-	t.Run("wraps to long answers", func(t *testing.T) {
+	t.Run("wraps long answers", func(t *testing.T) {
+		width := 70
+
 		m, _ := newTestModel(longNamesDeck).
 			init().
 			SendKeyRune(studyKey).
-			SendMsg(tea.WindowSizeMsg{Width: 70}).
+			SendMsg(tea.WindowSizeMsg{Width: width}).
 			Get()
 
 		view := m.View()
 
-		assert.Equal(t, 6, strings.Count(view, activePrompt))
 		assert.Contains(t, view, "Very Long Question & Answer")
+		assertContainsMarkdown(t, view, width, longestCard.Question)
 	})
 
 	t.Run("goes to deck page when the review is canceled", func(t *testing.T) {
@@ -1195,6 +1197,13 @@ func TestQuestion(t *testing.T) {
 	})
 }
 
+func assertContainsMarkdown(t *testing.T, contains string, width int, content string) {
+	t.Helper()
+	content, _ = terminal.Markdown(width-terminal.HorizontalPadding, content)
+	content = strings.TrimSpace(content)
+	assert.Contains(t, contains, content)
+}
+
 /*
  Answer
 */
@@ -1222,18 +1231,19 @@ func TestAnswer(t *testing.T) {
 		assert.Contains(t, view, "q: quit")
 	})
 
-	t.Run("wraps to long answers", func(t *testing.T) {
+	t.Run("wraps long answers", func(t *testing.T) {
+		width := 70
 		m, _ := newTestModel(longNamesDeck).
 			init().
 			SendKeyRune(studyKey).
-			SendMsg(tea.WindowSizeMsg{Width: 70}).
+			SendMsg(tea.WindowSizeMsg{Width: width}).
 			SendKeyType(tea.KeyEnter).
 			Get()
 
 		view := m.View()
 
-		assert.Equal(t, 6, strings.Count(view, activePrompt))
 		assert.Contains(t, view, "Very Long Question & Answer")
+		assertContainsMarkdown(t, view, width, longestCard.Answer)
 	})
 
 	t.Run("goes to deck page when the review is canceled", func(t *testing.T) {
@@ -1424,6 +1434,11 @@ var (
 		Question:   "Question F",
 		Answer:     "Answer F",
 		ReviewedAt: time.Date(2021, 1, 2, 15, 4, 0, 0, time.UTC),
+	}
+
+	longestCard = flashcard.Card{
+		Question: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur",
+		Answer:   "Maecenas condimentum neque nisl, eget pulvinar magna accumsan vitae. Quisque pretium nunc ipsum, volutpat tincidunt neque sagittis id. Phasellus ac dolor ac libero varius eleifend vel eu quam. Donec luctus suscipit ante vitae tincidunt. Praesent non purus blandit, molestie nisi id, gravida quam. Aliquam rutrum diam id libero fermentum dignissim",
 	}
 )
 
