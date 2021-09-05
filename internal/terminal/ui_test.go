@@ -21,6 +21,16 @@ import (
 	"github.com/eliostvs/remembercli/internal/test"
 )
 
+func TestMain(m *testing.M) {
+	_ = os.Setenv("GLAMOUR_STYLE", "ascii")
+	defer func() {
+		_ = os.Unsetenv("GLAMOUR_STYLE")
+	}()
+
+	exitVal := m.Run()
+	os.Exit(exitVal)
+}
+
 /*
  Loading
 */
