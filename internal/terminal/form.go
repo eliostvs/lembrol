@@ -71,7 +71,7 @@ func (f form) Error(name string) bool {
 	return false
 }
 
-func (f form) valid() bool {
+func (f form) isValid() bool {
 	for _, field := range f.fields {
 		if len(field.model.Value()) == 0 {
 			return false
@@ -119,16 +119,16 @@ func (f form) Update(msg tea.Msg) (form, tea.Cmd) {
 			return f.Next()
 
 		case tea.KeyEnter.String():
-			if f.valid() {
+			if f.isValid() {
 				return f, submit(f)
 			}
 		}
 	}
 
-	return f.update(msg)
+	return f.updateFields(msg)
 }
 
-func (f form) update(msg tea.Msg) (form, tea.Cmd) {
+func (f form) updateFields(msg tea.Msg) (form, tea.Cmd) {
 	var (
 		cmds []tea.Cmd
 	)
