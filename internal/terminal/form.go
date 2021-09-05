@@ -37,6 +37,10 @@ func (f field) Match(name string) bool {
 	return f.name == name
 }
 
+func (f field) IsValid() bool {
+	return 0 < len(f.model.Value())
+}
+
 func (f field) View() string {
 	return f.model.View()
 }
@@ -93,8 +97,8 @@ func (f form) Width(width int) form {
 
 func (f form) Error(name string) bool {
 	for _, field := range f.fields {
-		if field.name == name {
-			return len(field.model.Value()) == 0
+		if field.Match(name) {
+			return field.IsValid()
 		}
 	}
 	return false
@@ -102,7 +106,7 @@ func (f form) Error(name string) bool {
 
 func (f form) isValid() bool {
 	for _, field := range f.fields {
-		if len(field.model.Value()) == 0 {
+		if !field.IsValid() {
 			return false
 		}
 	}
