@@ -112,7 +112,7 @@ func (m cardModel) Update(width int, msg tea.Msg) (cardModel, tea.Cmd) {
 		switch msg.String() {
 		case "a":
 			if m.status == cardBrowsing {
-				m.Form, cmd = initCardForm("", "", width)
+				m.Form, cmd = createCardForm("", "", width)
 				m.status = cardCreating
 				m.Title = "Add Card"
 				return m, cmd
@@ -120,7 +120,7 @@ func (m cardModel) Update(width int, msg tea.Msg) (cardModel, tea.Cmd) {
 
 		case "e":
 			if m.status == cardBrowsing {
-				m.Form, cmd = initCardForm(currentCard.Question, currentCard.Answer, width)
+				m.Form, cmd = createCardForm(currentCard.Question, currentCard.Answer, width)
 				m.status = cardEditing
 				m.Title = "Edit Card"
 				return m, cmd
@@ -199,7 +199,7 @@ func removeCard(original []flashcard.Card, deleted flashcard.Card) (cards []flas
 	return cards
 }
 
-func initCardForm(question, answer string, width int) (form, tea.Cmd) {
+func createCardForm(question, answer string, width int) (form, tea.Cmd) {
 	var cmd tea.Cmd
 
 	questionInput := textinput.NewModel()
