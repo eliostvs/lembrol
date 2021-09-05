@@ -33,6 +33,14 @@ func (f field) Update(msg tea.Msg) (field, tea.Cmd) {
 	return f, cmd
 }
 
+func (f field) Match(name string) bool {
+	return f.name == name
+}
+
+func (f field) View() string {
+	return f.model.View()
+}
+
 // Form Type
 
 func submit(f form) tea.Cmd {
@@ -99,7 +107,7 @@ func (f form) isValid() bool {
 
 func (f form) Value(name string) string {
 	for _, field := range f.fields {
-		if field.name == name {
+		if field.Match(name) {
 			return field.model.Value()
 		}
 	}
@@ -108,8 +116,8 @@ func (f form) Value(name string) string {
 
 func (f form) View(name string) string {
 	for _, field := range f.fields {
-		if field.name == name {
-			return field.model.View()
+		if field.Match(name) {
+			return field.View()
 		}
 	}
 	return ""
