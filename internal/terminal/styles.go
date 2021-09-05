@@ -18,8 +18,8 @@ var (
 	White       = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#DDDDDD", Light: "#1A1A1A"})
 )
 
-const horizontalPadding = 10
+const HorizontalPadding = 10
 
 func Width(msg tea.WindowSizeMsg) int {
-	return msg.Width - horizontalPadding
+	return msg.Width - HorizontalPadding
 }
