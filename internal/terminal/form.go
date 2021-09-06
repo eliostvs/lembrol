@@ -134,7 +134,7 @@ func (f form) Width(width int) form {
 func (f form) Error(name string) bool {
 	for _, field := range f.fields {
 		if field.Match(name) {
-			return field.IsValid()
+			return !field.IsValid()
 		}
 	}
 	return false
