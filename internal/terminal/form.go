@@ -5,75 +5,78 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// Field Type
+type FieldOption func(Field) Field
 
-type fieldOption func(field) field
-
-func withMultiline() fieldOption {
-	return func(f field) field {
+// WithMultiline enables multiline text input prepending the given prefix in the beginning of the new line.
+func WithMultiline(prefix string) FieldOption {
+	return func(f Field) Field {
 		f.multiline = true
-		return f
-	}
-}
-
-func withPrefix(prefix string) fieldOption {
-	return func(f field) field {
 		f.prefix = prefix
 		return f
 	}
 }
 
-func newField(name string, model textinput.Model, options ...fieldOption) field {
-	f := field{name: name, model: model}
+// NewField creates a new field.
+func NewField(name string, model textinput.Model, options ...FieldOption) Field {
+	f := Field{name: name, model: model}
 	for _, option := range options {
 		f = option(f)
 	}
 	return f
 }
 
-type field struct {
+// Field specifies an input Field where the user can enter data.
+type Field struct {
 	name      string
 	model     textinput.Model
 	multiline bool
 	prefix    string
 }
 
-func (f field) Focus() (field, tea.Cmd) {
+// Focus sets the focus on this field.
+func (f Field) Focus() (Field, tea.Cmd) {
 	f.model.PromptStyle = Fuchsia
 	f.model.TextStyle = Fuchsia
 	return f, f.model.Focus()
 }
 
-func (f field) Blur() field {
+// Blur removes the focus from this field.
+func (f Field) Blur() Field {
 	f.model.PromptStyle = DarkFuchsia
 	f.model.TextStyle = DarkFuchsia
 	f.model.Blur()
 	return f
 }
 
-func (f field) Update(msg tea.Msg) (field, tea.Cmd) {
+// Update changes the input model.
+func (f Field) Update(msg tea.Msg) (Field, tea.Cmd) {
 	var cmd tea.Cmd
 	f.model, cmd = f.model.Update(msg)
 	return f, cmd
 }
 
-func (f field) Match(name string) bool {
+// Match returns if the input has the given name.
+func (f Field) Match(name string) bool {
 	return f.name == name
 }
 
-func (f field) IsValid() bool {
+// IsValid returns is input content is valid.
+func (f Field) IsValid() bool {
 	return 0 < len(f.model.Value())
 }
 
-func (f field) View() string {
+// View renders the input.
+func (f Field) View() string {
 	return decodeMultiline(f.model.View(), f.prefix)
 }
 
-func (f field) Focused() bool {
+// Focused returns if the input is focused.
+func (f Field) Focused() bool {
 	return f.model.Focused()
 }
 
-func (f field) BreakLine() field {
+// BreakLine inserts a new line.
+func (f Field) BreakLine() Field {
 	if !f.multiline {
 		return f
 	}
@@ -81,35 +84,37 @@ func (f field) BreakLine() field {
 	return f
 }
 
-func (f field) Value() string {
+// Value returns the input value.
+func (f Field) Value() string {
 	return f.model.Value()
 }
 
-// Form Type
-
-func submit(f form) tea.Cmd {
+// Submit triggers the form submit.
+func Submit(f Form) tea.Cmd {
 	return func() tea.Msg {
 		return submittedFormMsg{f}
 	}
 }
 
 type submittedFormMsg struct {
-	Form form
+	Form Form
 }
 
-func newForm(f field, fields ...field) form {
-	return form{
+// NewForm creates a new form with the given fields.
+func NewForm(f Field, fields ...Field) Form {
+	return Form{
 		cursor: newCursor(len(fields)),
-		fields: append([]field{f}, fields...),
+		fields: append([]Field{f}, fields...),
 	}
 }
 
-type form struct {
+// Form is set of fields.
+type Form struct {
 	cursor cursor
-	fields []field
+	fields []Field
 }
 
-func (f form) Focus(index int) (form, tea.Cmd) {
+func (f Form) focus(index int) (Form, tea.Cmd) {
 	var cmd tea.Cmd
 
 	for i := range f.fields {
@@ -123,7 +128,8 @@ func (f form) Focus(index int) (form, tea.Cmd) {
 	return f, cmd
 }
 
-func (f form) Width(width int) form {
+// Width sets the width of all fields.
+func (f Form) Width(width int) Form {
 	for i := range f.fields {
 		f.fields[i].model.Width = width
 	}
@@ -131,7 +137,8 @@ func (f form) Width(width int) form {
 	return f
 }
 
-func (f form) Error(name string) bool {
+// Error returns if the given field has error.
+func (f Form) Error(name string) bool {
 	for _, field := range f.fields {
 		if field.Match(name) {
 			return !field.IsValid()
@@ -140,7 +147,7 @@ func (f form) Error(name string) bool {
 	return false
 }
 
-func (f form) isValid() bool {
+func (f Form) isValid() bool {
 	for _, field := range f.fields {
 		if !field.IsValid() {
 			return false
@@ -149,7 +156,8 @@ func (f form) isValid() bool {
 	return true
 }
 
-func (f form) Value(name string) string {
+// Value returns the given field value.
+func (f Form) Value(name string) string {
 	for _, field := range f.fields {
 		if field.Match(name) {
 			return field.Value()
@@ -158,7 +166,8 @@ func (f form) Value(name string) string {
 	return ""
 }
 
-func (f form) View(name string) string {
+// View returns the given field view.
+func (f Form) View(name string) string {
 	for _, field := range f.fields {
 		if field.Match(name) {
 			return field.View()
@@ -167,25 +176,26 @@ func (f form) View(name string) string {
 	return ""
 }
 
-func (f form) Prev() (form, tea.Cmd) {
+func (f Form) prev() (Form, tea.Cmd) {
 	f.cursor.Up()
-	return f.Focus(f.cursor.Value())
+	return f.focus(f.cursor.Value())
 }
 
-func (f form) Next() (form, tea.Cmd) {
+func (f Form) next() (Form, tea.Cmd) {
 	f.cursor.Down()
-	return f.Focus(f.cursor.Value())
+	return f.focus(f.cursor.Value())
 }
 
-func (f form) Update(msg tea.Msg) (form, tea.Cmd) {
+// Update the form fields inner state.
+func (f Form) Update(msg tea.Msg) (Form, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "shift+tab", tea.KeyUp.String():
-			return f.Prev()
+			return f.prev()
 
 		case "tab", tea.KeyDown.String():
-			return f.Next()
+			return f.next()
 
 		case "alt+enter":
 			for i := range f.fields {
@@ -197,7 +207,7 @@ func (f form) Update(msg tea.Msg) (form, tea.Cmd) {
 
 		case tea.KeyEnter.String():
 			if f.isValid() {
-				return f, submit(f)
+				return f, Submit(f)
 			}
 		}
 	}
@@ -205,7 +215,7 @@ func (f form) Update(msg tea.Msg) (form, tea.Cmd) {
 	return f.updateFields(msg)
 }
 
-func (f form) updateFields(msg tea.Msg) (form, tea.Cmd) {
+func (f Form) updateFields(msg tea.Msg) (Form, tea.Cmd) {
 	var (
 		cmds []tea.Cmd
 		cmd  tea.Cmd

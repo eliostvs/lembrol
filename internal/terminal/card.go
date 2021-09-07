@@ -43,7 +43,7 @@ type cardModel struct {
 	Cards []flashcard.Card
 	Clock flashcard.Clock
 	Deck  flashcard.Deck
-	Form  form
+	Form  Form
 	Page  position
 	Title string
 
@@ -201,7 +201,7 @@ func removeCard(original []flashcard.Card, deleted flashcard.Card) (cards []flas
 	return cards
 }
 
-func createCardForm(question, answer string, width int) (form, tea.Cmd) {
+func createCardForm(question, answer string, width int) (Form, tea.Cmd) {
 	var cmd tea.Cmd
 
 	questionInput := textinput.NewModel()
@@ -222,9 +222,9 @@ func createCardForm(question, answer string, width int) (form, tea.Cmd) {
 	answerInput.CursorEnd()
 	answerInput.Blur()
 
-	return newForm(
-		newField("question", questionInput, withMultiline(), withPrefix(editCardFieldPrefix)),
-		newField("answer", answerInput, withMultiline(), withPrefix(editCardFieldPrefix)),
+	return NewForm(
+		NewField("question", questionInput, WithMultiline(editCardFieldPrefix)),
+		NewField("answer", answerInput, WithMultiline(editCardFieldPrefix)),
 	), cmd
 }
 

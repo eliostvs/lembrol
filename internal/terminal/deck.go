@@ -37,7 +37,7 @@ func newDeckModel(decks []flashcard.Deck, r *flashcard.Repository) deckModel {
 
 type deckModel struct {
 	Decks []flashcard.Deck
-	Form  form
+	Form  Form
 	Page  position
 
 	status     deckStatus
@@ -189,7 +189,7 @@ func removeDeck(original []flashcard.Deck, deleted flashcard.Deck) (decks []flas
 	return decks
 }
 
-func createDeckForm(name, prompt string) form {
+func createDeckForm(name, prompt string) Form {
 	input := textinput.NewModel()
 	input.CharLimit = 30
 	input.SetValue(name)
@@ -198,7 +198,7 @@ func createDeckForm(name, prompt string) form {
 	input.TextStyle = DarkGreen
 	input.PromptStyle = DarkGreen
 	input.Focus()
-	return newForm(newField("name", input))
+	return NewForm(NewField("name", input))
 }
 
 func createDeck(name string, repo *flashcard.Repository) tea.Cmd {
