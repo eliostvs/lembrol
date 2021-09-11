@@ -27,10 +27,11 @@ const encodedEnter = "¬"
 var (
 	encodedEnterMsg = tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(encodedEnter)}
 
-	title = lipgloss.NewStyle().
-		Foreground(lipgloss.AdaptiveColor{Dark: "#FFFDF5", Light: "#FFFDF5"}).
-		Background(lipgloss.Color("#5A56E0")).
-		Bold(true)
+	titleStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.AdaptiveColor{Dark: "#FFFDF5", Light: "#FFFDF5"}).
+			Background(lipgloss.Color("#5A56E0")).
+			Padding(0, 1).
+			Bold(true)
 
 	colors = map[string]lipgloss.Style{
 		"fuchsia":     Fuchsia,
@@ -66,7 +67,7 @@ var (
 )
 
 func titleTag(s string) string {
-	return title.Render(" " + s + " ")
+	return titleStyle.Render(s)
 }
 
 func naturalTime(t time.Time) string {
