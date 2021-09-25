@@ -1,13 +1,18 @@
 package terminal
 
 import (
+	"fmt"
+
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/list"
+
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/eliostvs/remembercli/internal/flashcard"
 )
 
-// MODEL
+// STATE
 
 type deckStatus int
 
@@ -18,187 +23,312 @@ const (
 	deckEditing
 )
 
-func (s deckStatus) template() string {
-	return []string{
-		"deckShow",
-		"deckCreate",
-		"deckDelete",
-		"deckEdit",
-	}[s]
+// ITEM
+
+type deckItem struct {
+	flashcard.Deck
 }
 
-func newDeckModel(decks []flashcard.Deck, r *flashcard.Repository) deckModel {
+func (d deckItem) Title() string {
+	return d.Name
+}
+
+func (d deckItem) Description() string {
+	return fmt.Sprintf(
+		"%d card%s | %d due",
+		d.Total(),
+		pluralize(d.Total(), "s"),
+		len(d.DueCards()),
+	)
+}
+
+func (d deckItem) FilterValue() string {
+	return d.Name
+}
+
+func newDeckItems(decks []flashcard.Deck) []list.Item {
+	items := make([]list.Item, 0, len(decks))
+	for _, deck := range decks {
+		items = append(items, deckItem{deck})
+	}
+	return items
+}
+
+// KEYS
+
+func newDeckKeys() *deckKeys {
+	return &deckKeys{
+		add: key.NewBinding(
+			key.WithKeys("a"),
+			key.WithHelp("a", "add"),
+		),
+		confirm: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "open"),
+		),
+		study: key.NewBinding(
+			key.WithKeys("s"),
+			key.WithHelp("s", "study"),
+		),
+		rename: key.NewBinding(
+			key.WithKeys("r"),
+			key.WithHelp("r", "rename"),
+		),
+		delete: key.NewBinding(
+			key.WithKeys("x"),
+			key.WithHelp("x", "delete"),
+		),
+		cancel: key.NewBinding(
+			key.WithKeys("q", "esc"),
+			key.WithHelp("q", "cancel"),
+		),
+	}
+}
+
+type deckKeys struct {
+	add     key.Binding
+	confirm key.Binding
+	study   key.Binding
+	rename  key.Binding
+	delete  key.Binding
+	cancel  key.Binding
+}
+
+// MODEL
+
+func newDeckModel(decks []flashcard.Deck, repo *flashcard.Repository) deckModel {
+	keys := newDeckKeys()
+	delegate := list.NewDefaultDelegate()
+	model := list.NewModel(newDeckItems(decks), &delegate, 0, 0)
+	model.Title = "Decks"
+	model.Styles.Title = titleStyle
+	model.AdditionalShortHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			keys.confirm,
+			keys.add,
+		}
+	}
+	model.AdditionalFullHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			keys.add,
+			keys.confirm,
+			keys.rename,
+			keys.study,
+			keys.delete,
+		}
+	}
+	model.KeyMap.ForceQuit.SetEnabled(false)
+
 	return deckModel{
-		Decks:      decks,
-		Page:       newPosition(len(decks)),
-		repository: r,
+		delegate:   &delegate,
+		keys:       keys,
+		list:       model,
+		repository: repo,
 	}
 }
 
 type deckModel struct {
-	Decks []flashcard.Deck
-	Form  Form
-	Page  position
-
-	status     deckStatus
+	form       Form
+	keys       *deckKeys
+	list       list.Model
 	repository *flashcard.Repository
+	status     deckStatus
+	delegate   *list.DefaultDelegate
 }
 
 // VIEW
 
-func (m deckModel) Template() string {
-	return m.status.template()
+func (m deckModel) View(w windowSize) string {
+	m.list.SetHeight(w.height)
+	m.list.SetWidth(w.width)
+
+	switch m.status {
+	case deckCreating:
+		content := titleStyle.Render("Add Deck")
+		content += m.form.view()
+		return appStyle.Copy().Padding(1, 3).Render(content)
+
+	case deckEditing:
+		content := titleStyle.Render("Rename Deck")
+		content += m.form.view()
+		return appStyle.Copy().Padding(1, 3).Render(content)
+
+	case deckBrowsing, deckDeleting:
+		fallthrough
+
+	default:
+		return appStyle.Render(m.list.View())
+	}
 }
 
 // UPDATE
 
-type deletedDeckMsg struct {
-	flashcard.Deck
-}
+type (
+	initDeckMsg struct{}
 
-type renamedDeckMsg struct {
-	flashcard.Deck
-}
+	deletedDeckMsg struct {
+		index int
+	}
 
-type createdDeckMsg struct {
-	flashcard.Deck
+	renamedDeckMsg struct {
+		index int
+		item  deckItem
+	}
+
+	createdDeckMsg struct {
+		index int
+		item  deckItem
+	}
+)
+
+func (m deckModel) init() tea.Cmd {
+	return func() tea.Msg {
+		return initDeckMsg{}
+	}
 }
 
 // nolint:cyclop,gocognit
 func (m deckModel) Update(msg tea.Msg) (deckModel, tea.Cmd) {
-	hasDecks := hasDecks(m.Decks)
-	currentDeck := currentDeck(m.Page.Item(), m.Decks)
+	var cmd tea.Cmd
+
+	currentDeck := toDeck(m.list)
+	hasDeck := len(m.list.Items()) != 0
+
+	resetControls := func() {
+		m.delegate.Styles.SelectedTitle = selectedTitleStyle
+		m.delegate.Styles.SelectedDesc = selectedDescStyle
+		m.keys.add.SetEnabled(true)
+		m.keys.confirm.SetEnabled(hasDeck)
+		m.keys.confirm.SetHelp("enter", "open")
+		m.keys.delete.SetEnabled(hasDeck)
+		m.keys.rename.SetEnabled(hasDeck)
+		m.keys.study.SetEnabled(hasDeck)
+		m.list.NewStatusMessage("")
+		m.list.SetFilteringEnabled(hasDeck)
+		m.list.KeyMap.CloseFullHelp.SetEnabled(true)
+		m.list.KeyMap.CursorDown.SetEnabled(hasDeck)
+		m.list.KeyMap.CursorDown.SetEnabled(hasDeck)
+		m.list.KeyMap.CursorUp.SetEnabled(hasDeck)
+		m.list.KeyMap.CursorUp.SetEnabled(hasDeck)
+		m.list.KeyMap.Filter.SetEnabled(hasDeck)
+		m.list.KeyMap.GoToEnd.SetEnabled(hasDeck)
+		m.list.KeyMap.GoToStart.SetEnabled(hasDeck)
+		m.list.KeyMap.NextPage.SetEnabled(hasDeck)
+		m.list.KeyMap.PrevPage.SetEnabled(hasDeck)
+		m.list.KeyMap.ShowFullHelp.SetEnabled(true)
+	}
 
 	switch msg := msg.(type) {
-	case createdDeckMsg:
+	case initDeckMsg, canceledFormMsg:
 		m.status = deckBrowsing
-		m.Decks = append(m.Decks, msg.Deck)
-		m.Page = m.Page.Increase()
+		resetControls()
 		return m, nil
+
+	case createdDeckMsg:
+		m.list.InsertItem(msg.index, msg.item)
+		return m, m.init()
 
 	case renamedDeckMsg:
-		m.status = deckBrowsing
-		m.Decks = updateDeck(m.Decks, msg.Deck)
-		return m, nil
+		m.list.RemoveItem(msg.index)
+		m.list.InsertItem(msg.index-1, msg.item)
+		return m, m.init()
 
 	case deletedDeckMsg:
-		m.status = deckBrowsing
-		m.Decks = removeDeck(m.Decks, msg.Deck)
-		m.Page = m.Page.Decrease()
-		return m, nil
+		m.list.RemoveItem(msg.index)
+		return m, m.init()
 
 	case submittedFormMsg:
 		if m.status == deckEditing {
-			return m, renameDeck(m.Form.Value("name"), currentDeck, m.repository)
+			currentDeck.Name = m.form.Value("name")
+			return m, renameDeck(m.list.Index(), currentDeck, m.repository)
 		}
 
 		if m.status == deckCreating {
-			return m, createDeck(m.Form.Value("name"), m.repository)
+			return m, createDeck(m.form.Value("name"), m.repository)
 		}
 
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "a":
-			if m.status == deckBrowsing {
-				m.status = deckCreating
-				m.Form = createDeckForm("", "> ")
-				return m, textinput.Blink
-			}
+		// Don't match any of the keys below if we're actively filtering.
+		if m.list.FilterState() == list.Filtering {
+			break
+		}
 
-		case "q":
-			if m.status == deckBrowsing || m.status == deckDeleting {
-				return m, exit
-			}
+		switch {
+		case m.status == deckBrowsing && key.Matches(msg, m.keys.add):
+			m.status = deckCreating
+			m.form, cmd = createDeckForm("")
+			return m, cmd
 
-		case "r":
-			if m.status == deckBrowsing && hasDecks {
-				m.status = deckEditing
-				m.Form = createDeckForm(currentDeck.Name, " ")
-				return m, textinput.Blink
-			}
+		case m.status == deckBrowsing && key.Matches(msg, m.keys.rename) && hasDeck:
+			m.status = deckEditing
+			m.form, cmd = createDeckForm(currentDeck.Name)
+			return m, cmd
 
-		case "s":
-			if m.status == deckBrowsing && currentDeck.HasDueCards() {
-				return m, startReview(currentDeck)
-			}
+		case m.status == deckBrowsing && key.Matches(msg, m.keys.study) && currentDeck.HasDueCards():
+			return m, startReview(currentDeck)
 
-		case "x":
-			if m.status == deckBrowsing && hasDecks {
-				m.status = deckDeleting
-				return m, nil
-			}
+		case m.status == deckBrowsing && key.Matches(msg, m.keys.delete) && hasDeck:
+			m.status = deckDeleting
+			m.delegate.Styles.SelectedTitle = deletedTitle
+			m.delegate.Styles.SelectedDesc = deletedDesc
+			m.list.NewStatusMessage(Red.Render("Delete this deck?"))
+			m.keys.confirm.SetHelp("enter", "confirm")
+			m.keys.add.SetEnabled(false)
+			m.keys.delete.SetEnabled(false)
+			m.keys.rename.SetEnabled(false)
+			m.keys.study.SetEnabled(false)
+			m.list.KeyMap.CloseFullHelp.SetEnabled(false)
+			m.list.KeyMap.CursorDown.SetEnabled(false)
+			m.list.KeyMap.CursorUp.SetEnabled(false)
+			m.list.KeyMap.Filter.SetEnabled(false)
+			m.list.KeyMap.GoToEnd.SetEnabled(false)
+			m.list.KeyMap.GoToStart.SetEnabled(false)
+			m.list.KeyMap.NextPage.SetEnabled(false)
+			m.list.KeyMap.PrevPage.SetEnabled(false)
+			m.list.KeyMap.ShowFullHelp.SetEnabled(false)
+			return m, nil
 
-		case tea.KeyUp.String(), "k", tea.KeyDown.String(), "j", tea.KeyLeft.String(), tea.KeyRight.String(), "l", "h":
-			if m.status == deckBrowsing {
-				m.Page = m.Page.Update(msg)
-				return m, nil
-			}
+		case m.status == deckBrowsing && key.Matches(msg, m.keys.cancel) && m.list.FilterState() != list.FilterApplied:
+			return m, exitCmd
 
-		case tea.KeyEsc.String():
-			if m.status != deckBrowsing {
-				m.status = deckBrowsing
-				return m, nil
-			}
+		case m.status == deckBrowsing && key.Matches(msg, m.keys.confirm) && hasDeck:
+			return m, showCards(currentDeck)
 
-		case tea.KeyEnter.String():
-			if m.status == deckDeleting {
-				return m, deleteDeck(currentDeck, m.repository)
-			}
+		case m.status == deckDeleting && key.Matches(msg, m.keys.confirm):
+			return m, deleteDeck(m.list.Index(), currentDeck, m.repository)
 
-			if m.status == deckBrowsing && hasDecks {
-				return m, showCards(currentDeck)
-			}
+		case m.status == deckDeleting && key.Matches(msg, m.keys.cancel):
+			return m, m.init()
+
+		case m.status == deckEditing, m.status == deckCreating:
+			m.form, cmd = m.form.Update(msg)
+			return m, cmd
 		}
 	}
 
-	var cmd tea.Cmd
-	m.Form, cmd = m.Form.Update(msg)
+	m.list, cmd = m.list.Update(msg)
+	resetControls()
 	return m, cmd
 }
 
-func hasDecks(decks []flashcard.Deck) bool {
-	return len(decks) > 0
-}
-
-func currentDeck(index int, decks []flashcard.Deck) flashcard.Deck {
-	for i, deck := range decks {
-		if index == i {
-			return deck
-		}
+func toDeck(l list.Model) flashcard.Deck {
+	item, ok := l.SelectedItem().(deckItem)
+	if ok {
+		return item.Deck
 	}
 	return flashcard.Deck{}
 }
 
-func updateDeck(old []flashcard.Deck, changed flashcard.Deck) (decks []flashcard.Deck) {
-	for _, deck := range old {
-		if deck.Id() == changed.Id() {
-			decks = append(decks, changed)
-		} else {
-			decks = append(decks, deck)
-		}
-	}
-	return decks
-}
-
-func removeDeck(original []flashcard.Deck, deleted flashcard.Deck) (decks []flashcard.Deck) {
-	for _, deck := range original {
-		if deck.Id() != deleted.Id() {
-			decks = append(decks, deck)
-		}
-	}
-	return decks
-}
-
-func createDeckForm(name, prompt string) Form {
+func createDeckForm(name string) (Form, tea.Cmd) {
 	input := textinput.NewModel()
 	input.CharLimit = 30
 	input.SetValue(name)
 	input.CursorEnd()
-	input.Prompt = prompt
+	input.Prompt = "> "
 	input.TextStyle = DarkGreen
 	input.PromptStyle = DarkGreen
-	input.Focus()
-	return NewForm(NewField("name", input))
+	cmd := input.Focus()
+	return NewForm(NewField("name", input, WithLabel("Name"))), cmd
 }
 
 func createDeck(name string, repo *flashcard.Repository) tea.Cmd {
@@ -207,25 +337,24 @@ func createDeck(name string, repo *flashcard.Repository) tea.Cmd {
 		if err != nil {
 			return failed(err)
 		}
-		return createdDeckMsg{deck}
+		return createdDeckMsg{index: 0, item: deckItem{deck}}
 	}
 }
 
-func renameDeck(name string, deck flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
+func renameDeck(index int, deck flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
-		deck.Name = name
 		if err := repo.Save(deck); err != nil {
 			return failed(err)
 		}
-		return renamedDeckMsg{deck}
+		return renamedDeckMsg{index: index, item: deckItem{deck}}
 	}
 }
 
-func deleteDeck(deck flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
+func deleteDeck(index int, deck flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		if err := repo.Remove(deck); err != nil {
 			return failed(err)
 		}
-		return deletedDeckMsg{deck}
+		return deletedDeckMsg{index: index}
 	}
 }

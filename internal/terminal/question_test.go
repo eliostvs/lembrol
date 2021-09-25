@@ -44,7 +44,7 @@ func TestQuestion(t *testing.T) {
 		m, _ := newTestModel(longNamesDeck).
 			init().
 			SendKeyRune(studyKey).
-			SendMsg(tea.WindowSizeMsg{Width: width}).
+			SendMsg(tea.WindowSizeMsg{Width: width, Height: 20}).
 			Get()
 
 		view := m.View()

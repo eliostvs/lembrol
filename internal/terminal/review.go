@@ -88,7 +88,7 @@ func (m reviewModel) Update(msg tea.Msg) (reviewModel, tea.Cmd) {
 			}
 
 		case "q":
-			return m, exit
+			return m, exitCmd
 
 		case "0", "1", "2", "3", "4":
 			if m.status == reviewAnswer {

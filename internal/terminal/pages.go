@@ -53,6 +53,6 @@ type setReviewPageMsg struct {
 
 type setQuitPageMsg struct{}
 
-func exit() tea.Msg {
+func exitCmd() tea.Msg {
 	return setQuitPageMsg{}
 }

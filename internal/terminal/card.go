@@ -74,7 +74,7 @@ type (
 )
 
 // nolint:cyclop
-func (m cardModel) Update(width int, msg tea.Msg) (cardModel, tea.Cmd) {
+func (m cardModel) Update(window windowSize, msg tea.Msg) (cardModel, tea.Cmd) {
 	var cmd tea.Cmd
 
 	hasCards := hasCards(m.Cards)
@@ -114,7 +114,7 @@ func (m cardModel) Update(width int, msg tea.Msg) (cardModel, tea.Cmd) {
 		switch msg.String() {
 		case "a":
 			if m.status == cardBrowsing {
-				m.Form, cmd = createCardForm("", "", width)
+				m.Form, cmd = createCardForm("", "", window.width)
 				m.status = cardCreating
 				m.Title = "Add Card"
 				return m, cmd
@@ -122,7 +122,7 @@ func (m cardModel) Update(width int, msg tea.Msg) (cardModel, tea.Cmd) {
 
 		case "e":
 			if m.status == cardBrowsing {
-				m.Form, cmd = createCardForm(currentCard.Question, currentCard.Answer, width)
+				m.Form, cmd = createCardForm(currentCard.Question, currentCard.Answer, window.width)
 				m.status = cardEditing
 				m.Title = "Edit Card"
 				return m, cmd
@@ -130,7 +130,7 @@ func (m cardModel) Update(width int, msg tea.Msg) (cardModel, tea.Cmd) {
 
 		case "q":
 			if m.status == cardBrowsing || m.status == cardDeleting {
-				return m, exit
+				return m, exitCmd
 			}
 
 		case "s":
@@ -164,7 +164,7 @@ func (m cardModel) Update(width int, msg tea.Msg) (cardModel, tea.Cmd) {
 		}
 	}
 
-	m.Form, cmd = m.Form.Width(width).Update(msg)
+	m.Form, cmd = m.Form.Width(window.width).Update(msg)
 	return m, cmd
 }
 

@@ -1,9 +1,59 @@
 package terminal
 
 import (
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
+
+var encodedEnterMsg = tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(encodedEnter)}
+
+func newFormKeys() formKeys {
+	return formKeys{
+		submit: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "confirm"),
+		),
+		cancel: key.NewBinding(
+			key.WithKeys("esc"),
+			key.WithHelp("esc", "cancel"),
+		),
+		previous: key.NewBinding(
+			key.WithKeys("up", "shift+tab"),
+			key.WithHelp("↑", "up"),
+		),
+		next: key.NewBinding(
+			key.WithKeys("down", "tab"),
+			key.WithHelp("↓", "down"),
+		),
+		newline: key.NewBinding(
+			key.WithKeys("alt+enter"),
+			key.WithHelp("alt+enter", "new line"),
+		),
+	}
+}
+
+type formKeys struct {
+	submit   key.Binding
+	cancel   key.Binding
+	previous key.Binding
+	next     key.Binding
+	newline  key.Binding
+}
+
+func (k formKeys) ShortHelp() []key.Binding {
+	return []key.Binding{
+		k.next,
+		k.previous,
+		k.submit,
+		k.cancel,
+	}
+}
+
+func (k formKeys) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{}}
+}
 
 type FieldOption func(Field) Field
 
@@ -12,6 +62,13 @@ func WithMultiline(prefix string) FieldOption {
 	return func(f Field) Field {
 		f.multiline = true
 		f.prefix = prefix
+		return f
+	}
+}
+
+func WithLabel(label string) FieldOption {
+	return func(f Field) Field {
+		f.label = label
 		return f
 	}
 }
@@ -28,6 +85,7 @@ func NewField(name string, model textinput.Model, options ...FieldOption) Field 
 // Field specifies an input Field where the user can enter data.
 type Field struct {
 	name      string
+	label     string
 	model     textinput.Model
 	multiline bool
 	prefix    string
@@ -67,7 +125,20 @@ func (f Field) IsValid() bool {
 
 // View renders the input.
 func (f Field) View() string {
-	return decodeMultiline(f.model.View(), f.prefix)
+	color := White
+	if !f.IsValid() {
+		color = Red
+	}
+
+	var content string
+
+	if f.label != "" {
+		content += color.Render(f.label)
+		content += "\n"
+	}
+
+	content += decodeMultiline(f.model.View(), f.prefix)
+	return fieldStyle.Render(color.Render(content))
 }
 
 // Focused returns if the input is focused.
@@ -89,8 +160,8 @@ func (f Field) Value() string {
 	return f.model.Value()
 }
 
-// Submit triggers the form submit.
-func Submit(f Form) tea.Cmd {
+// SubmitForm triggers the form submit.
+func SubmitForm(f Form) tea.Cmd {
 	return func() tea.Msg {
 		return submittedFormMsg{f}
 	}
@@ -100,11 +171,28 @@ type submittedFormMsg struct {
 	Form Form
 }
 
+// CancelForm triggers the form submit.
+func CancelForm() tea.Cmd {
+	return func() tea.Msg {
+		return canceledFormMsg{}
+	}
+}
+
+type canceledFormMsg struct {
+}
+
 // NewForm creates a new form with the given fields.
 func NewForm(f Field, fields ...Field) Form {
+	keys := newFormKeys()
+
+	keys.next.SetEnabled(len(fields) != 0)
+	keys.previous.SetEnabled(len(fields) != 0)
+
 	return Form{
 		cursor: newCursor(len(fields)),
 		fields: append([]Field{f}, fields...),
+		help:   help.NewModel(),
+		keys:   keys,
 	}
 }
 
@@ -112,6 +200,8 @@ func NewForm(f Field, fields ...Field) Form {
 type Form struct {
 	cursor cursor
 	fields []Field
+	help   help.Model
+	keys   formKeys
 }
 
 func (f Form) focus(index int) (Form, tea.Cmd) {
@@ -190,24 +280,27 @@ func (f Form) next() (Form, tea.Cmd) {
 func (f Form) Update(msg tea.Msg) (Form, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "shift+tab", tea.KeyUp.String():
+		switch {
+		case key.Matches(msg, f.keys.previous):
 			return f.prev()
 
-		case "tab", tea.KeyDown.String():
+		case key.Matches(msg, f.keys.next):
 			return f.next()
 
-		case "alt+enter":
+		case key.Matches(msg, f.keys.newline):
 			for i := range f.fields {
 				if f.fields[i].Focused() {
 					f.fields[i] = f.fields[i].BreakLine()
-					return f, nil
 				}
 			}
+			return f, nil
 
-		case tea.KeyEnter.String():
+		case key.Matches(msg, f.keys.cancel):
+			return f, CancelForm()
+
+		case key.Matches(msg, f.keys.submit):
 			if f.isValid() {
-				return f, Submit(f)
+				return f, SubmitForm(f)
 			}
 		}
 	}
@@ -229,4 +322,17 @@ func (f Form) updateFields(msg tea.Msg) (Form, tea.Cmd) {
 	}
 
 	return f, tea.Batch(cmds...)
+}
+
+func (f Form) view() string {
+	var content string
+
+	for _, field := range f.fields {
+		content += field.View()
+		content += "\n"
+	}
+
+	content += helpStyle.Render(f.help.View(f.keys))
+
+	return formStyle.Render(content)
 }

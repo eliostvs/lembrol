@@ -10,7 +10,6 @@ import (
 	"text/template"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dustin/go-humanize"
@@ -25,14 +24,6 @@ var files embed.FS
 const encodedEnter = "¬"
 
 var (
-	encodedEnterMsg = tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(encodedEnter)}
-
-	titleStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.AdaptiveColor{Dark: "#FFFDF5", Light: "#FFFDF5"}).
-			Background(lipgloss.Color("#5A56E0")).
-			Padding(0, 1).
-			Bold(true)
-
 	colors = map[string]lipgloss.Style{
 		"fuchsia":     Fuchsia,
 		"darkfuchsia": DarkFuchsia,
@@ -56,7 +47,10 @@ var (
 		"pluralize":   pluralize,
 		"truncate":    truncateTag,
 		"currentDeck": currentDeck,
-		"hasDecks":    hasDecks,
+		"hasDecks": func(m interface{}) bool {
+			truth, _ := template.IsTrue(m)
+			return truth
+		},
 		"hasDueCards": func(index int, decks []flashcard.Deck) bool {
 			if len(decks) == 0 {
 				return false
@@ -210,4 +204,13 @@ func (t *templates) Render(name string, data interface{}) string {
 	}
 
 	return "\n" + buf.String() + "\n"
+}
+
+func currentDeck(index int, decks []flashcard.Deck) flashcard.Deck {
+	for i, deck := range decks {
+		if index == i {
+			return deck
+		}
+	}
+	return flashcard.Deck{}
 }

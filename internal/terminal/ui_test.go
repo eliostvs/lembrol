@@ -33,9 +33,12 @@ func TestMain(m *testing.M) {
 
 var breakLineMsg = tea.KeyMsg{Type: tea.KeyEnter, Alt: true}
 
+var windowSizeMsg = tea.WindowSizeMsg{Width: 300, Height: 20}
+
 func assertContainsMarkdown(t *testing.T, contains string, width int, content string) {
 	t.Helper()
-	content, _ = terminal.Markdown(width-terminal.HorizontalPadding, content)
+
+	content, _ = terminal.Markdown(width-4, content)
 	content = strings.TrimSpace(content)
 	assert.Contains(t, contains, content)
 }
@@ -131,8 +134,6 @@ type testModel struct {
 	q msgQueue
 }
 
-// the tea.Batch used in the Model.init method returns a private value, batchMsg, that is a slice of Cmd,
-// so we are using the reflect package to iterate over it.
 func (m *testModel) init() *testModel {
 	return m.processMsg(m.processCmd(m.m.Init()))
 }
@@ -160,20 +161,30 @@ func (m *testModel) processMsg(msgs []tea.Msg) *testModel {
 }
 
 func (m *testModel) skip(msg tea.Msg) bool {
-	_, ok := msg.(spinner.TickMsg)
-	return ok
+	switch msg.(type) {
+	case spinner.TickMsg:
+		return true
+	default:
+		return false
+	}
 }
 
-func (m *testModel) processCmd(cmd tea.Cmd) []tea.Msg {
-	val := reflect.ValueOf(cmd())
-
-	if val.Kind() != reflect.Slice {
-		return []tea.Msg{val.Interface()}
+func (m *testModel) processCmd(cmd tea.Cmd) (msgs []tea.Msg) {
+	if cmd == nil {
+		return msgs
 	}
 
-	var msgs []tea.Msg
-	for i := 0; i < val.Len(); i++ {
-		msgs = append(msgs, val.Index(i).Call(nil)[0].Interface())
+	val := reflect.ValueOf(cmd())
+
+	switch val.Kind() {
+	case reflect.Slice:
+		for i := 0; i < val.Len(); i++ {
+			valCmd := val.Index(i).Interface().(tea.Cmd)
+			msgs = append(msgs, m.processCmd(valCmd)...)
+		}
+
+	case reflect.Struct:
+		msgs = append(msgs, val.Interface())
 	}
 
 	return msgs
