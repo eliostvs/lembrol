@@ -33,11 +33,11 @@ type setDecksPageMsg struct{}
 
 func showCards(d flashcard.Deck) tea.Cmd {
 	return func() tea.Msg {
-		return setCardsPageMsg{d}
+		return setDeckPageMsg{d}
 	}
 }
 
-type setCardsPageMsg struct {
+type setDeckPageMsg struct {
 	flashcard.Deck
 }
 

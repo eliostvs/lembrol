@@ -42,7 +42,7 @@ func TestDecksList(t *testing.T) {
 		assert.Contains(t, view, "3 cards | 0 due")
 		assert.NotContains(t, view, activePrompt+"Golang B")
 		assert.Contains(t, view, "••")
-		assert.Contains(t, view, "↑/k up • ↓/j down • / filter • enter open • a add • q quit • ? more  ")
+		assert.Contains(t, view, "↑/k up • ↓/j down • / filter • a add • enter open • q quit • ? more")
 	})
 
 	t.Run("navigates around", func(t *testing.T) {
@@ -164,7 +164,7 @@ func TestDecksList(t *testing.T) {
 
 		view := m.View()
 
-		assert.Contains(t, view, "Deck")
+		assert.Contains(t, view, "Golang One")
 		assert.NotContains(t, view, "Decks")
 	})
 }
@@ -178,7 +178,7 @@ func TestDeckCreate(t *testing.T) {
 
 		view := m.View()
 
-		assert.Contains(t, view, "Add Deck")
+		assert.Contains(t, view, "New Deck")
 		assert.Contains(t, view, "enter confirm • esc cancel")
 	})
 
@@ -202,7 +202,7 @@ func TestDeckCreate(t *testing.T) {
 			SendKeyType(tea.KeyEnter).
 			Get()
 
-		assert.Contains(t, m.View(), "Add Deck")
+		assert.Contains(t, m.View(), "New Deck")
 	})
 
 	t.Run("goes to home page after deck is created", func(t *testing.T) {
@@ -333,7 +333,7 @@ func TestDeckDelete(t *testing.T) {
 		assert.Contains(t, view, "Delete this deck?")
 		assert.Contains(t, view, activePrompt+"Golang A")
 		assert.Contains(t, view, activePrompt+"6 cards | 6 due")
-		assert.Contains(t, view, "enter delete • q quit")
+		assert.Contains(t, view, "enter confirm • q quit")
 	})
 
 	t.Run("goes to home page when deck deletion is canceled", func(t *testing.T) {
@@ -358,7 +358,7 @@ func TestDeckDelete(t *testing.T) {
 		view := m.View()
 
 		assert.Contains(t, view, "5 items")
-		assert.Contains(t, view, " ↑/k up • ↓/j down • / filter • enter open • a add • q quit • ? more")
+		assert.Contains(t, view, "↑/k up • ↓/j down • / filter • a add • enter open • q quit • ? more")
 	})
 
 	t.Run("goes to error page when deletion fails", func(t *testing.T) {

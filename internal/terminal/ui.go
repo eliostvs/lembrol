@@ -68,9 +68,9 @@ type Model struct {
 	Error   string
 	Spinner spinner.Model
 
-	cardModel    cardModel
+	cardsModel   cardsModel
 	clock        flashcard.Clock
-	deckModel    deckModel
+	decksModel   decksModel
 	initialDelay time.Duration
 	location     string
 	page         page
@@ -88,14 +88,10 @@ func (m Model) View() string {
 		return m.templates.Render("loading", m)
 
 	case Decks:
-		return m.deckModel.View(m.window)
+		return m.decksModel.View(m.window)
 
 	case Cards:
-		type sizeable struct {
-			Width int
-			cardModel
-		}
-		return m.templates.Render(m.cardModel.Template(), sizeable{m.window.width, m.cardModel})
+		return m.cardsModel.View(m.window)
 
 	case Review:
 		type sizeable struct {
@@ -105,13 +101,19 @@ func (m Model) View() string {
 		return m.templates.Render(m.reviewModel.Template(), sizeable{m.window.width, m.reviewModel})
 
 	case Error:
-		return m.templates.Render("error", m)
+		return errorView(m)
 
 	case Quit:
-		return appStyle.Render("Thanks for using Remember CLI!")
+		return appListStyle.Render("Thanks for using Remember CLI!")
 	}
 
-	panic(appStyle.Render(fmt.Sprintf("missing state %d in main view", m.page)))
+	panic(appListStyle.Render(fmt.Sprintf("missing state %d in main view", m.page)))
+}
+
+func errorView(m Model) string {
+	content := titleStyle.Render("Error")
+	content += Red.Render(m.Error)
+	return appListStyle.Render(content)
 }
 
 // UPDATE
@@ -142,7 +144,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.window = newWindowSize(appStyle, msg)
+		m.window = newWindowSize(appListStyle, msg)
 		return m, nil
 
 	case spinner.TickMsg:
@@ -151,18 +153,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case createdRepositoryMsg:
 		m.repository = msg.Repository
-		m.deckModel = newDeckModel(m.repository.List(), m.repository)
+		m.decksModel = newDecksModel(m.repository.List(), m.repository)
 		m.page = Decks
-		return m, m.deckModel.init()
+		return m, m.decksModel.init()
 
 	case setDecksPageMsg:
 		m.page = Decks
-		return m, nil
+		return m, m.decksModel.init()
 
-	case setCardsPageMsg:
-		m.cardModel = newCardModel(msg.Deck, m.clock, m.repository)
+	case setDeckPageMsg:
+		m.cardsModel = newCardsModel(msg.Deck, m.clock, m.repository)
 		m.page = Cards
-		return m, nil
+		return m, m.cardsModel.init()
 
 	case setReviewPageMsg:
 		m.reviewModel = newReviewModel(flashcard.NewReview(msg.Deck, m.clock), m.repository)
@@ -192,11 +194,11 @@ func updateChildren(msg tea.Msg, m Model) (Model, tea.Cmd) {
 
 	switch m.page {
 	case Decks:
-		m.deckModel, cmd = m.deckModel.Update(msg)
+		m.decksModel, cmd = m.decksModel.Update(msg)
 		return m, cmd
 
 	case Cards:
-		m.cardModel, cmd = m.cardModel.Update(m.window, msg)
+		m.cardsModel, cmd = m.cardsModel.Update(m.window, msg)
 		return m, cmd
 
 	case Review:

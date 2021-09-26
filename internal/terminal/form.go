@@ -7,6 +7,61 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+func newCursor(max int) cursor {
+	return cursor{max: max}
+}
+
+type cursor struct {
+	index int
+	max   int
+}
+
+func (c *cursor) Up() {
+	if c.index > 0 {
+		c.index--
+	}
+}
+
+func (c *cursor) Down() {
+	if c.index < c.max {
+		c.index++
+	}
+}
+
+func (c *cursor) Value() int {
+	return c.index
+}
+
+func (c *cursor) Last() {
+	c.index = c.max
+}
+
+func (c *cursor) Max(max int) {
+	if max >= 0 {
+		c.max = max
+		c.index = min(c.max, c.index)
+	}
+}
+
+func (c *cursor) Update(msg tea.Msg) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case tea.KeyUp.String(), "k":
+			c.Up()
+		case tea.KeyDown.String(), "j":
+			c.Down()
+		}
+	}
+}
+
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
 var encodedEnterMsg = tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(encodedEnter)}
 
 func newFormKeys() formKeys {
@@ -251,16 +306,6 @@ func (f Form) Value(name string) string {
 	for _, field := range f.fields {
 		if field.Match(name) {
 			return field.Value()
-		}
-	}
-	return ""
-}
-
-// View returns the given field view.
-func (f Form) View(name string) string {
-	for _, field := range f.fields {
-		if field.Match(name) {
-			return field.View()
 		}
 	}
 	return ""

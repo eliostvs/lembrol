@@ -5,8 +5,12 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const inputPrompt = "> "
+
 var (
-	appStyle = lipgloss.NewStyle().Padding(1, 2)
+	appListStyle = lipgloss.NewStyle().Padding(1, 2)
+
+	appFormStyle = lipgloss.NewStyle().Padding(1, 4)
 
 	DarkGreen   = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#04B575", Light: "#04B575"})
 	Fuchsia     = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#EE6FF8", Light: "#EE6FF8"})
@@ -19,11 +23,13 @@ var (
 	DarkRed     = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#C74665", Light: "#FF6F91"})
 	White       = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#DDDDDD", Light: "#1A1A1A"})
 
-	helpStyle = lipgloss.NewStyle().Padding(1, 0, 0, 2)
+	helpStyle = lipgloss.NewStyle().Padding(2, 0, 0)
 
-	fieldStyle = lipgloss.NewStyle().Padding(1, 0)
+	fieldStyle = lipgloss.NewStyle().Padding(1, 0, 0)
 
-	formStyle = lipgloss.NewStyle().Padding(1, 0)
+	formStyle = lipgloss.NewStyle().Padding(1, 0, 2)
+
+	//deckStyle = Indigo.Copy().Padding(2, 0, 0)
 
 	selectedTitleStyle = list.NewDefaultItemStyles().SelectedTitle
 	selectedDescStyle  = list.NewDefaultItemStyles().SelectedDesc
@@ -42,5 +48,3 @@ var (
 			Padding(0, 1).
 			Bold(true)
 )
-
-const HorizontalPadding = 10

@@ -23,79 +23,45 @@ func TestCards(t *testing.T) {
 		view := m.View()
 
 		assert.Contains(t, view, "Empty")
-		assert.Contains(t, view, "0 card | 0 due")
-		assert.Contains(t, view, "Your currently have not cards. Press 'a' to create one.")
-		assert.NotContains(t, view, "•\n")
-		assert.Contains(t, view, "a: add")
-		assert.NotContains(t, view, "j/k, ↑/↓: choose")
-		assert.NotContains(t, view, "s: study")
-		assert.NotContains(t, view, "e: edit")
-		assert.NotContains(t, view, "x: delete")
-		assert.Contains(t, view, "esc: close")
-		assert.Contains(t, view, "q: quit")
+		assert.Contains(t, view, "No items")
+		assert.Contains(t, view, "a add • q quit • ? more ")
 	})
 
 	t.Run("truncates very long question text", func(t *testing.T) {
 		m, _ := newTestModel(longNamesDeck).
 			init().
 			SendKeyType(tea.KeyEnter).
-			SendMsg(tea.WindowSizeMsg{Width: 69}).
+			SendMsg(windowSizeMsg).
 			Get()
 
 		view := m.View()
 
 		assert.Contains(t, view, "Very Long Question & Answer")
-		assert.Contains(t, view, "Lorem ipsum dolor sit amet, consectetur adipiscing elit…")
-	})
-
-	t.Run("shows deck with one card", func(t *testing.T) {
-		m, _ := newTestModel(singleCardDeck).
-			init().
-			SendKeyType(tea.KeyEnter).
-			Get()
-
-		view := m.View()
-
-		assert.Contains(t, view, "Golang One")
-		assert.Contains(t, view, "1 card | 1 due")
-		assert.Contains(t, view, "a: add")
-		assert.NotContains(t, view, "j/k, ↑/↓: choose")
-		assert.NotContains(t, view, "h/l ←/→: page")
-		assert.Contains(t, view, "e: edit")
-		assert.Contains(t, view, "x: delete")
-		assert.Contains(t, view, "esc: close")
-		assert.Contains(t, view, "q: quit")
+		assert.Contains(t, view, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut …")
 	})
 
 	t.Run("shows deck with many cards", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks, terminal.WithClock(test.Clock{Time: oldestCard.ReviewedAt.Add(24 * time.Hour)})).
 			init().
+			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyEnter).
 			Get()
 
 		view := m.View()
 
-		assert.Contains(t, view, "Deck")
 		assert.Contains(t, view, "Golang A")
-		assert.Contains(t, view, "6 cards | 1 due")
-		assert.Contains(t, view, activePrompt+itemPrompt+latestCard.Question)
+		assert.Contains(t, view, "6 items")
+		assert.Contains(t, view, activePrompt+latestCard.Question)
 		assert.Contains(t, view, fmt.Sprintf("%sLast review %s", activePrompt, humanize.Time(latestCard.ReviewedAt)))
-		assert.Contains(t, view, itemPrompt+secondLatestCard.Question)
+		assert.Contains(t, view, secondLatestCard.Question)
 		assert.Contains(t, view, fmt.Sprintf("Last review %s", humanize.Time(secondLatestCard.ReviewedAt)))
-		assert.Contains(t, view, itemPrompt+secondLatestCard.Question)
+		assert.Contains(t, view, secondLatestCard.Question)
 		assert.Contains(t, view, fmt.Sprintf("Last review %s", humanize.Time(secondLatestCard.ReviewedAt)))
-		assert.Contains(t, view, "••\n")
-		assert.Contains(t, view, "a: add")
-		assert.Contains(t, view, "j/k, ↑/↓: choose")
-		assert.Contains(t, view, "h/l ←/→: page")
-		assert.Contains(t, view, "s: study")
-		assert.Contains(t, view, "e: edit")
-		assert.Contains(t, view, "x: delete")
-		assert.Contains(t, view, "esc: close")
-		assert.Contains(t, view, "q: quit")
+		assert.Contains(t, view, "••")
+		assert.Contains(t, view, "↑/k up • ↓/j down • / filter • a add • s study • q quit • ? more")
 	})
 
-	t.Run("closes the deck show navigates back to decks list page", func(t *testing.T) {
+	t.Run("closes the deck show navigates back to home page", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			init().
 			SendKeyType(tea.KeyEnter).
@@ -114,37 +80,17 @@ func TestCards(t *testing.T) {
 			{
 				name: "moves up, down using arrow keys",
 				keys: []string{tea.KeyDown.String(), tea.KeyUp.String()},
-				want: activePrompt + itemPrompt + latestCard.Question,
-			},
-			{
-				name: "moves up, down using vim keys",
-				keys: []string{vimKeyDown, vimKeyUp},
-				want: activePrompt + itemPrompt + latestCard.Question,
+				want: activePrompt + latestCard.Question,
 			},
 			{
 				name: "moves down, up, up",
 				keys: []string{tea.KeyDown.String(), vimKeyDown, vimKeyDown},
-				want: activePrompt + itemPrompt + "Question D",
-			},
-			{
-				name: "moves right using arrow keys",
-				keys: []string{tea.KeyRight.String()},
-				want: activePrompt + itemPrompt + "Question F",
-			},
-			{
-				name: "moves right using vim keys",
-				keys: []string{vimKeyRight},
-				want: activePrompt + itemPrompt + "Question F",
+				want: activePrompt + "Question A",
 			},
 			{
 				name: "moves right, left using arrow keys",
 				keys: []string{tea.KeyRight.String(), tea.KeyLeft.String()},
-				want: activePrompt + itemPrompt + latestCard.Question,
-			},
-			{
-				name: "moves right, left using vim keys",
-				keys: []string{vimKeyRight, vimKeyLeft},
-				want: activePrompt + itemPrompt + latestCard.Question,
+				want: activePrompt + latestCard.Question,
 			},
 		}
 		for _, tt := range tests {
@@ -156,8 +102,8 @@ func TestCards(t *testing.T) {
 
 				m, _ := newTestModel(manyDecks).
 					init().
+					SendMsg(windowSizeMsg).
 					SendKeyType(tea.KeyEnter).
-					SendBatch(batch).
 					Get()
 
 				assert.Contains(t, m.View(), tt.want)
@@ -176,24 +122,13 @@ func TestCards(t *testing.T) {
 	})
 
 	t.Run("ignores start review when deck has no due cards", func(t *testing.T) {
-		m, cmd := newTestModel(singleCardDeck, terminal.WithClock(test.Clock{Time: latestCard.ReviewedAt})).
+		m, _ := newTestModel(singleCardDeck, terminal.WithClock(test.Clock{Time: latestCard.ReviewedAt})).
 			init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(studyKey).
 			Get()
 
-		assert.Nil(t, cmd)
-		assert.Contains(t, m.View(), "Deck")
-	})
-
-	t.Run("quits the app from deck page", func(t *testing.T) {
-		m, _ := newTestModel(singleCardDeck).
-			init().
-			SendKeyType(tea.KeyEnter).
-			SendKeyRune(quitKey).
-			Get()
-
-		assert.Contains(t, m.View(), "Thanks for using Remember CLI!")
+		assert.Contains(t, m.View(), "Golang One")
 	})
 }
 
@@ -207,29 +142,26 @@ func TestCardCreate(t *testing.T) {
 
 		view := m.View()
 
-		assert.Contains(t, view, "Add Card")
-		assert.Contains(t, view, "Back")
+		assert.Contains(t, view, "Golang One")
 		assert.Contains(t, view, "Front")
 		assert.Contains(t, view, "nter a question")
-		assert.Contains(t, view, "nter an answer")
-		assert.Contains(t, view, "tab, shift+tab, ↑/↓: field")
-		assert.Contains(t, view, "enter: confirm")
-		assert.Contains(t, view, "esc: cancel")
+		assert.Contains(t, view, "Back")
+		assert.Contains(t, view, "Enter an answer")
+		assert.Contains(t, view, "↓ down • ↑ up • enter confirm • esc cancel")
 	})
 
 	t.Run("goes to deck page when card creation is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
 			init().
 			SendKeyType(tea.KeyEnter).
-			SendKeyType(tea.KeyRight).
 			SendKeyRune(createKey).
 			SendKeyType(tea.KeyEsc).
 			Get()
 
 		view := m.View()
 
-		assert.NotContains(t, view, "Add Card")
-		assert.Contains(t, view, activePrompt+itemPrompt+oldestCard.Question)
+		assert.NotContains(t, view, "Front")
+		assert.Contains(t, view, activePrompt+latestCard.Question)
 	})
 
 	t.Run("goes to deck page when card is created", func(t *testing.T) {
@@ -252,10 +184,9 @@ func TestCardCreate(t *testing.T) {
 
 		view := m.View()
 
-		assert.Contains(t, view, "Deck")
 		assert.Contains(t, view, "Empty")
-		assert.Contains(t, view, "1 card | 1 due")
-		assert.Contains(t, view, activePrompt+itemPrompt+"New question")
+		assert.Contains(t, view, "1 item")
+		assert.Contains(t, view, activePrompt+"New question")
 		assert.Contains(t, view, activePrompt+"Last review just now")
 	})
 
@@ -289,8 +220,7 @@ func TestCardCreate(t *testing.T) {
 
 			view := m.View()
 
-			assert.Contains(t, view, "Add Card")
-			assert.NotContains(t, view, "Your currently have not cards. Press 'a' to create one.")
+			assert.Contains(t, view, "Front")
 		})
 
 		t.Run("missing answer", func(t *testing.T) {
@@ -305,8 +235,8 @@ func TestCardCreate(t *testing.T) {
 
 			view := m.View()
 
-			assert.Contains(t, view, "Add Card")
-			assert.NotContains(t, view, "Your currently have not cards. Press 'a' to create one.")
+			assert.Contains(t, view, "Front")
+			assert.Contains(t, view, "Back")
 		})
 	})
 }
@@ -321,14 +251,12 @@ func TestCardEdit(t *testing.T) {
 
 		view := m.View()
 
-		assert.Contains(t, view, "Edit Card")
+		assert.Contains(t, view, "Golang One")
 		assert.Contains(t, view, "Back")
+		assert.Contains(t, view, "> "+latestCard.Question)
 		assert.Contains(t, view, "Front")
-		assert.Contains(t, view, latestCard.Question[1:])
-		assert.Contains(t, view, latestCard.Answer)
-		assert.Contains(t, view, "tab, shift+tab, ↑/↓: field")
-		assert.Contains(t, view, "enter: confirm")
-		assert.Contains(t, view, "esc: cancel")
+		assert.Contains(t, view, "> "+latestCard.Answer)
+		assert.Contains(t, view, "↓ down • ↑ up • enter confirm • esc cancel")
 	})
 
 	t.Run("goes to deck page when card edit is canceled", func(t *testing.T) {
@@ -342,8 +270,7 @@ func TestCardEdit(t *testing.T) {
 
 		view := m.View()
 
-		assert.NotContains(t, view, "Edit Card")
-		assert.Contains(t, view, activePrompt+itemPrompt+oldestCard.Question)
+		assert.NotContains(t, view, "Front")
 	})
 
 	t.Run("goes to error page when card edition fails", func(t *testing.T) {
@@ -365,7 +292,6 @@ func TestCardEdit(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
 			init().
 			SendKeyType(tea.KeyEnter).
-			SendKeyType(tea.KeyRight).
 			SendKeyRune(editKey).
 			SendText("--").
 			SendKeyType(tea.KeyDown).
@@ -383,8 +309,7 @@ func TestCardEdit(t *testing.T) {
 
 		view := m.View()
 
-		assert.NotContains(t, view, "Edit Card")
-		assert.Contains(t, view, activePrompt+itemPrompt+oldestCard.Question+"-q")
+		assert.Contains(t, view, activePrompt+latestCard.Question+"-q")
 	})
 
 	t.Run("validates card edition", func(t *testing.T) {
@@ -398,7 +323,7 @@ func TestCardEdit(t *testing.T) {
 				SendKeyType(tea.KeyEnter).
 				Get()
 
-			assert.Contains(t, m.View(), "Edit Card")
+			assert.Contains(t, m.View(), "Front")
 		})
 
 		t.Run("missing answer", func(t *testing.T) {
@@ -411,11 +336,11 @@ func TestCardEdit(t *testing.T) {
 				SendKeyType(tea.KeyEnter).
 				Get()
 
-			assert.Contains(t, m.View(), "Edit Card")
+			assert.Contains(t, m.View(), "Front")
 		})
 	})
 
-	t.Run("Write multiline text", func(t *testing.T) {
+	t.Run("write multiline text", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, emptyDeck)).
 			init().
 			SendKeyType(tea.KeyEnter).
@@ -428,58 +353,35 @@ func TestCardEdit(t *testing.T) {
 			SendMsg(breakLineMsg).
 			SendText("Answer second line").
 			SendKeyType(tea.KeyEnter).
-			SendKeyRune(editKey).
 			Get()
 
 		view := m.View()
 
-		assert.Contains(t, view, "> Question first line")
-		assert.Contains(t, view, "> Question second line")
-		assert.Contains(t, view, "> Answer first line")
-		assert.Contains(t, view, "> Answer second line")
+		assert.Contains(t, view, "Question first line¬Question second line")
 	})
 }
 
 func TestCardDelete(t *testing.T) {
-	t.Run("shows delete card page with few cards", func(t *testing.T) {
+	t.Run("shows delete message", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
 			init().
+			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(deleteKey).
 			Get()
 
 		view := m.View()
 
-		assert.Contains(t, view, "Deck")
 		assert.Contains(t, view, "Delete this card?")
-		assert.Contains(t, view, activePrompt+itemPrompt+latestCard.Question)
+		assert.Contains(t, view, activePrompt+latestCard.Question)
 		assert.Contains(t, view, fmt.Sprintf("%sLast review %s", activePrompt, humanize.Time(latestCard.ReviewedAt)))
-		assert.Contains(t, view, itemPrompt+secondLatestCard.Question)
-		assert.Contains(t, view, fmt.Sprintf("Last review %s", humanize.Time(secondLatestCard.ReviewedAt)))
-		assert.Contains(t, view, "enter: delete")
-		assert.Contains(t, view, "esc: cancel")
-		assert.Contains(t, view, "q: quit")
-	})
-
-	t.Run("truncates very long question text", func(t *testing.T) {
-		m, _ := newTestModel(longNamesDeck).
-			init().
-			SendKeyType(tea.KeyEnter).
-			SendKeyRune(deleteKey).
-			SendMsg(tea.WindowSizeMsg{Width: 69}).
-			Get()
-
-		view := m.View()
-
-		assert.Contains(t, view, "Delete this card?")
-		assert.Contains(t, view, "Lorem ipsum dolor sit amet, consectetur adipiscing elit…")
 	})
 
 	t.Run("goes to deck page the card deletion is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
 			init().
+			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyEnter).
-			SendKeyType(tea.KeyRight).
 			SendKeyRune(deleteKey).
 			SendKeyType(tea.KeyEsc).
 			Get()
@@ -487,7 +389,7 @@ func TestCardDelete(t *testing.T) {
 		view := m.View()
 
 		assert.NotContains(t, view, "Delete this card?")
-		assert.Contains(t, view, activePrompt+itemPrompt+oldestCard.Question)
+		assert.Contains(t, view, activePrompt+latestCard.Question)
 	})
 
 	t.Run("ignores delete action when deck has no cards", func(t *testing.T) {
@@ -495,10 +397,9 @@ func TestCardDelete(t *testing.T) {
 			init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(deleteKey).
-			SendKeyType(tea.KeyEsc).
 			Get()
 
-		assert.Contains(t, m.View(), "No deck files found.")
+		assert.NotContains(t, m.View(), "Delete this card?")
 	})
 
 	t.Run("goes to error page when card deletion fails", func(t *testing.T) {
@@ -518,30 +419,15 @@ func TestCardDelete(t *testing.T) {
 	t.Run("goes to deck page when card is deleted", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
 			init().
+			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyEnter).
-			SendKeyType(tea.KeyRight).
-			SendKeyType(tea.KeyDown).
-			SendKeyType(tea.KeyDown).
 			SendKeyRune(deleteKey).
 			SendKeyType(tea.KeyEnter).
 			Get()
 
 		view := m.View()
 
-		assert.Contains(t, view, "Golang A")
-		assert.Contains(t, view, "5 cards | 5 due")
-		assert.Contains(t, view, latestCard.Question)
-		assert.NotContains(t, view, oldestCard.Question)
-	})
-
-	t.Run("quits the app from delete page", func(t *testing.T) {
-		m, _ := newTestModel(singleCardDeck).
-			init().
-			SendKeyType(tea.KeyEnter).
-			SendKeyRune(deleteKey).
-			SendKeyRune(quitKey).
-			Get()
-
-		assert.Contains(t, m.View(), "Thanks for using Remember CLI!")
+		assert.NotContains(t, view, "Delete this card?")
+		assert.NotContains(t, view, latestCard.Question)
 	})
 }

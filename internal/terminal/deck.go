@@ -78,10 +78,6 @@ func newDeckKeys() *deckKeys {
 			key.WithKeys("x"),
 			key.WithHelp("x", "delete"),
 		),
-		cancel: key.NewBinding(
-			key.WithKeys("q", "esc"),
-			key.WithHelp("q", "cancel"),
-		),
 	}
 }
 
@@ -91,43 +87,42 @@ type deckKeys struct {
 	study   key.Binding
 	rename  key.Binding
 	delete  key.Binding
-	cancel  key.Binding
 }
 
 // MODEL
 
-func newDeckModel(decks []flashcard.Deck, repo *flashcard.Repository) deckModel {
+func newDecksModel(decks []flashcard.Deck, repo *flashcard.Repository) decksModel {
 	keys := newDeckKeys()
 	delegate := list.NewDefaultDelegate()
-	model := list.NewModel(newDeckItems(decks), &delegate, 0, 0)
-	model.Title = "Decks"
-	model.Styles.Title = titleStyle
-	model.AdditionalShortHelpKeys = func() []key.Binding {
+	listModel := list.NewModel(newDeckItems(decks), &delegate, 0, 0)
+	listModel.Title = "Decks"
+	listModel.Styles.Title = titleStyle
+	listModel.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			keys.confirm,
 			keys.add,
+			keys.confirm,
 		}
 	}
-	model.AdditionalFullHelpKeys = func() []key.Binding {
+	listModel.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			keys.add,
 			keys.confirm,
 			keys.rename,
-			keys.study,
 			keys.delete,
+			keys.study,
 		}
 	}
-	model.KeyMap.ForceQuit.SetEnabled(false)
+	listModel.DisableQuitKeybindings()
 
-	return deckModel{
+	return decksModel{
 		delegate:   &delegate,
 		keys:       keys,
-		list:       model,
+		list:       listModel,
 		repository: repo,
 	}
 }
 
-type deckModel struct {
+type decksModel struct {
 	form       Form
 	keys       *deckKeys
 	list       list.Model
@@ -138,26 +133,26 @@ type deckModel struct {
 
 // VIEW
 
-func (m deckModel) View(w windowSize) string {
+func (m decksModel) View(w windowSize) string {
 	m.list.SetHeight(w.height)
 	m.list.SetWidth(w.width)
 
 	switch m.status {
 	case deckCreating:
-		content := titleStyle.Render("Add Deck")
+		content := titleStyle.Render("New Deck")
 		content += m.form.view()
-		return appStyle.Copy().Padding(1, 3).Render(content)
+		return appFormStyle.Render(content)
 
 	case deckEditing:
 		content := titleStyle.Render("Rename Deck")
 		content += m.form.view()
-		return appStyle.Copy().Padding(1, 3).Render(content)
+		return appFormStyle.Render(content)
 
 	case deckBrowsing, deckDeleting:
 		fallthrough
 
 	default:
-		return appStyle.Render(m.list.View())
+		return appListStyle.Render(m.list.View())
 	}
 }
 
@@ -181,14 +176,14 @@ type (
 	}
 )
 
-func (m deckModel) init() tea.Cmd {
+func (m decksModel) init() tea.Cmd {
 	return func() tea.Msg {
 		return initDeckMsg{}
 	}
 }
 
 // nolint:cyclop,gocognit
-func (m deckModel) Update(msg tea.Msg) (deckModel, tea.Cmd) {
+func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 	var cmd tea.Cmd
 
 	currentDeck := toDeck(m.list)
@@ -288,7 +283,7 @@ func (m deckModel) Update(msg tea.Msg) (deckModel, tea.Cmd) {
 			m.list.KeyMap.ShowFullHelp.SetEnabled(false)
 			return m, nil
 
-		case m.status == deckBrowsing && key.Matches(msg, m.keys.cancel) && m.list.FilterState() != list.FilterApplied:
+		case m.status == deckBrowsing && key.Matches(msg, m.list.KeyMap.Quit) && m.list.FilterState() != list.FilterApplied:
 			return m, exitCmd
 
 		case m.status == deckBrowsing && key.Matches(msg, m.keys.confirm) && hasDeck:
@@ -297,13 +292,18 @@ func (m deckModel) Update(msg tea.Msg) (deckModel, tea.Cmd) {
 		case m.status == deckDeleting && key.Matches(msg, m.keys.confirm):
 			return m, deleteDeck(m.list.Index(), currentDeck, m.repository)
 
-		case m.status == deckDeleting && key.Matches(msg, m.keys.cancel):
+		case m.status == deckDeleting && key.Matches(msg, m.list.KeyMap.Quit):
 			return m, m.init()
 
-		case m.status == deckEditing, m.status == deckCreating:
-			m.form, cmd = m.form.Update(msg)
-			return m, cmd
+			// the only two actions in delete state should confirm or cancel
+		case m.status == deckDeleting:
+			return m, nil
 		}
+	}
+
+	if m.status == deckEditing || m.status == deckCreating {
+		m.form, cmd = m.form.Update(msg)
+		return m, cmd
 	}
 
 	m.list, cmd = m.list.Update(msg)
@@ -324,7 +324,7 @@ func createDeckForm(name string) (Form, tea.Cmd) {
 	input.CharLimit = 30
 	input.SetValue(name)
 	input.CursorEnd()
-	input.Prompt = "> "
+	input.Prompt = inputPrompt
 	input.TextStyle = DarkGreen
 	input.PromptStyle = DarkGreen
 	cmd := input.Focus()

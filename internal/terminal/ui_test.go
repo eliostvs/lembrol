@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/stretchr/testify/assert"
 
@@ -33,7 +32,7 @@ func TestMain(m *testing.M) {
 
 var breakLineMsg = tea.KeyMsg{Type: tea.KeyEnter, Alt: true}
 
-var windowSizeMsg = tea.WindowSizeMsg{Width: 300, Height: 20}
+var windowSizeMsg = tea.WindowSizeMsg{Width: 100, Height: 20}
 
 func assertContainsMarkdown(t *testing.T, contains string, width int, content string) {
 	t.Helper()
@@ -53,20 +52,16 @@ const (
 	shortNamesDeck = "./testdata/short"
 	longNamesDeck  = "./testdata/long"
 
-	createKey   = "a"
-	quitKey     = "q"
-	studyKey    = "s"
-	skipKey     = "s"
-	deleteKey   = "x"
-	renameKey   = "r"
-	vimKeyDown  = "j"
-	vimKeyLeft  = "h"
-	vimKeyRight = "l"
-	vimKeyUp    = "k"
-	editKey     = "e"
-
+	createKey    = "a"
+	quitKey      = "q"
+	studyKey     = "s"
+	skipKey      = "s"
+	deleteKey    = "x"
+	renameKey    = "r"
+	vimKeyDown   = "j"
+	vimKeyUp     = "k"
+	editKey      = "e"
 	activePrompt = "│ "
-	itemPrompt   = "• "
 )
 
 var (
@@ -161,8 +156,9 @@ func (m *testModel) processMsg(msgs []tea.Msg) *testModel {
 }
 
 func (m *testModel) skip(msg tea.Msg) bool {
-	switch msg.(type) {
-	case spinner.TickMsg:
+	msgName := reflect.TypeOf(msg).Name()
+	switch msgName {
+	case "TickMsg", "blinkMsg":
 		return true
 	default:
 		return false
