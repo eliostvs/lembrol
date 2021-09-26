@@ -85,7 +85,7 @@ type Model struct {
 func (m Model) View() string {
 	switch m.page {
 	case Loading:
-		return m.templates.Render("loading", m)
+		return loadingView(m)
 
 	case Decks:
 		return m.decksModel.View(m.window)
@@ -110,10 +110,16 @@ func (m Model) View() string {
 	panic(appListStyle.Render(fmt.Sprintf("missing state %d in main view", m.page)))
 }
 
+func loadingView(m Model) string {
+	content := titleStyle.Render("Remember")
+	content += loadingStyle.Render(fmt.Sprintf("%s Loading...", m.Spinner.View()))
+	return appFormStyle.Render(content)
+}
+
 func errorView(m Model) string {
 	content := titleStyle.Render("Error")
 	content += Red.Render(m.Error)
-	return appListStyle.Render(content)
+	return appFormStyle.Render(content)
 }
 
 // UPDATE

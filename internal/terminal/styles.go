@@ -23,6 +23,8 @@ var (
 	DarkRed     = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#C74665", Light: "#FF6F91"})
 	White       = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#DDDDDD", Light: "#1A1A1A"})
 
+	loadingStyle = White.Copy().Padding(2, 0)
+
 	helpStyle = lipgloss.NewStyle().Padding(2, 0, 0)
 
 	fieldStyle = lipgloss.NewStyle().Padding(1, 0, 0)
