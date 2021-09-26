@@ -29,10 +29,9 @@ var (
 
 	formStyle = lipgloss.NewStyle().Padding(1, 0, 2)
 
-	//deckStyle = Indigo.Copy().Padding(2, 0, 0)
-
 	selectedTitleStyle = list.NewDefaultItemStyles().SelectedTitle
-	selectedDescStyle  = list.NewDefaultItemStyles().SelectedDesc
+
+	selectedDescStyle = list.NewDefaultItemStyles().SelectedDesc
 
 	deletedDesc = deletedTitle.Copy().
 			Foreground(DarkRed.GetForeground())
