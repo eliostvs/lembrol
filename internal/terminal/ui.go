@@ -34,7 +34,7 @@ func WithClock(clock flashcard.Clock) ModelOption {
 func newWindowSize(style lipgloss.Style, msg tea.WindowSizeMsg) windowSize {
 	topGap, rightGap, bottomGap, leftGap := style.GetPadding()
 	return windowSize{
-		width:  msg.Width - leftGap - rightGap,
+		width:  msg.Width - leftGap - rightGap - 2,
 		height: msg.Height - topGap - bottomGap,
 	}
 }
@@ -150,7 +150,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.window = newWindowSize(appListStyle, msg)
+		m.window = newWindowSize(appFormStyle, msg)
 		return m, nil
 
 	case spinner.TickMsg:
