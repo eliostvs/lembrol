@@ -39,7 +39,7 @@ func newWindowSize(style lipgloss.Style, msg tea.WindowSizeMsg) windowSize {
 	}
 }
 
-// windowSize is the size of terminal minus the edges paddings
+// windowSize is the size of terminal minus the edges paddings.
 type windowSize struct {
 	width, height int
 }
