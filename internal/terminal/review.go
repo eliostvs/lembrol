@@ -213,18 +213,18 @@ func reviewFinishedView(m reviewModel) string {
 
 func (m reviewModel) init() tea.Cmd {
 	return func() tea.Msg {
-		return scoredCardMsg{m.review}
+		return reviewQuestionMsg{m.review}
 	}
 }
 
 // UPDATE
 
 type (
-	scoredCardMsg struct {
+	reviewQuestionMsg struct {
 		flashcard.Review
 	}
 
-	reviewedMsg struct {
+	reviewFinishedMsg struct {
 		flashcard.Review
 	}
 )
@@ -232,7 +232,7 @@ type (
 // nolint:cyclop
 func (m reviewModel) Update(msg tea.Msg) (reviewModel, tea.Cmd) {
 	switch msg := msg.(type) {
-	case scoredCardMsg:
+	case reviewQuestionMsg:
 		m.review = msg.Review
 		m.status = reviewQuestion
 		m.keys.skip.SetEnabled(m.review.Current() != m.review.Total())
@@ -244,7 +244,7 @@ func (m reviewModel) Update(msg tea.Msg) (reviewModel, tea.Cmd) {
 		m.keys.veryEasy.SetEnabled(false)
 		return m, nil
 
-	case reviewedMsg:
+	case reviewFinishedMsg:
 		m.review = msg.Review
 		m.status = reviewFinished
 		m.keys.answer.SetEnabled(false)
@@ -302,7 +302,7 @@ func skipCard(review flashcard.Review) tea.Cmd {
 		if err != nil {
 			return failed(err)
 		}
-		return scoredCardMsg{review}
+		return reviewQuestionMsg{review}
 	}
 }
 
@@ -329,9 +329,9 @@ func scoreCard(input string, review flashcard.Review, repo *flashcard.Repository
 		}
 
 		if review.Left() == 0 {
-			return reviewedMsg{review}
+			return reviewFinishedMsg{review}
 		}
 
-		return scoredCardMsg{review}
+		return reviewQuestionMsg{review}
 	}
 }
