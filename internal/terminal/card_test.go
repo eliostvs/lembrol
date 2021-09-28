@@ -37,7 +37,7 @@ func TestCards(t *testing.T) {
 		view := m.View()
 
 		assert.Contains(t, view, "Very Long Question & Answer")
-		assert.Contains(t, view, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut …")
+		assert.Contains(t, view, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididu…")
 	})
 
 	t.Run("shows deck with many cards", func(t *testing.T) {
@@ -85,7 +85,7 @@ func TestCards(t *testing.T) {
 			{
 				name: "moves down, up, up",
 				keys: []string{tea.KeyDown.String(), vimKeyDown, vimKeyDown},
-				want: activePrompt + "Question A",
+				want: activePrompt + "Question D",
 			},
 			{
 				name: "moves right, left using arrow keys",
@@ -104,6 +104,7 @@ func TestCards(t *testing.T) {
 					init().
 					SendMsg(windowSizeMsg).
 					SendKeyType(tea.KeyEnter).
+					SendBatch(batch).
 					Get()
 
 				assert.Contains(t, m.View(), tt.want)
