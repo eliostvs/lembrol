@@ -1,8 +1,0 @@
-   {{"Answer" | title}}
-   {{with .Review}}
-   {{.Deck.Name | style "indigo"}}
-   {{printf "%d of %d" .Current .Total | style "gray"}}
-   
-{{.CurrentCard.Answer | markdown $.Width | style "fuchsia"}}
-   {{end}}
-{{with $text := help .Width "0: again" "1: hard" "2: normal" "3: easy" "4: super easy" "esc: close" "q: quit" | style "gray"}}{{$text}}{{end}}

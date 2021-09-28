@@ -147,18 +147,26 @@ func (m cardsModel) View(w windowSize) string {
 	case cardCreating:
 		content := titleStyle.Render(m.deck.Name)
 		content += m.form.view()
-		return appFormStyle.Render(content)
+		return largePaddingStyle.Render(content)
 
 	case cardEditing:
 		content := titleStyle.Render(m.deck.Name)
 		content += m.form.view()
-		return appFormStyle.Render(content)
+		return largePaddingStyle.Render(content)
 
 	case cardBrowsing, cardDeleting:
 		fallthrough
 
 	default:
-		return appListStyle.Render(m.list.View())
+		return midPaddingStyle.Render(m.list.View())
+	}
+}
+
+// INIT
+
+func (m cardsModel) init() tea.Cmd {
+	return func() tea.Msg {
+		return initCardMsg{}
 	}
 }
 
@@ -182,12 +190,6 @@ type (
 		deck  flashcard.Deck
 	}
 )
-
-func (m cardsModel) init() tea.Cmd {
-	return func() tea.Msg {
-		return initCardMsg{}
-	}
-}
 
 // nolint:cyclop
 func (m cardsModel) Update(window windowSize, msg tea.Msg) (cardsModel, tea.Cmd) {
@@ -348,13 +350,13 @@ func createCardForm(question, answer string, width int) (Form, tea.Cmd) {
 		NewField(
 			"question",
 			questionInput,
-			WithMultiline(inputPrompt),
+			WithMultiline(),
 			WithLabel("Front"),
 		),
 		NewField(
 			"answer",
 			answerInput,
-			WithMultiline(inputPrompt),
+			WithMultiline(),
 			WithLabel("Back"),
 		),
 	), cmd

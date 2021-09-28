@@ -37,7 +37,7 @@ var windowSizeMsg = tea.WindowSizeMsg{Width: 100, Height: 20}
 func assertContainsMarkdown(t *testing.T, contains string, width int, content string) {
 	t.Helper()
 
-	content, _ = terminal.Markdown(width-4, content)
+	content, _ = terminal.RenderMarkdown(content, width-4)
 	content = strings.TrimSpace(content)
 	assert.Contains(t, contains, content)
 }

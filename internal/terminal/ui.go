@@ -50,11 +50,10 @@ func NewModel(location string, opts ...ModelOption) Model {
 	spin.Spinner = spinner.Dot
 
 	m := Model{
-		Spinner:      spin,
+		spinner:      spin,
 		clock:        flashcard.NewClock(),
 		initialDelay: initialDelay,
 		location:     location,
-		templates:    newTemplates(),
 	}
 
 	for _, opt := range opts {
@@ -65,9 +64,8 @@ func NewModel(location string, opts ...ModelOption) Model {
 }
 
 type Model struct {
-	Error   string
-	Spinner spinner.Model
-
+	error        string
+	spinner      spinner.Model
 	cardsModel   cardsModel
 	clock        flashcard.Clock
 	decksModel   decksModel
@@ -76,7 +74,6 @@ type Model struct {
 	page         page
 	repository   *flashcard.Repository
 	reviewModel  reviewModel
-	templates    *templates
 	window       windowSize
 }
 
@@ -94,32 +91,28 @@ func (m Model) View() string {
 		return m.cardsModel.View(m.window)
 
 	case Review:
-		type sizeable struct {
-			Width int
-			reviewModel
-		}
-		return m.templates.Render(m.reviewModel.Template(), sizeable{m.window.width, m.reviewModel})
+		return m.reviewModel.View(m.window)
 
 	case Error:
-		return errorView(m)
+		return errorView(m.error)
 
 	case Quit:
-		return appListStyle.Render("Thanks for using Remember CLI!")
+		return midPaddingStyle.Render("Thanks for using Remember CLI!")
 	}
 
-	panic(appListStyle.Render(fmt.Sprintf("missing state %d in main view", m.page)))
+	panic(midPaddingStyle.Render(fmt.Sprintf("missing state %d in main view", m.page)))
 }
 
 func loadingView(m Model) string {
 	content := titleStyle.Render("Remember")
-	content += loadingStyle.Render(fmt.Sprintf("%s Loading...", m.Spinner.View()))
-	return appFormStyle.Render(content)
+	content += normalTextStyle.Render(fmt.Sprintf("%s Loading...", m.spinner.View()))
+	return largePaddingStyle.Render(content)
 }
 
-func errorView(m Model) string {
+func errorView(err string) string {
 	content := titleStyle.Render("Error")
-	content += Red.Render(m.Error)
-	return appFormStyle.Render(content)
+	content += Red.Render(err)
+	return largePaddingStyle.Render(content)
 }
 
 // UPDATE
@@ -150,11 +143,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.window = newWindowSize(appFormStyle, msg)
+		m.window = newWindowSize(largePaddingStyle, msg)
 		return m, nil
 
 	case spinner.TickMsg:
-		m.Spinner, cmd = m.Spinner.Update(msg)
+		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
 
 	case createdRepositoryMsg:
@@ -175,10 +168,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case setReviewPageMsg:
 		m.reviewModel = newReviewModel(flashcard.NewReview(msg.Deck, m.clock), m.repository)
 		m.page = Review
-		return m, nil
+		return m, m.reviewModel.init()
 
 	case setErrorPageMsg:
-		m.Error = msg.Error
+		m.error = msg.Error
 		m.page = Error
 		return m, tea.Quit
 

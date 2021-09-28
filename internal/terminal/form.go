@@ -113,10 +113,9 @@ func (k formKeys) FullHelp() [][]key.Binding {
 type FieldOption func(Field) Field
 
 // WithMultiline enables multiline text input prepending the given prefix in the beginning of the new line.
-func WithMultiline(prefix string) FieldOption {
+func WithMultiline() FieldOption {
 	return func(f Field) Field {
 		f.multiline = true
-		f.prefix = prefix
 		return f
 	}
 }
@@ -143,7 +142,6 @@ type Field struct {
 	label     string
 	model     textinput.Model
 	multiline bool
-	prefix    string
 }
 
 // Focus sets the focus on this field.
@@ -192,7 +190,7 @@ func (f Field) View() string {
 		content += "\n"
 	}
 
-	content += decodeMultiline(f.model.View(), f.prefix)
+	content += renderMultiline(f.model.View(), f.model.Prompt)
 	return fieldStyle.Render(color.Render(content))
 }
 

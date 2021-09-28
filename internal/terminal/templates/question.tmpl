@@ -1,8 +1,0 @@
-   {{"Question"| title}} 
-   {{with .Review}}
-   {{.Deck.Name | style "indigo"}}
-   {{printf "%d of %d" .Current .Total | style "gray"}}
-   
-{{.CurrentCard.Question | markdown $.Width | style "fuchsia"}}
-   {{end}}
-{{with $text := help .Width (yesno (gt .Review.Left 1) "s: skip" "") "enter: answer" "esc: close" "q: quit" | style "gray"}}{{$text}}{{end}}

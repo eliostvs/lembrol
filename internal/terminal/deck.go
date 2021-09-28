@@ -141,18 +141,26 @@ func (m decksModel) View(w windowSize) string {
 	case deckCreating:
 		content := titleStyle.Render("New Deck")
 		content += m.form.view()
-		return appFormStyle.Render(content)
+		return largePaddingStyle.Render(content)
 
 	case deckEditing:
 		content := titleStyle.Render("Rename Deck")
 		content += m.form.view()
-		return appFormStyle.Render(content)
+		return largePaddingStyle.Render(content)
 
 	case deckBrowsing, deckDeleting:
 		fallthrough
 
 	default:
-		return appListStyle.Render(m.list.View())
+		return midPaddingStyle.Render(m.list.View())
+	}
+}
+
+// INIT
+
+func (m decksModel) init() tea.Cmd {
+	return func() tea.Msg {
+		return initDeckMsg{}
 	}
 }
 
@@ -175,12 +183,6 @@ type (
 		item  deckItem
 	}
 )
-
-func (m decksModel) init() tea.Cmd {
-	return func() tea.Msg {
-		return initDeckMsg{}
-	}
-}
 
 // nolint:cyclop,gocognit
 func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
@@ -325,8 +327,8 @@ func createDeckForm(name string) (Form, tea.Cmd) {
 	input.SetValue(name)
 	input.CursorEnd()
 	input.Prompt = inputPrompt
-	input.TextStyle = DarkGreen
-	input.PromptStyle = DarkGreen
+	input.TextStyle = Fuchsia
+	input.PromptStyle = Fuchsia
 	cmd := input.Focus()
 	return NewForm(NewField("name", input, WithLabel("Name"))), cmd
 }

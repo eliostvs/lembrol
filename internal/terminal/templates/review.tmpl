@@ -1,6 +1,0 @@
-   {{"Congratulations!" | title}}
-
-   {{printf "%d card%s reviewed." .Review.Completed (pluralize .Review.Completed "s") | style "white" }}
-   
-   
-{{with $text := help .Width "esc: close" "q: quit" | style "gray"}}{{$text}}{{end}}

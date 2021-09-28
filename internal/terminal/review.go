@@ -1,12 +1,16 @@
 package terminal
 
 import (
+	"fmt"
+
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/eliostvs/remembercli/internal/flashcard"
 )
 
-// MODEL
+// STATE
 
 type reviewStatus int
 
@@ -16,40 +20,210 @@ const (
 	reviewFinished
 )
 
-func (s reviewStatus) template() string {
-	return []string{
-		"question",
-		"answer",
-		"review",
-	}[s]
+// KEYS
+
+func newReviewKeys() *reviewKeys {
+	return &reviewKeys{
+		quit: key.NewBinding(
+			key.WithKeys("q", "esc"),
+			key.WithHelp("q", "quit"),
+		),
+		score: key.NewBinding(
+			key.WithKeys("0", "1", "2", "3", "4", "5"),
+			key.WithHelp("1", "score"),
+		),
+		answer: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "answer"),
+		),
+		skip: key.NewBinding(
+			key.WithKeys("s"),
+			key.WithHelp("s", "skip"),
+			key.WithDisabled(),
+		),
+		again: key.NewBinding(
+			key.WithHelp("0", "again"),
+			key.WithDisabled(),
+		),
+		hard: key.NewBinding(
+			key.WithHelp("1", "hard"),
+			key.WithDisabled(),
+		),
+		normal: key.NewBinding(
+			key.WithHelp("2", "normal"),
+			key.WithDisabled(),
+		),
+		easy: key.NewBinding(
+			key.WithHelp("3", "easy"),
+			key.WithDisabled(),
+		),
+		veryEasy: key.NewBinding(
+			key.WithHelp("4", "very easy"),
+			key.WithDisabled(),
+		),
+		showFullHelp: key.NewBinding(
+			key.WithKeys("?"),
+			key.WithHelp("?", "more"),
+		),
+		closeFullHelp: key.NewBinding(
+			key.WithKeys("?"),
+			key.WithHelp("?", "close help"),
+		),
+	}
 }
+
+type reviewKeys struct {
+	quit          key.Binding
+	answer        key.Binding
+	skip          key.Binding
+	score         key.Binding
+	again         key.Binding
+	hard          key.Binding
+	normal        key.Binding
+	easy          key.Binding
+	veryEasy      key.Binding
+	showFullHelp  key.Binding
+	closeFullHelp key.Binding
+}
+
+func (k *reviewKeys) ShortHelp() []key.Binding {
+	return []key.Binding{
+		k.skip,
+		k.answer,
+		k.hard,
+		k.normal,
+		k.easy,
+		k.veryEasy,
+		k.quit,
+		k.showFullHelp,
+	}
+}
+
+func (k *reviewKeys) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{
+			k.skip,
+			k.answer,
+			k.hard,
+			k.normal,
+			k.easy,
+			k.quit,
+		},
+		{
+			k.again,
+			k.veryEasy,
+			k.closeFullHelp,
+		},
+	}
+}
+
+// MODEL
 
 func newReviewModel(review flashcard.Review, repository *flashcard.Repository) reviewModel {
 	return reviewModel{
-		Review:     review,
+		review:     review,
 		repository: repository,
+		keys:       newReviewKeys(),
+		help:       help.NewModel(),
 	}
 }
 
 type reviewModel struct {
-	Review flashcard.Review
-
+	review     flashcard.Review
+	help       help.Model
 	repository *flashcard.Repository
 	status     reviewStatus
+	keys       *reviewKeys
+	window     windowSize
 }
 
 // VIEW
 
-func (m reviewModel) Template() string {
-	return m.status.template()
+func (m reviewModel) View(w windowSize) string {
+	m.window = w
+
+	switch m.status {
+	case reviewQuestion:
+		return reviewQuestionView(m)
+
+	case reviewAnswer:
+		return reviewAnswerView(m)
+
+	case reviewFinished:
+		return reviewFinishedView(m)
+
+	default:
+		return ""
+	}
+}
+
+func reviewQuestionView(m reviewModel) string {
+	content := titleReviewStyle.Render("Question")
+	content += deckName.Render(m.review.Deck().Name)
+	content += status.Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total()))
+
+	card, err := m.review.CurrentCard()
+	if err != nil {
+		return errorView(err.Error())
+	}
+
+	markdown, err := RenderMarkdown(card.Question, m.window.width)
+	if err != nil {
+		return errorView(err.Error())
+	}
+
+	content += markdownStyle.Render(markdown)
+	content += helpReviewStyle.Render(m.help.View(m.keys))
+
+	return reviewScreenStyle.Render(content)
+}
+
+func reviewAnswerView(m reviewModel) string {
+	content := titleReviewStyle.Render("Answer")
+	content += deckName.Render(m.review.Deck().Name)
+	content += status.Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total()))
+
+	card, err := m.review.CurrentCard()
+	if err != nil {
+		return errorView(err.Error())
+	}
+
+	markdown, err := RenderMarkdown(card.Answer, m.window.width)
+	if err != nil {
+		return errorView(err.Error())
+	}
+
+	content += markdownStyle.Render(markdown)
+	content += helpReviewStyle.Render(m.help.View(m.keys))
+
+	return reviewScreenStyle.Render(content)
+
+}
+
+func reviewFinishedView(m reviewModel) string {
+	total := m.review.Completed()
+	content := titleStyle.Render("Congratulations!")
+	content += normalTextStyle.Render(fmt.Sprintf("%d card%s reviewed.", total, pluralize(total, "s")))
+
+	content += helpStyle.Render(m.help.View(m.keys))
+	return largePaddingStyle.Render(content)
+}
+
+// INIT
+
+func (m reviewModel) init() tea.Cmd {
+	return func() tea.Msg {
+		return scoredCardMsg{m.review}
+	}
 }
 
 // UPDATE
 
 type (
-	scoredMsg struct {
+	scoredCardMsg struct {
 		flashcard.Review
 	}
+
 	reviewedMsg struct {
 		flashcard.Review
 	}
@@ -58,42 +232,64 @@ type (
 // nolint:cyclop
 func (m reviewModel) Update(msg tea.Msg) (reviewModel, tea.Cmd) {
 	switch msg := msg.(type) {
-	case scoredMsg:
-		m.Review = msg.Review
+	case scoredCardMsg:
+		m.review = msg.Review
 		m.status = reviewQuestion
+		m.keys.skip.SetEnabled(m.review.Current() != m.review.Total())
+		m.keys.answer.SetEnabled(true)
+		m.keys.again.SetEnabled(false)
+		m.keys.hard.SetEnabled(false)
+		m.keys.normal.SetEnabled(false)
+		m.keys.easy.SetEnabled(false)
+		m.keys.veryEasy.SetEnabled(false)
 		return m, nil
 
 	case reviewedMsg:
-		m.Review = msg.Review
+		m.review = msg.Review
 		m.status = reviewFinished
+		m.keys.answer.SetEnabled(false)
+		m.keys.again.SetEnabled(false)
+		m.keys.hard.SetEnabled(false)
+		m.keys.normal.SetEnabled(false)
+		m.keys.easy.SetEnabled(false)
+		m.keys.veryEasy.SetEnabled(false)
 		return m, nil
 
 	case tea.KeyMsg:
-		switch msg.String() {
-		case tea.KeyEsc.String():
+		switch {
+		case key.Matches(msg, m.keys.quit):
 			if m.status == reviewFinished {
 				return m, showDecks
 			}
-			return m, showCards(m.Review.Deck())
+			return m, showCards(m.review.Deck())
 
-		case tea.KeyEnter.String():
+		case key.Matches(msg, m.keys.answer):
 			if m.status == reviewQuestion {
 				m.status = reviewAnswer
+				m.keys.skip.SetEnabled(false)
+				m.keys.answer.SetEnabled(false)
+				m.keys.again.SetEnabled(true)
+				m.keys.hard.SetEnabled(true)
+				m.keys.normal.SetEnabled(true)
+				m.keys.easy.SetEnabled(true)
+				m.keys.veryEasy.SetEnabled(true)
 				return m, nil
 			}
 
-		case "s":
-			if m.status == reviewQuestion && m.Review.Total() > 1 {
-				return m, skipCard(m.Review)
+		case key.Matches(msg, m.keys.skip):
+			if m.status == reviewQuestion && m.review.Total() > 1 {
+				return m, skipCard(m.review)
 			}
 
-		case "q":
-			return m, exitCmd
-
-		case "0", "1", "2", "3", "4":
+		case key.Matches(msg, m.keys.score):
 			if m.status == reviewAnswer {
-				return m, scoreCard(msg.String(), m.Review, m.repository)
+				return m, scoreCard(msg.String(), m.review, m.repository)
 			}
+
+		case key.Matches(msg, m.keys.showFullHelp):
+			fallthrough
+		case key.Matches(msg, m.keys.closeFullHelp):
+			m.help.ShowAll = !m.help.ShowAll
 		}
 	}
 
@@ -106,7 +302,7 @@ func skipCard(review flashcard.Review) tea.Cmd {
 		if err != nil {
 			return failed(err)
 		}
-		return scoredMsg{review}
+		return scoredCardMsg{review}
 	}
 }
 
@@ -136,6 +332,6 @@ func scoreCard(input string, review flashcard.Review, repo *flashcard.Repository
 			return reviewedMsg{review}
 		}
 
-		return scoredMsg{review}
+		return scoredCardMsg{review}
 	}
 }
