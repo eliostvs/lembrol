@@ -27,19 +27,6 @@ func TestCardsList(t *testing.T) {
 		assert.Contains(t, view, "a add • q quit • ? more ")
 	})
 
-	t.Run("truncates very long question text", func(t *testing.T) {
-		m, _ := newTestModel(longNamesDeck).
-			init().
-			SendMsg(windowSizeMsg).
-			SendKeyType(tea.KeyEnter).
-			Get()
-
-		view := m.View()
-
-		assert.Contains(t, view, "Very Long Question & Answer")
-		assert.Contains(t, view, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididu…")
-	})
-
 	t.Run("shows deck with many cards", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks, terminal.WithClock(test.Clock{Time: oldestCard.ReviewedAt.Add(24 * time.Hour)})).
 			init().
@@ -61,7 +48,20 @@ func TestCardsList(t *testing.T) {
 		assert.Contains(t, view, "↑/k up • ↓/j down • / filter • a add • s study • q quit • ? more")
 	})
 
-	t.Run("closes the deck show navigates back to home page", func(t *testing.T) {
+	t.Run("truncates very long question text", func(t *testing.T) {
+		m, _ := newTestModel(longNamesDeck).
+			init().
+			SendMsg(windowSizeMsg).
+			SendKeyType(tea.KeyEnter).
+			Get()
+
+		view := m.View()
+
+		assert.Contains(t, view, "Very Long Question & Answer")
+		assert.Contains(t, view, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididu…")
+	})
+
+	t.Run("shows homepage when deck is closed", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			init().
 			SendKeyType(tea.KeyEnter).
@@ -112,7 +112,7 @@ func TestCardsList(t *testing.T) {
 		}
 	})
 
-	t.Run("starts study redirects to question page", func(t *testing.T) {
+	t.Run("shows questions when review starts", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			init().
 			SendKeyType(tea.KeyEnter).
@@ -122,7 +122,7 @@ func TestCardsList(t *testing.T) {
 		assert.Contains(t, m.View(), "Question")
 	})
 
-	t.Run("ignores start review when deck has no due cards", func(t *testing.T) {
+	t.Run("does not start review when it does not have due cards", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck, terminal.WithClock(test.Clock{Time: latestCard.ReviewedAt})).
 			init().
 			SendKeyType(tea.KeyEnter).
@@ -134,7 +134,7 @@ func TestCardsList(t *testing.T) {
 }
 
 func TestCardCreate(t *testing.T) {
-	t.Run("shows create card page", func(t *testing.T) {
+	t.Run("shows create card form", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			init().
 			SendKeyType(tea.KeyEnter).
@@ -151,7 +151,7 @@ func TestCardCreate(t *testing.T) {
 		assert.Contains(t, view, "↓ down • ↑ up • enter confirm • esc cancel")
 	})
 
-	t.Run("goes to deck page when card creation is canceled", func(t *testing.T) {
+	t.Run("shows deck when the creation is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
 			init().
 			SendKeyType(tea.KeyEnter).
@@ -165,7 +165,7 @@ func TestCardCreate(t *testing.T) {
 		assert.Contains(t, view, activePrompt+latestCard.Question)
 	})
 
-	t.Run("goes to deck page when card is created", func(t *testing.T) {
+	t.Run("shows deck when card is created", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, emptyDeck)).
 			init().
 			SendKeyType(tea.KeyEnter).
@@ -191,7 +191,7 @@ func TestCardCreate(t *testing.T) {
 		assert.Contains(t, view, activePrompt+"Last review just now")
 	})
 
-	t.Run("goes error page when card creation fails", func(t *testing.T) {
+	t.Run("shows error when card the creation fail", func(t *testing.T) {
 		location, cleanup := test.TempReadOnlyDirCopy(t, emptyDeck)
 		t.Cleanup(cleanup)
 
@@ -240,10 +240,30 @@ func TestCardCreate(t *testing.T) {
 			assert.Contains(t, view, "Back")
 		})
 	})
+
+	t.Run("write multiline text", func(t *testing.T) {
+		m, _ := newTestModel(test.TempDirCopy(t, emptyDeck)).
+			init().
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune(createKey).
+			SendKeyRune("Question first line").
+			SendMsg(breakLineMsg).
+			SendKeyRune("Question second line").
+			SendKeyType(tea.KeyDown).
+			SendKeyRune("Answer first line").
+			SendMsg(breakLineMsg).
+			SendKeyRune("Answer second line").
+			SendKeyType(tea.KeyEnter).
+			Get()
+
+		view := m.View()
+
+		assert.Contains(t, view, "Question first line¬Question second line")
+	})
 }
 
 func TestCardEdit(t *testing.T) {
-	t.Run("shows card edit page", func(t *testing.T) {
+	t.Run("shows edit card form", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			init().
 			SendKeyType(tea.KeyEnter).
@@ -260,21 +280,7 @@ func TestCardEdit(t *testing.T) {
 		assert.Contains(t, view, "↓ down • ↑ up • enter confirm • esc cancel")
 	})
 
-	t.Run("goes to deck page when card edit is canceled", func(t *testing.T) {
-		m, _ := newTestModel(manyDecks).
-			init().
-			SendKeyType(tea.KeyEnter).
-			SendKeyType(tea.KeyRight).
-			SendKeyRune(editKey).
-			SendKeyType(tea.KeyEsc).
-			Get()
-
-		view := m.View()
-
-		assert.NotContains(t, view, "Front")
-	})
-
-	t.Run("goes to error page when card edition fails", func(t *testing.T) {
+	t.Run("shows error when the edition fail", func(t *testing.T) {
 		location, cleanup := test.TempReadOnlyDirCopy(t, singleCardDeck)
 		t.Cleanup(cleanup)
 
@@ -289,7 +295,7 @@ func TestCardEdit(t *testing.T) {
 		assert.Contains(t, m.View(), "Error")
 	})
 
-	t.Run("goes to deck page when card edition succeed", func(t *testing.T) {
+	t.Run("shows deck when card is changed", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
 			init().
 			SendKeyType(tea.KeyEnter).
@@ -313,53 +319,6 @@ func TestCardEdit(t *testing.T) {
 		assert.Contains(t, view, activePrompt+latestCard.Question+"-q")
 	})
 
-	t.Run("validates card edition", func(t *testing.T) {
-		t.Run("missing question", func(t *testing.T) {
-			m, _ := newTestModel(test.TempDirCopy(t, shortNamesDeck)).
-				init().
-				SendKeyType(tea.KeyEnter).
-				SendKeyRune(editKey).
-				SendKeyType(tea.KeyBackspace).
-				SendKeyType(tea.KeyEnter).
-				SendKeyType(tea.KeyEnter).
-				Get()
-
-			assert.Contains(t, m.View(), "Front")
-		})
-
-		t.Run("missing answer", func(t *testing.T) {
-			m, _ := newTestModel(test.TempDirCopy(t, shortNamesDeck)).
-				init().
-				SendKeyType(tea.KeyEnter).
-				SendKeyRune(editKey).
-				SendKeyType(tea.KeyDown).
-				SendKeyType(tea.KeyBackspace).
-				SendKeyType(tea.KeyEnter).
-				Get()
-
-			assert.Contains(t, m.View(), "Front")
-		})
-	})
-
-	t.Run("write multiline text", func(t *testing.T) {
-		m, _ := newTestModel(test.TempDirCopy(t, emptyDeck)).
-			init().
-			SendKeyType(tea.KeyEnter).
-			SendKeyRune(createKey).
-			SendKeyRune("Question first line").
-			SendMsg(breakLineMsg).
-			SendKeyRune("Question second line").
-			SendKeyType(tea.KeyDown).
-			SendKeyRune("Answer first line").
-			SendMsg(breakLineMsg).
-			SendKeyRune("Answer second line").
-			SendKeyType(tea.KeyEnter).
-			Get()
-
-		view := m.View()
-
-		assert.Contains(t, view, "Question first line¬Question second line")
-	})
 }
 
 func TestCardDelete(t *testing.T) {
