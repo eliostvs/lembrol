@@ -32,36 +32,6 @@ func (c *cursor) Value() int {
 	return c.index
 }
 
-func (c *cursor) Last() {
-	c.index = c.max
-}
-
-func (c *cursor) Max(max int) {
-	if max >= 0 {
-		c.max = max
-		c.index = min(c.max, c.index)
-	}
-}
-
-func (c *cursor) Update(msg tea.Msg) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case tea.KeyUp.String(), "k":
-			c.Up()
-		case tea.KeyDown.String(), "j":
-			c.Down()
-		}
-	}
-}
-
-func min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
-
 var encodedEnterMsg = tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(encodedEnter)}
 
 func newFormKeys() formKeys {
