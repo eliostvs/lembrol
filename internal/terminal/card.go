@@ -191,7 +191,7 @@ type (
 	}
 )
 
-// nolint:cyclop
+// nolint:cyclop,gocyclo
 func (m cardsModel) Update(window windowSize, msg tea.Msg) (cardsModel, tea.Cmd) {
 	var cmd tea.Cmd
 

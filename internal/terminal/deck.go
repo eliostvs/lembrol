@@ -184,7 +184,7 @@ type (
 	}
 )
 
-// nolint:cyclop,gocognit
+// nolint:cyclop,gocyclo
 func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 	var cmd tea.Cmd
 

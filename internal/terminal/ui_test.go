@@ -160,7 +160,7 @@ func (m *testModel) processCmd(cmd tea.Cmd) (msgs []tea.Msg) {
 	switch val.Kind() {
 	case reflect.Slice:
 		for i := 0; i < val.Len(); i++ {
-			valCmd := val.Index(i).Interface().(tea.Cmd)
+			valCmd, _ := val.Index(i).Interface().(tea.Cmd)
 			msgs = append(msgs, m.processCmd(valCmd)...)
 		}
 
