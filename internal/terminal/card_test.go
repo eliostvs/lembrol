@@ -13,6 +13,8 @@ import (
 	"github.com/eliostvs/remembercli/internal/test"
 )
 
+// TODO: test full help
+// TODO: test filter
 func TestCardsList(t *testing.T) {
 	t.Run("shows deck with no cards", func(t *testing.T) {
 		m, _ := newTestModel(emptyDeck).
@@ -321,6 +323,7 @@ func TestCardEdit(t *testing.T) {
 
 }
 
+// TODO: ignore keys while deletion
 func TestCardDelete(t *testing.T) {
 	t.Run("confirms card deletion", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).

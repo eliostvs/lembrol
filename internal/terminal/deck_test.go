@@ -11,6 +11,8 @@ import (
 	"github.com/eliostvs/remembercli/internal/test"
 )
 
+// TODO: test full help
+// TODO: test filter
 func TestDecksList(t *testing.T) {
 	t.Run("shows homepage without decks", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
@@ -292,6 +294,7 @@ func TestDeckRename(t *testing.T) {
 	})
 }
 
+// TODO: ignore keys while deletion
 func TestDeckDelete(t *testing.T) {
 	t.Run("confirms the deletion", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, fewDecks)).
