@@ -225,16 +225,22 @@ func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 
 	case createdDeckMsg:
 		m.list.InsertItem(msg.index, msg.item)
-		return m, m.init()
+		m.status = deckBrowsing
+		resetControls()
+		return m, cmd
 
 	case renamedDeckMsg:
+		m.status = deckBrowsing
 		m.list.RemoveItem(msg.index)
 		m.list.InsertItem(msg.index-1, msg.item)
-		return m, m.init()
+		resetControls()
+		return m, nil
 
 	case deletedDeckMsg:
+		m.status = deckBrowsing
 		m.list.RemoveItem(msg.index)
-		return m, m.init()
+		resetControls()
+		return m, nil
 
 	case submittedFormMsg:
 		if m.status == deckEditing {
