@@ -209,7 +209,7 @@ func TestDeckCreate(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
 			init().
 			SendKeyRune(createKey).
-			SendText("Golang q").
+			SendKeyRune("Golang q").
 			SendKeyType(tea.KeyEnter).
 			Get()
 
@@ -226,7 +226,7 @@ func TestDeckCreate(t *testing.T) {
 		m, _ := newTestModel(location).
 			init().
 			SendKeyRune(createKey).
-			SendText("Golang New.toml").
+			SendKeyRune("Golang New.toml").
 			SendKeyType(tea.KeyEnter).
 			Get()
 
@@ -297,7 +297,7 @@ func TestDeckRename(t *testing.T) {
 		m, _ := newTestModel(location).
 			init().
 			SendKeyRune(renameKey).
-			SendText(" Change").
+			SendKeyRune(" Change").
 			SendKeyType(tea.KeyEnter).
 			Get()
 

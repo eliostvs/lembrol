@@ -170,13 +170,13 @@ func TestCardCreate(t *testing.T) {
 			init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(createKey).
-			SendText("New").
+			SendKeyRune("New").
 			SendKeyType(tea.KeyDown).
-			SendText("New").
+			SendKeyRune("New").
 			SendKeyType(tea.KeyShiftTab).
-			SendText(" question").
+			SendKeyRune(" question").
 			SendKeyType(tea.KeyDown).
-			SendText(" answer").
+			SendKeyRune(" answer").
 			SendKeyType(tea.KeyUp).
 			SendKeyRune("?").
 			SendKeyType(tea.KeyEnter).
@@ -199,9 +199,9 @@ func TestCardCreate(t *testing.T) {
 			init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(createKey).
-			SendText("Answer").
+			SendKeyRune("Answer").
 			SendKeyType(tea.KeyDown).
-			SendText("Question").
+			SendKeyRune("Question").
 			SendKeyType(tea.KeyEnter).
 			Get()
 
@@ -215,7 +215,7 @@ func TestCardCreate(t *testing.T) {
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(createKey).
 				SendKeyType(tea.KeyEnter).
-				SendText("Answer").
+				SendKeyRune("Answer").
 				SendKeyType(tea.KeyEnter).
 				Get()
 
@@ -229,7 +229,7 @@ func TestCardCreate(t *testing.T) {
 				init().
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(createKey).
-				SendText("Question").
+				SendKeyRune("Question").
 				SendKeyType(tea.KeyEnter).
 				SendKeyType(tea.KeyEnter).
 				Get()
@@ -294,17 +294,17 @@ func TestCardEdit(t *testing.T) {
 			init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(editKey).
-			SendText("--").
+			SendKeyRune("--").
 			SendKeyType(tea.KeyDown).
-			SendText("--").
+			SendKeyRune("--").
 			SendKeyType(tea.KeyUp).
 			SendKeyType(tea.KeyBackspace).
 			SendKeyType(tea.KeyTab).
 			SendKeyType(tea.KeyBackspace).
 			SendKeyType(tea.KeyShiftTab).
-			SendText("q").
+			SendKeyRune("q").
 			SendKeyType(tea.KeyTab).
-			SendText("q").
+			SendKeyRune("q").
 			SendKeyType(tea.KeyEnter).
 			Get()
 
@@ -346,13 +346,13 @@ func TestCardEdit(t *testing.T) {
 			init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(createKey).
-			SendText("Question first line").
+			SendKeyRune("Question first line").
 			SendMsg(breakLineMsg).
-			SendText("Question second line").
+			SendKeyRune("Question second line").
 			SendKeyType(tea.KeyDown).
-			SendText("Answer first line").
+			SendKeyRune("Answer first line").
 			SendMsg(breakLineMsg).
-			SendText("Answer second line").
+			SendKeyRune("Answer second line").
 			SendKeyType(tea.KeyEnter).
 			Get()
 

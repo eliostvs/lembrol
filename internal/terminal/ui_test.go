@@ -187,13 +187,6 @@ func (m *testModel) SendKeyType(t tea.KeyType) *testModel {
 	return m.SendMsg(tea.KeyMsg{Type: t})
 }
 
-func (m *testModel) SendText(text string) *testModel {
-	for _, char := range text {
-		m = m.SendKeyRune(string(char))
-	}
-	return m
-}
-
 func (m *testModel) Get() (tea.Model, tea.Cmd) {
 	return m.m, m.c
 }
