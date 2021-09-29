@@ -363,7 +363,7 @@ func TestCardEdit(t *testing.T) {
 }
 
 func TestCardDelete(t *testing.T) {
-	t.Run("shows delete message", func(t *testing.T) {
+	t.Run("confirms card deletion", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
 			init().
 			SendMsg(windowSizeMsg).
@@ -378,7 +378,7 @@ func TestCardDelete(t *testing.T) {
 		assert.Contains(t, view, fmt.Sprintf("%sLast review %s", activePrompt, humanize.Time(latestCard.ReviewedAt)))
 	})
 
-	t.Run("goes to deck page the card deletion is canceled", func(t *testing.T) {
+	t.Run("shows deck when the card deletion is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
 			init().
 			SendMsg(windowSizeMsg).
@@ -403,7 +403,7 @@ func TestCardDelete(t *testing.T) {
 		assert.NotContains(t, m.View(), "Delete this card?")
 	})
 
-	t.Run("goes to error page when card deletion fails", func(t *testing.T) {
+	t.Run("shows error when card deletion fails", func(t *testing.T) {
 		location, cleanup := test.TempReadOnlyDirCopy(t, singleCardDeck)
 		t.Cleanup(cleanup)
 
@@ -417,7 +417,7 @@ func TestCardDelete(t *testing.T) {
 		assert.Contains(t, m.View(), "Error")
 	})
 
-	t.Run("goes to deck page when card is deleted", func(t *testing.T) {
+	t.Run("shows deck when card is deleted", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
 			init().
 			SendMsg(windowSizeMsg).
