@@ -230,17 +230,23 @@ func (m cardsModel) Update(msg tea.Msg) (cardsModel, tea.Cmd) {
 		return m, nil
 
 	case createdCardMsg:
+		m.status = cardBrowsing
 		m.list.InsertItem(msg.index, msg.item)
-		return m, m.init()
+		resetControls()
+		return m, nil
 
 	case editedCardMsg:
+		m.status = cardBrowsing
 		m.list.RemoveItem(msg.index)
 		m.list.InsertItem(msg.index-1, msg.item)
-		return m, m.init()
+		resetControls()
+		return m, nil
 
 	case deletedCardMsg:
+		m.status = cardBrowsing
 		m.list.RemoveItem(msg.index)
-		return m, m.init()
+		resetControls()
+		return m, nil
 
 	case submittedFormMsg:
 		if m.status == cardEditing {
