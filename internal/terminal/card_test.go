@@ -13,7 +13,7 @@ import (
 	"github.com/eliostvs/remembercli/internal/test"
 )
 
-func TestCards(t *testing.T) {
+func TestCardsList(t *testing.T) {
 	t.Run("shows deck with no cards", func(t *testing.T) {
 		m, _ := newTestModel(emptyDeck).
 			init().
