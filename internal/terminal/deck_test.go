@@ -170,7 +170,7 @@ func TestDecksList(t *testing.T) {
 }
 
 func TestDeckCreate(t *testing.T) {
-	t.Run("shows create deck page", func(t *testing.T) {
+	t.Run("shows form", func(t *testing.T) {
 		m, _ := newTestModel(noneDeck).
 			init().
 			SendKeyRune(createKey).
@@ -182,7 +182,7 @@ func TestDeckCreate(t *testing.T) {
 		assert.Contains(t, view, "enter confirm • esc cancel")
 	})
 
-	t.Run("goes to home page when creation is canceled", func(t *testing.T) {
+	t.Run("cancels creation", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
 			init().
 			SendKeyRune(createKey).
@@ -205,7 +205,20 @@ func TestDeckCreate(t *testing.T) {
 		assert.Contains(t, m.View(), "New Deck")
 	})
 
-	t.Run("goes to home page after deck is created", func(t *testing.T) {
+	t.Run("validates deck name can't have multi line", func(t *testing.T) {
+		m, _ := newTestModel(noneDeck).
+			init().
+			SendKeyRune(createKey).
+			SendKeyRune("First Line").
+			SendMsg(breakLineMsg).
+			SendKeyRune("Second Line").
+			Print().
+			Get()
+
+		assert.Contains(t, m.View(), "First LineSecond Line")
+	})
+
+	t.Run("creates deck", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
 			init().
 			SendKeyRune(createKey).
@@ -219,7 +232,7 @@ func TestDeckCreate(t *testing.T) {
 		assert.Contains(t, view, "1 item")
 	})
 
-	t.Run("goes to error page when deck creation fails", func(t *testing.T) {
+	t.Run("creates deck fails", func(t *testing.T) {
 		location, cleanup := test.TempReadOnlyDirCopy(t, t.TempDir())
 		t.Cleanup(cleanup)
 
@@ -235,7 +248,7 @@ func TestDeckCreate(t *testing.T) {
 }
 
 func TestDeckRename(t *testing.T) {
-	t.Run("shows rename page", func(t *testing.T) {
+	t.Run("shows form", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
 			init().
 			SendMsg(windowSizeMsg).
@@ -248,32 +261,7 @@ func TestDeckRename(t *testing.T) {
 		assert.Contains(t, view, "enter confirm • esc cancel")
 	})
 
-	t.Run("goes to home page when rename is canceled", func(t *testing.T) {
-		m, _ := newTestModel(manyDecks).
-			init().
-			SendKeyRune(renameKey).
-			SendKeyType(tea.KeyEsc).
-			Get()
-
-		view := m.View()
-
-		assert.NotContains(t, view, "Rename this deck?")
-		assert.Contains(t, view, "Decks")
-	})
-
-	t.Run("validates deck rename", func(t *testing.T) {
-		m, _ := newTestModel(test.TempDirCopy(t, shortNamesDeck)).
-			init().
-			SendKeyRune(renameKey).
-			SendKeyType(tea.KeyBackspace).
-			SendKeyType(tea.KeyBackspace).
-			SendKeyType(tea.KeyEnter).
-			Get()
-
-		assert.Contains(t, m.View(), "Rename Deck")
-	})
-
-	t.Run("goes to home page when deck is renamed", func(t *testing.T) {
+	t.Run("renames deck", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
 			init().
 			SendMsg(windowSizeMsg).
@@ -290,7 +278,7 @@ func TestDeckRename(t *testing.T) {
 		assert.Contains(t, view, activePrompt+"Golang Q")
 	})
 
-	t.Run("goes to error page when deck rename fails", func(t *testing.T) {
+	t.Run("renames fail", func(t *testing.T) {
 		location, cleanup := test.TempReadOnlyDirCopy(t, singleCardDeck)
 		t.Cleanup(cleanup)
 
@@ -302,21 +290,6 @@ func TestDeckRename(t *testing.T) {
 			Get()
 
 		assert.Contains(t, m.View(), "Error")
-	})
-
-	t.Run("Don't write multiline text", func(t *testing.T) {
-		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
-			init().
-			SendKeyRune(renameKey).
-			SendKeyType(tea.KeyBackspace).
-			SendMsg(breakLineMsg).
-			SendMsg(breakLineMsg).
-			SendKeyRune("Q").
-			SendKeyType(tea.KeyEnter).
-			SendKeyRune(renameKey).
-			Get()
-
-		assert.Contains(t, m.View(), "Golang Q")
 	})
 }
 
