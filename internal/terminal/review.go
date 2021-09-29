@@ -136,14 +136,12 @@ type reviewModel struct {
 	repository *flashcard.Repository
 	status     reviewStatus
 	keys       *reviewKeys
-	windowSize windowSize
+	viewport   viewport
 }
 
 // VIEW
 
-func (m reviewModel) View(windowSize windowSize) string {
-	m.windowSize = windowSize
-	m.help.Width = windowSize.width
+func (m reviewModel) View() string {
 
 	switch m.status {
 	case reviewQuestion:
@@ -170,7 +168,7 @@ func reviewQuestionView(m reviewModel) string {
 		return errorView(err.Error())
 	}
 
-	markdown, err := RenderMarkdown(card.Question, m.windowSize.width)
+	markdown, err := RenderMarkdown(card.Question, m.viewport.width)
 	if err != nil {
 		return errorView(err.Error())
 	}
@@ -191,7 +189,7 @@ func reviewAnswerView(m reviewModel) string {
 		return errorView(err.Error())
 	}
 
-	markdown, err := RenderMarkdown(card.Answer, m.windowSize.width)
+	markdown, err := RenderMarkdown(card.Answer, m.viewport.width)
 	if err != nil {
 		return errorView(err.Error())
 	}

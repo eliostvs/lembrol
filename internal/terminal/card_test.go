@@ -30,8 +30,8 @@ func TestCards(t *testing.T) {
 	t.Run("truncates very long question text", func(t *testing.T) {
 		m, _ := newTestModel(longNamesDeck).
 			init().
-			SendKeyType(tea.KeyEnter).
 			SendMsg(windowSizeMsg).
+			SendKeyType(tea.KeyEnter).
 			Get()
 
 		view := m.View()

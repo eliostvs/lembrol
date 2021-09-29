@@ -135,14 +135,12 @@ type cardsModel struct {
 	repository *flashcard.Repository
 	status     cardStatus
 	delegate   *list.DefaultDelegate
+	viewport   viewport
 }
 
 // VIEW
 
-func (m cardsModel) View(w windowSize) string {
-	m.list.SetHeight(w.height)
-	m.list.SetWidth(w.width)
-
+func (m cardsModel) View() string {
 	switch m.status {
 	case cardCreating:
 		content := titleStyle.Render(m.deck.Name)
@@ -192,8 +190,11 @@ type (
 )
 
 // nolint:cyclop,gocyclo
-func (m cardsModel) Update(window windowSize, msg tea.Msg) (cardsModel, tea.Cmd) {
+func (m cardsModel) Update(msg tea.Msg) (cardsModel, tea.Cmd) {
 	var cmd tea.Cmd
+
+	m.list.SetWidth(m.viewport.width)
+	m.list.SetHeight(m.viewport.height)
 
 	currentCard := toCard(m.list)
 	hasCards := len(m.list.Items()) != 0
@@ -260,12 +261,12 @@ func (m cardsModel) Update(window windowSize, msg tea.Msg) (cardsModel, tea.Cmd)
 		switch {
 		case m.status == cardBrowsing && key.Matches(msg, m.keys.add):
 			m.status = cardCreating
-			m.form, cmd = createCardForm("", "", window.width)
+			m.form, cmd = createCardForm("", "", m.viewport.width)
 			return m, cmd
 
 		case m.status == cardBrowsing && key.Matches(msg, m.keys.edit) && hasCards:
 			m.status = cardEditing
-			m.form, cmd = createCardForm(currentCard.Question, currentCard.Answer, window.width)
+			m.form, cmd = createCardForm(currentCard.Question, currentCard.Answer, m.viewport.width)
 			return m, cmd
 
 		case m.status == cardBrowsing && key.Matches(msg, m.keys.study) && m.deck.HasDueCards():

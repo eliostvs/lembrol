@@ -129,13 +129,12 @@ type decksModel struct {
 	repository *flashcard.Repository
 	status     deckStatus
 	delegate   *list.DefaultDelegate
+	viewport   viewport
 }
 
 // VIEW
 
-func (m decksModel) View(w windowSize) string {
-	m.list.SetHeight(w.height)
-	m.list.SetWidth(w.width)
+func (m decksModel) View() string {
 
 	switch m.status {
 	case deckCreating:
@@ -187,6 +186,9 @@ type (
 // nolint:cyclop,gocyclo
 func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 	var cmd tea.Cmd
+
+	m.list.SetHeight(m.viewport.height)
+	m.list.SetWidth(m.viewport.width)
 
 	currentDeck := toDeck(m.list)
 	hasDeck := len(m.list.Items()) != 0

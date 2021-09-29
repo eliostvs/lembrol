@@ -31,16 +31,16 @@ func WithClock(clock flashcard.Clock) ModelOption {
 	}
 }
 
-func newWindowSize(style lipgloss.Style, msg tea.WindowSizeMsg) windowSize {
+func newViewport(style lipgloss.Style, msg tea.WindowSizeMsg) viewport {
 	topGap, rightGap, bottomGap, leftGap := style.GetPadding()
-	return windowSize{
+	return viewport{
 		width:  msg.Width - leftGap - rightGap - 2,
 		height: msg.Height - topGap - bottomGap,
 	}
 }
 
-// windowSize is the size of terminal minus the edges paddings.
-type windowSize struct {
+// viewport is the size of terminal minus the edges paddings.
+type viewport struct {
 	width, height int
 }
 
@@ -74,7 +74,7 @@ type Model struct {
 	page         page
 	repository   *flashcard.Repository
 	reviewModel  reviewModel
-	window       windowSize
+	viewport     viewport
 }
 
 // VIEW
@@ -85,13 +85,16 @@ func (m Model) View() string {
 		return loadingView(m)
 
 	case Decks:
-		return m.decksModel.View(m.window)
+		m.decksModel.viewport = m.viewport
+		return m.decksModel.View()
 
 	case Cards:
-		return m.cardsModel.View(m.window)
+		m.cardsModel.viewport = m.viewport
+		return m.cardsModel.View()
 
 	case Review:
-		return m.reviewModel.View(m.window)
+		m.reviewModel.viewport = m.viewport
+		return m.reviewModel.View()
 
 	case Error:
 		return errorView(m.error)
@@ -143,7 +146,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.window = newWindowSize(largePaddingStyle, msg)
+		m.viewport = newViewport(largePaddingStyle, msg)
 		return m, nil
 
 	case spinner.TickMsg:
@@ -193,14 +196,17 @@ func updateChildren(msg tea.Msg, m Model) (Model, tea.Cmd) {
 
 	switch m.page {
 	case Decks:
+		m.decksModel.viewport = m.viewport
 		m.decksModel, cmd = m.decksModel.Update(msg)
 		return m, cmd
 
 	case Cards:
-		m.cardsModel, cmd = m.cardsModel.Update(m.window, msg)
+		m.cardsModel.viewport = m.viewport
+		m.cardsModel, cmd = m.cardsModel.Update(msg)
 		return m, cmd
 
 	case Review:
+		m.cardsModel.viewport = m.viewport
 		m.reviewModel, cmd = m.reviewModel.Update(msg)
 		return m, cmd
 	}
