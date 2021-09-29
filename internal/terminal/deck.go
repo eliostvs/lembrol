@@ -136,7 +136,6 @@ type decksModel struct {
 // VIEW
 
 func (m decksModel) View() string {
-
 	switch m.status {
 	case deckCreating:
 		content := titleStyle.Render("New Deck")
