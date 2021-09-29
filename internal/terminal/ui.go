@@ -85,15 +85,12 @@ func (m Model) View() string {
 		return loadingView(m)
 
 	case Decks:
-		m.decksModel.viewport = m.viewport
 		return m.decksModel.View()
 
 	case Cards:
-		m.cardsModel.viewport = m.viewport
 		return m.cardsModel.View()
 
 	case Review:
-		m.reviewModel.viewport = m.viewport
 		return m.reviewModel.View()
 
 	case Error:
