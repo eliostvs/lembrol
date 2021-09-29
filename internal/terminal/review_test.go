@@ -149,7 +149,6 @@ func TestAnswer(t *testing.T) {
 			SendKeyRune(studyKey).
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune("?").
-			Print().
 			Get()
 
 		view := m.View()
@@ -269,7 +268,6 @@ func TestReview(t *testing.T) {
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(flashcard.ReviewScoreNormal.String()).
 			SendKeyRune("?").
-			Print().
 			Get()
 
 		view := m.View()

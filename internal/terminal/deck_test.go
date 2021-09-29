@@ -212,7 +212,6 @@ func TestDeckCreate(t *testing.T) {
 			SendKeyRune("First Line").
 			SendMsg(breakLineMsg).
 			SendKeyRune("Second Line").
-			Print().
 			Get()
 
 		assert.Contains(t, m.View(), "First LineSecond Line")
