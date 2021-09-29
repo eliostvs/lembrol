@@ -241,25 +241,6 @@ func (f Form) focus(index int) (Form, tea.Cmd) {
 	return f, cmd
 }
 
-// Width sets the width of all fields.
-func (f Form) Width(width int) Form {
-	for i := range f.fields {
-		f.fields[i].model.Width = width
-	}
-
-	return f
-}
-
-// Error returns if the given field has error.
-func (f Form) Error(name string) bool {
-	for _, field := range f.fields {
-		if field.Match(name) {
-			return !field.IsValid()
-		}
-	}
-	return false
-}
-
 func (f Form) isValid() bool {
 	for _, field := range f.fields {
 		if !field.IsValid() {
