@@ -103,15 +103,17 @@ func (k *reviewKeys) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{
 			k.skip,
+			k.again,
+		},
+		{
 			k.answer,
 			k.hard,
 			k.normal,
 			k.easy,
-			k.quit,
+			k.veryEasy,
 		},
 		{
-			k.again,
-			k.veryEasy,
+			k.quit,
 			k.closeFullHelp,
 		},
 	}
@@ -134,13 +136,14 @@ type reviewModel struct {
 	repository *flashcard.Repository
 	status     reviewStatus
 	keys       *reviewKeys
-	window     windowSize
+	windowSize windowSize
 }
 
 // VIEW
 
-func (m reviewModel) View(w windowSize) string {
-	m.window = w
+func (m reviewModel) View(windowSize windowSize) string {
+	m.windowSize = windowSize
+	m.help.Width = windowSize.width
 
 	switch m.status {
 	case reviewQuestion:
@@ -167,7 +170,7 @@ func reviewQuestionView(m reviewModel) string {
 		return errorView(err.Error())
 	}
 
-	markdown, err := RenderMarkdown(card.Question, m.window.width)
+	markdown, err := RenderMarkdown(card.Question, m.windowSize.width)
 	if err != nil {
 		return errorView(err.Error())
 	}
@@ -188,7 +191,7 @@ func reviewAnswerView(m reviewModel) string {
 		return errorView(err.Error())
 	}
 
-	markdown, err := RenderMarkdown(card.Answer, m.window.width)
+	markdown, err := RenderMarkdown(card.Answer, m.windowSize.width)
 	if err != nil {
 		return errorView(err.Error())
 	}

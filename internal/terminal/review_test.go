@@ -15,6 +15,21 @@ import (
 )
 
 func TestQuestion(t *testing.T) {
+	t.Run("show full options help", func(t *testing.T) {
+		m, _ := newTestModel(fewDecks).
+			init().
+			SendMsg(windowSizeMsg).
+			SendKeyRune(studyKey).
+			SendKeyRune("?").
+			Get()
+
+		view := m.View()
+
+		assert.NotContains(t, view, "enter answer • q quit • ? more")
+		assert.Contains(t, view, "s skip    enter answer    q quit")
+		assert.Contains(t, view, "? close help")
+	})
+
 	t.Run("shows question page", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			init().
@@ -127,6 +142,25 @@ func TestAnswer(t *testing.T) {
 		assert.Contains(t, view, "1 hard • 2 normal • 3 easy • 4 very easy • q quit • ? more")
 	})
 
+	t.Run("show full options help", func(t *testing.T) {
+		m, _ := newTestModel(singleCardDeck).
+			init().
+			SendMsg(windowSizeMsg).
+			SendKeyRune(studyKey).
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune("?").
+			Print().
+			Get()
+
+		view := m.View()
+
+		assert.NotContains(t, view, "1 hard • 2 normal • 3 easy • 4 very easy • q quit • ? more")
+		assert.Contains(t, view, "0 again    1 hard         q quit")
+		assert.Contains(t, view, "2 normal       ? close help")
+		assert.Contains(t, view, "3 easy")
+		assert.Contains(t, view, "4 very easy")
+	})
+
 	t.Run("goes to deck page when the review is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
 			init().
@@ -225,6 +259,24 @@ func TestReview(t *testing.T) {
 		assert.Contains(t, view, "Congratulations!")
 		assert.Contains(t, view, "1 card reviewed")
 		assert.Contains(t, view, "q quit • ? more")
+	})
+
+	t.Run("show full options help", func(t *testing.T) {
+		m, _ := newTestModel(test.TempDirCopy(t, singleCardDeck)).
+			init().
+			SendMsg(windowSizeMsg).
+			SendKeyRune(studyKey).
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune(flashcard.ReviewScoreNormal.String()).
+			SendKeyRune("?").
+			Print().
+			Get()
+
+		view := m.View()
+
+		assert.NotContains(t, view, "q quit • ? more")
+		assert.Contains(t, view, "q quit")
+		assert.Contains(t, view, "? close help")
 	})
 
 	t.Run("goes to home page when review is closed", func(t *testing.T) {
