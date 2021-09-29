@@ -12,7 +12,7 @@ import (
 )
 
 func TestDecksList(t *testing.T) {
-	t.Run("shows home page with no decks", func(t *testing.T) {
+	t.Run("shows homepage with no decks", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
 			init().
 			Get()
@@ -26,7 +26,7 @@ func TestDecksList(t *testing.T) {
 		assert.Contains(t, view, "a add • q quit • ? more")
 	})
 
-	t.Run("shows home page with many decks", func(t *testing.T) {
+	t.Run("shows homepage with many decks", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks, terminal.WithClock(test.NewClock(oldestCard.ReviewedAt.Add(24*time.Hour*4)))).
 			init().
 			SendMsg(windowSizeMsg).
@@ -90,7 +90,7 @@ func TestDecksList(t *testing.T) {
 		}
 	})
 
-	t.Run("quits the app from home page", func(t *testing.T) {
+	t.Run("quits the app", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
 			init().
 			SendKeyRune(quitKey).
@@ -147,7 +147,7 @@ func TestDecksList(t *testing.T) {
 		assert.NotContains(t, m.View(), "Question")
 	})
 
-	t.Run("shows study page when study starts", func(t *testing.T) {
+	t.Run("shows review when study starts", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			init().
 			SendKeyRune(studyKey).
@@ -156,7 +156,7 @@ func TestDecksList(t *testing.T) {
 		assert.Contains(t, m.View(), latestCard.Question)
 	})
 
-	t.Run("shows deck page when a deck is selected", func(t *testing.T) {
+	t.Run("shows deck when a deck is selected", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			init().
 			SendKeyType(tea.KeyEnter).
@@ -170,7 +170,7 @@ func TestDecksList(t *testing.T) {
 }
 
 func TestDeckCreate(t *testing.T) {
-	t.Run("shows form", func(t *testing.T) {
+	t.Run("shows crate form", func(t *testing.T) {
 		m, _ := newTestModel(noneDeck).
 			init().
 			SendKeyRune(createKey).
@@ -182,7 +182,7 @@ func TestDeckCreate(t *testing.T) {
 		assert.Contains(t, view, "enter confirm • esc cancel")
 	})
 
-	t.Run("cancels creation", func(t *testing.T) {
+	t.Run("shows homepage when the creation is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
 			init().
 			SendKeyRune(createKey).
@@ -218,7 +218,7 @@ func TestDeckCreate(t *testing.T) {
 		assert.Contains(t, m.View(), "First LineSecond Line")
 	})
 
-	t.Run("creates deck", func(t *testing.T) {
+	t.Run("shows homepage when deck is created", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
 			init().
 			SendKeyRune(createKey).
@@ -232,7 +232,7 @@ func TestDeckCreate(t *testing.T) {
 		assert.Contains(t, view, "1 item")
 	})
 
-	t.Run("creates deck fails", func(t *testing.T) {
+	t.Run("shows error when create deck fail", func(t *testing.T) {
 		location, cleanup := test.TempReadOnlyDirCopy(t, t.TempDir())
 		t.Cleanup(cleanup)
 
@@ -248,7 +248,7 @@ func TestDeckCreate(t *testing.T) {
 }
 
 func TestDeckRename(t *testing.T) {
-	t.Run("shows form", func(t *testing.T) {
+	t.Run("shows rename form", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
 			init().
 			SendMsg(windowSizeMsg).
@@ -261,7 +261,7 @@ func TestDeckRename(t *testing.T) {
 		assert.Contains(t, view, "enter confirm • esc cancel")
 	})
 
-	t.Run("renames deck", func(t *testing.T) {
+	t.Run("shows homepage when deck is renamed", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
 			init().
 			SendMsg(windowSizeMsg).
@@ -278,7 +278,7 @@ func TestDeckRename(t *testing.T) {
 		assert.Contains(t, view, activePrompt+"Golang Q")
 	})
 
-	t.Run("renames fail", func(t *testing.T) {
+	t.Run("shows error when renames fail", func(t *testing.T) {
 		location, cleanup := test.TempReadOnlyDirCopy(t, singleCardDeck)
 		t.Cleanup(cleanup)
 
@@ -294,7 +294,7 @@ func TestDeckRename(t *testing.T) {
 }
 
 func TestDeckDelete(t *testing.T) {
-	t.Run("shows delete controls", func(t *testing.T) {
+	t.Run("confirms the deletion", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, fewDecks)).
 			init().
 			SendMsg(windowSizeMsg).
@@ -309,7 +309,7 @@ func TestDeckDelete(t *testing.T) {
 		assert.Contains(t, view, "enter confirm • q quit")
 	})
 
-	t.Run("goes to home page when deck deletion is canceled", func(t *testing.T) {
+	t.Run("shows homepage when the deletion is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
 			init().
 			SendKeyRune(deleteKey).
@@ -321,7 +321,7 @@ func TestDeckDelete(t *testing.T) {
 		assert.NotContains(t, view, "Delete this deck?")
 	})
 
-	t.Run("goes to home page when deck is deleted", func(t *testing.T) {
+	t.Run("shows homepage when the deck is deleted", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
 			init().
 			SendKeyRune(deleteKey).
@@ -334,7 +334,7 @@ func TestDeckDelete(t *testing.T) {
 		assert.Contains(t, view, "↑/k up • ↓/j down • / filter • a add • enter open • q quit • ? more")
 	})
 
-	t.Run("goes to error page when deletion fails", func(t *testing.T) {
+	t.Run("shows error when the deletion fail", func(t *testing.T) {
 		location, cleanup := test.TempReadOnlyDirCopy(t, singleCardDeck)
 		t.Cleanup(cleanup)
 
