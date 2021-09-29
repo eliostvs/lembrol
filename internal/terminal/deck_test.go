@@ -12,7 +12,7 @@ import (
 )
 
 func TestDecksList(t *testing.T) {
-	t.Run("shows homepage with no decks", func(t *testing.T) {
+	t.Run("shows homepage without decks", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
 			init().
 			Get()
@@ -137,7 +137,7 @@ func TestDecksList(t *testing.T) {
 		}
 	})
 
-	t.Run("only cards with due cards can start a review", func(t *testing.T) {
+	t.Run("does not start review when it does not have due cards", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks, terminal.WithClock(test.Clock{Time: oldestCard.ReviewedAt})).
 			init().
 			SendKeyRune(studyKey).
@@ -147,7 +147,7 @@ func TestDecksList(t *testing.T) {
 		assert.NotContains(t, m.View(), "Question")
 	})
 
-	t.Run("shows review when study starts", func(t *testing.T) {
+	t.Run("shows questions when review starts", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			init().
 			SendKeyRune(studyKey).
@@ -156,7 +156,7 @@ func TestDecksList(t *testing.T) {
 		assert.Contains(t, m.View(), latestCard.Question)
 	})
 
-	t.Run("shows deck when a deck is selected", func(t *testing.T) {
+	t.Run("shows deck when it is open", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			init().
 			SendKeyType(tea.KeyEnter).
