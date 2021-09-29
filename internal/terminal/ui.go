@@ -147,7 +147,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.viewport = newViewport(largePaddingStyle, msg)
-		return m, nil
 
 	case spinner.TickMsg:
 		m.spinner, cmd = m.spinner.Update(msg)
