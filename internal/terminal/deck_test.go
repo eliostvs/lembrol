@@ -195,7 +195,7 @@ func TestDeckCreate(t *testing.T) {
 		assert.NotContains(t, view, "Add Deck")
 	})
 
-	t.Run("validates deck creation", func(t *testing.T) {
+	t.Run("validates deck name can't be empty", func(t *testing.T) {
 		m, _ := newTestModel(noneDeck).
 			init().
 			SendKeyRune(createKey).
