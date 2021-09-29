@@ -121,12 +121,13 @@ func (k *reviewKeys) FullHelp() [][]key.Binding {
 
 // MODEL
 
-func newReviewModel(review flashcard.Review, repository *flashcard.Repository) reviewModel {
+func newReviewModel(review flashcard.Review, repo *flashcard.Repository, v viewport) reviewModel {
 	return reviewModel{
 		review:     review,
-		repository: repository,
+		repository: repo,
 		keys:       newReviewKeys(),
 		help:       help.NewModel(),
+		viewport:   v,
 	}
 }
 
@@ -142,7 +143,6 @@ type reviewModel struct {
 // VIEW
 
 func (m reviewModel) View() string {
-
 	switch m.status {
 	case reviewQuestion:
 		return reviewQuestionView(m)
@@ -232,6 +232,8 @@ type (
 
 // nolint:cyclop
 func (m reviewModel) Update(msg tea.Msg) (reviewModel, tea.Cmd) {
+	m.help.Width = m.viewport.width
+
 	switch msg := msg.(type) {
 	case reviewQuestionMsg:
 		m.review = msg.Review

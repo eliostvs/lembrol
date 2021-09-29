@@ -91,7 +91,7 @@ type deckKeys struct {
 
 // MODEL
 
-func newDecksModel(decks []flashcard.Deck, repo *flashcard.Repository) decksModel {
+func newDecksModel(decks []flashcard.Deck, repo *flashcard.Repository, v viewport) decksModel {
 	keys := newDeckKeys()
 	delegate := list.NewDefaultDelegate()
 	listModel := list.NewModel(newDeckItems(decks), &delegate, 0, 0)
@@ -119,6 +119,7 @@ func newDecksModel(decks []flashcard.Deck, repo *flashcard.Repository) decksMode
 		keys:       keys,
 		list:       listModel,
 		repository: repo,
+		viewport:   v,
 	}
 }
 

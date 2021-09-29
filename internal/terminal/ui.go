@@ -155,7 +155,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case createdRepositoryMsg:
 		m.repository = msg.Repository
-		m.decksModel = newDecksModel(m.repository.List(), m.repository)
+		m.decksModel = newDecksModel(m.repository.List(), m.repository, m.viewport)
 		m.page = Decks
 		return m, m.decksModel.init()
 
@@ -164,12 +164,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.decksModel.init()
 
 	case setDeckPageMsg:
-		m.cardsModel = newCardsModel(msg.Deck, m.clock, m.repository)
+		m.cardsModel = newCardsModel(msg.Deck, m.clock, m.repository, m.viewport)
 		m.page = Cards
 		return m, m.cardsModel.init()
 
 	case setReviewPageMsg:
-		m.reviewModel = newReviewModel(flashcard.NewReview(msg.Deck, m.clock), m.repository)
+		m.reviewModel = newReviewModel(flashcard.NewReview(msg.Deck, m.clock), m.repository, m.viewport)
 		m.page = Review
 		return m, m.reviewModel.init()
 
@@ -206,7 +206,7 @@ func updateChildren(msg tea.Msg, m Model) (Model, tea.Cmd) {
 		return m, cmd
 
 	case Review:
-		m.cardsModel.viewport = m.viewport
+		m.reviewModel.viewport = m.viewport
 		m.reviewModel, cmd = m.reviewModel.Update(msg)
 		return m, cmd
 	}
