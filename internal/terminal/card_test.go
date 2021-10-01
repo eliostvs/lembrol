@@ -323,7 +323,6 @@ func TestCardEdit(t *testing.T) {
 
 }
 
-// TODO: ignore keys while deletion
 func TestCardDelete(t *testing.T) {
 	t.Run("confirms card deletion", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
@@ -353,6 +352,76 @@ func TestCardDelete(t *testing.T) {
 
 		assert.NotContains(t, view, "Delete this card?")
 		assert.Contains(t, view, activePrompt+latestCard.Question)
+	})
+
+	t.Run("ignores inputs besides cancel or enter", func(t *testing.T) {
+		tests := []struct {
+			name string
+			key  string
+		}{
+			{
+				name: "delete",
+				key:  deleteKey,
+			},
+			{
+				name: "create",
+				key:  createKey,
+			},
+			{
+				name: "study",
+				key:  studyKey,
+			},
+			{
+				name: "rename",
+				key:  renameKey,
+			},
+			{
+				name: "help",
+				key:  helpKey,
+			},
+			{
+				name: "down",
+				key:  "down",
+			},
+			{
+				name: "up",
+				key:  "up",
+			},
+			{
+				name: "left",
+				key:  "left",
+			},
+			{
+				name: "right",
+				key:  "right",
+			},
+			{
+				name: "home",
+				key:  "home",
+			},
+			{
+				name: "down",
+				key:  "down",
+			},
+			{
+				name: "filter",
+				key:  filterKey,
+			},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
+					init().
+					SendKeyType(tea.KeyEnter).
+					SendKeyRune(deleteKey).
+					SendKeyRune(tt.key).
+					Get()
+
+				view := m.View()
+
+				assert.Contains(t, view, "Delete this card?")
+			})
+		}
 	})
 
 	t.Run("ignores delete action when deck has no cards", func(t *testing.T) {
