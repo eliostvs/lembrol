@@ -39,7 +39,6 @@ const (
 	emptyDeck      = "./testdata/empty"
 	noneDeck       = "./testdata/none"
 	invalidDeck    = "./testdata/invalid"
-	shortNamesDeck = "./testdata/short"
 	longNamesDeck  = "./testdata/long"
 
 	createKey    = "a"
