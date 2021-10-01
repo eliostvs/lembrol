@@ -15,7 +15,7 @@ BINARY         = remember
 BINARY_DIR     = ./cmd/$(BINARY)
 DEV_MARKER     = .__dev
 LDFLAGS        += -X "main.version=${VERSION}"
-LINTER         = v1.41.1
+LINTER         = v1.42.1
 OSFLAG         ?=
 VERSION        ?= $(shell git describe --tags $(shell git rev-list --tags --max-count=1) 2>/dev/null || echo "dev")
 args           ?=
