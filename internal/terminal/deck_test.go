@@ -11,7 +11,6 @@ import (
 	"github.com/eliostvs/remembercli/internal/test"
 )
 
-// TODO: test full help
 // TODO: test filter
 func TestDecksList(t *testing.T) {
 	t.Run("shows homepage without decks", func(t *testing.T) {
@@ -26,6 +25,19 @@ func TestDecksList(t *testing.T) {
 		assert.NotContains(t, view, "/ filter")
 		assert.NotContains(t, view, "enter open")
 		assert.Contains(t, view, "a add • q quit • ? more")
+	})
+
+	t.Run("shows fulls help when there are no decks", func(t *testing.T) {
+		m, _ := newTestModel(t.TempDir()).
+			init().
+			SendMsg(windowSizeMsg).
+			SendKeyRune(helpKey).
+			Get()
+
+		view := m.View()
+
+		assert.Contains(t, view, "a add    q quit")
+		assert.Contains(t, view, "? close help")
 	})
 
 	t.Run("shows homepage with many decks", func(t *testing.T) {
@@ -45,6 +57,22 @@ func TestDecksList(t *testing.T) {
 		assert.NotContains(t, view, activePrompt+"Golang B")
 		assert.Contains(t, view, "••")
 		assert.Contains(t, view, "↑/k up • ↓/j down • / filter • a add • enter open • q quit • ? more")
+	})
+
+	t.Run("shows full help when there are many decks", func(t *testing.T) {
+		m, _ := newTestModel(manyDecks).
+			init().
+			SendMsg(windowSizeMsg).
+			SendKeyRune(helpKey).
+			Get()
+
+		view := m.View()
+
+		assert.Contains(t, view, "↑/k      up             /     filter    q quit")
+		assert.Contains(t, view, "↓/j      down           a     add       ? close help")
+		assert.Contains(t, view, "→/l/pgdn next page      enter open")
+		assert.Contains(t, view, "g/home   go to start    x     delete")
+		assert.Contains(t, view, "G/end    go to end      s     study")
 	})
 
 	t.Run("navigates around", func(t *testing.T) {
