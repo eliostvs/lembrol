@@ -60,7 +60,7 @@ func TestDecksList(t *testing.T) {
 			},
 			{
 				name: "move down, down, down using vim keys",
-				keys: []string{vimKeyDown, vimKeyDown, vimKeyDown},
+				keys: []string{keyDown, keyDown, keyDown},
 				want: activePrompt + "Golang D",
 			},
 			{
@@ -70,7 +70,7 @@ func TestDecksList(t *testing.T) {
 			},
 			{
 				name: "move down, up, up using vim key",
-				keys: []string{vimKeyDown, vimKeyUp, vimKeyUp},
+				keys: []string{keyDown, keyUp, keyUp},
 				want: activePrompt + "Golang A",
 			},
 		}
@@ -120,11 +120,11 @@ func TestDecksList(t *testing.T) {
 			},
 			{
 				name: "chooses deck above",
-				key:  vimKeyUp,
+				key:  keyUp,
 			},
 			{
 				name: "chooses deck bellow",
-				key:  vimKeyDown,
+				key:  keyDown,
 			},
 		}
 		for _, tt := range tests {

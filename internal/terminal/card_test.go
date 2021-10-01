@@ -86,7 +86,7 @@ func TestCardsList(t *testing.T) {
 			},
 			{
 				name: "moves down, up, up",
-				keys: []string{tea.KeyDown.String(), vimKeyDown, vimKeyDown},
+				keys: []string{tea.KeyDown.String(), keyDown, keyDown},
 				want: activePrompt + "Question D",
 			},
 			{

@@ -47,8 +47,8 @@ const (
 	skipKey      = "s"
 	deleteKey    = "x"
 	renameKey    = "r"
-	vimKeyDown   = "j"
-	vimKeyUp     = "k"
+	keyDown      = "j"
+	keyUp        = "k"
 	editKey      = "e"
 	activePrompt = "│ "
 )
