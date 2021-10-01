@@ -45,6 +45,7 @@ help:
 
 .PHONY: clean
 clean:
+	rm $(DEV_MARKER)
 	rm $(BINARY) 2> /dev/null || true
 	rm coverage.out 2> /dev/null || true
 	rm coverage.html 2> /dev/null || true
