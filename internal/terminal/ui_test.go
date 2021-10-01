@@ -50,6 +50,8 @@ const (
 	keyDown      = "j"
 	keyUp        = "k"
 	editKey      = "e"
+	helpKey      = "?"
+	filterKey    = "/"
 	activePrompt = "│ "
 )
 
