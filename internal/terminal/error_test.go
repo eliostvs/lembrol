@@ -9,7 +9,7 @@ import (
 func TestError(t *testing.T) {
 	t.Run("shows error page", func(t *testing.T) {
 		m, _ := newTestModel(invalidDeck).
-			init().
+			Init().
 			Get()
 
 		view := m.View()

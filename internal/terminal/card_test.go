@@ -17,7 +17,7 @@ import (
 func TestCardsList(t *testing.T) {
 	t.Run("shows deck with no cards", func(t *testing.T) {
 		m, _ := newTestModel(emptyDeck).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			Get()
 
@@ -30,7 +30,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run("shows full help with card page without cards", func(t *testing.T) {
 		m, _ := newTestModel(emptyDeck).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(helpKey).
@@ -44,7 +44,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run("shows deck with many cards", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks, terminal.WithClock(test.Clock{Time: oldestCard.ReviewedAt.Add(24 * time.Hour)})).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyEnter).
 			Get()
@@ -65,7 +65,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run("shows full help when there are many cards", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(helpKey).
@@ -83,7 +83,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run("truncates very long question text", func(t *testing.T) {
 		m, _ := newTestModel(longNamesDeck).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyEnter).
 			Get()
@@ -96,7 +96,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run("shows homepage when deck is closed", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyType(tea.KeyEsc).
 			Get()
@@ -134,7 +134,7 @@ func TestCardsList(t *testing.T) {
 				}
 
 				m, _ := newTestModel(manyDecks).
-					init().
+					Init().
 					SendMsg(windowSizeMsg).
 					SendKeyType(tea.KeyEnter).
 					SendBatch(batch).
@@ -147,7 +147,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run("shows questions when review starts", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(studyKey).
 			Get()
@@ -157,7 +157,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run("does not start review when it does not have due cards", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck, terminal.WithClock(test.Clock{Time: latestCard.ReviewedAt})).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(studyKey).
 			Get()
@@ -169,7 +169,7 @@ func TestCardsList(t *testing.T) {
 func TestCardCreate(t *testing.T) {
 	t.Run("shows create card form", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(createKey).
 			Get()
@@ -186,7 +186,7 @@ func TestCardCreate(t *testing.T) {
 
 	t.Run("shows deck when the creation is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(createKey).
 			SendKeyType(tea.KeyEsc).
@@ -200,7 +200,7 @@ func TestCardCreate(t *testing.T) {
 
 	t.Run("shows deck when card is created", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, emptyDeck)).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(createKey).
 			SendKeyRune("New").
@@ -229,7 +229,7 @@ func TestCardCreate(t *testing.T) {
 		t.Cleanup(cleanup)
 
 		m, _ := newTestModel(location).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(createKey).
 			SendKeyRune("Answer").
@@ -244,7 +244,7 @@ func TestCardCreate(t *testing.T) {
 	t.Run("validates card creation", func(t *testing.T) {
 		t.Run("missing question", func(t *testing.T) {
 			m, _ := newTestModel(test.TempDirCopy(t, emptyDeck)).
-				init().
+				Init().
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(createKey).
 				SendKeyType(tea.KeyEnter).
@@ -259,7 +259,7 @@ func TestCardCreate(t *testing.T) {
 
 		t.Run("missing answer", func(t *testing.T) {
 			m, _ := newTestModel(test.TempDirCopy(t, emptyDeck)).
-				init().
+				Init().
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(createKey).
 				SendKeyRune("Question").
@@ -276,7 +276,7 @@ func TestCardCreate(t *testing.T) {
 
 	t.Run("write multiline text", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, emptyDeck)).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(createKey).
 			SendKeyRune("Question first line").
@@ -298,7 +298,7 @@ func TestCardCreate(t *testing.T) {
 func TestCardEdit(t *testing.T) {
 	t.Run("shows edit card form", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(editKey).
 			Get()
@@ -318,7 +318,7 @@ func TestCardEdit(t *testing.T) {
 		t.Cleanup(cleanup)
 
 		m, _ := newTestModel(location).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(editKey).
 			SendKeyType(tea.KeyEnter).
@@ -330,7 +330,7 @@ func TestCardEdit(t *testing.T) {
 
 	t.Run("shows deck when card is changed", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(editKey).
 			SendKeyRune("--").
@@ -357,7 +357,7 @@ func TestCardEdit(t *testing.T) {
 func TestCardDelete(t *testing.T) {
 	t.Run("confirms card deletion", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(deleteKey).
@@ -372,7 +372,7 @@ func TestCardDelete(t *testing.T) {
 
 	t.Run("shows deck when the card deletion is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(deleteKey).
@@ -442,7 +442,7 @@ func TestCardDelete(t *testing.T) {
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
-					init().
+					Init().
 					SendKeyType(tea.KeyEnter).
 					SendKeyRune(deleteKey).
 					SendKeyRune(tt.key).
@@ -457,7 +457,7 @@ func TestCardDelete(t *testing.T) {
 
 	t.Run("ignores delete action when deck has no cards", func(t *testing.T) {
 		m, _ := newTestModel(noneDeck).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(deleteKey).
 			Get()
@@ -470,7 +470,7 @@ func TestCardDelete(t *testing.T) {
 		t.Cleanup(cleanup)
 
 		m, _ := newTestModel(location).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(deleteKey).
 			SendKeyType(tea.KeyEnter).
@@ -481,7 +481,7 @@ func TestCardDelete(t *testing.T) {
 
 	t.Run("shows deck when card is deleted", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(deleteKey).

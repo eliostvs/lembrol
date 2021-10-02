@@ -115,7 +115,7 @@ type testModel struct {
 	q msgQueue
 }
 
-func (m *testModel) init() *testModel {
+func (m *testModel) Init() *testModel {
 	return m.processMsg(m.processCmd(m.m.Init()))
 }
 

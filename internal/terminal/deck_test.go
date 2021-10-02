@@ -15,7 +15,7 @@ import (
 func TestDecksList(t *testing.T) {
 	t.Run("shows homepage without decks", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
-			init().
+			Init().
 			Get()
 
 		view := m.View()
@@ -29,7 +29,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run("shows fulls help when there are no decks", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyRune(helpKey).
 			Get()
@@ -42,7 +42,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run("shows homepage with many decks", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks, terminal.WithClock(test.NewClock(oldestCard.ReviewedAt.Add(24*time.Hour*4)))).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			Get()
 
@@ -61,7 +61,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run("shows full help when there are many decks", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyRune(helpKey).
 			Get()
@@ -110,7 +110,7 @@ func TestDecksList(t *testing.T) {
 				}
 
 				m, _ := newTestModel(manyDecks).
-					init().
+					Init().
 					SendMsg(windowSizeMsg).
 					SendBatch(batch).
 					Get()
@@ -122,7 +122,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run("quits the app", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
-			init().
+			Init().
 			SendKeyRune(quitKey).
 			Get()
 
@@ -158,7 +158,7 @@ func TestDecksList(t *testing.T) {
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				m, _ := newTestModel(t.TempDir()).
-					init().
+					Init().
 					SendKeyRune(tt.key).
 					Get()
 
@@ -169,7 +169,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run("does not start review when it does not have due cards", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks, terminal.WithClock(test.Clock{Time: oldestCard.ReviewedAt})).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			Get()
 
@@ -179,7 +179,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run("shows questions when review starts", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			Get()
 
@@ -188,7 +188,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run("shows deck when it is open", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
-			init().
+			Init().
 			SendKeyType(tea.KeyEnter).
 			Get()
 
@@ -202,7 +202,7 @@ func TestDecksList(t *testing.T) {
 func TestDeckCreate(t *testing.T) {
 	t.Run("shows crate form", func(t *testing.T) {
 		m, _ := newTestModel(noneDeck).
-			init().
+			Init().
 			SendKeyRune(createKey).
 			Get()
 
@@ -214,7 +214,7 @@ func TestDeckCreate(t *testing.T) {
 
 	t.Run("shows homepage when the creation is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
-			init().
+			Init().
 			SendKeyRune(createKey).
 			SendKeyType(tea.KeyEsc).
 			Get()
@@ -227,7 +227,7 @@ func TestDeckCreate(t *testing.T) {
 
 	t.Run("validates deck name can't be empty", func(t *testing.T) {
 		m, _ := newTestModel(noneDeck).
-			init().
+			Init().
 			SendKeyRune(createKey).
 			SendKeyType(tea.KeyEnter).
 			Get()
@@ -237,7 +237,7 @@ func TestDeckCreate(t *testing.T) {
 
 	t.Run("validates deck name can't have multi line", func(t *testing.T) {
 		m, _ := newTestModel(noneDeck).
-			init().
+			Init().
 			SendKeyRune(createKey).
 			SendKeyRune("First Line").
 			SendMsg(breakLineMsg).
@@ -249,7 +249,7 @@ func TestDeckCreate(t *testing.T) {
 
 	t.Run("shows homepage when deck is created", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
-			init().
+			Init().
 			SendKeyRune(createKey).
 			SendKeyRune("Golang q").
 			SendKeyType(tea.KeyEnter).
@@ -266,7 +266,7 @@ func TestDeckCreate(t *testing.T) {
 		t.Cleanup(cleanup)
 
 		m, _ := newTestModel(location).
-			init().
+			Init().
 			SendKeyRune(createKey).
 			SendKeyRune("Golang New.toml").
 			SendKeyType(tea.KeyEnter).
@@ -279,7 +279,7 @@ func TestDeckCreate(t *testing.T) {
 func TestDeckRename(t *testing.T) {
 	t.Run("shows rename form", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyRune(renameKey).
 			Get()
@@ -292,7 +292,7 @@ func TestDeckRename(t *testing.T) {
 
 	t.Run("shows homepage when deck is renamed", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyRune(renameKey).
 			SendKeyType(tea.KeyBackspace).
@@ -312,7 +312,7 @@ func TestDeckRename(t *testing.T) {
 		t.Cleanup(cleanup)
 
 		m, _ := newTestModel(location).
-			init().
+			Init().
 			SendKeyRune(renameKey).
 			SendKeyRune(" Change").
 			SendKeyType(tea.KeyEnter).
@@ -325,7 +325,7 @@ func TestDeckRename(t *testing.T) {
 func TestDeckDelete(t *testing.T) {
 	t.Run("confirms the deletion", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, fewDecks)).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyRune(deleteKey).
 			Get()
@@ -340,7 +340,7 @@ func TestDeckDelete(t *testing.T) {
 
 	t.Run("shows homepage when the deletion is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
-			init().
+			Init().
 			SendKeyRune(deleteKey).
 			SendKeyType(tea.KeyEsc).
 			Get()
@@ -407,7 +407,7 @@ func TestDeckDelete(t *testing.T) {
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
-					init().
+					Init().
 					SendKeyRune(deleteKey).
 					SendKeyRune(tt.key).
 					Get()
@@ -421,7 +421,7 @@ func TestDeckDelete(t *testing.T) {
 
 	t.Run("shows homepage when the deck is deleted", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
-			init().
+			Init().
 			SendKeyRune(deleteKey).
 			SendKeyType(tea.KeyEnter).
 			Get()
@@ -437,7 +437,7 @@ func TestDeckDelete(t *testing.T) {
 		t.Cleanup(cleanup)
 
 		m, _ := newTestModel(location).
-			init().
+			Init().
 			SendKeyRune(deleteKey).
 			SendKeyType(tea.KeyEnter).
 			Get()

@@ -17,7 +17,7 @@ import (
 func TestQuestion(t *testing.T) {
 	t.Run("show full options help", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyRune(studyKey).
 			SendKeyRune("?").
@@ -32,7 +32,7 @@ func TestQuestion(t *testing.T) {
 
 	t.Run("shows question page", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			Get()
 
@@ -46,7 +46,7 @@ func TestQuestion(t *testing.T) {
 
 	t.Run("shows question page with skip action", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			Get()
 
@@ -57,7 +57,7 @@ func TestQuestion(t *testing.T) {
 
 	t.Run("goes to deck page when the review is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			SendKeyType(tea.KeyEsc).
 			Get()
@@ -67,7 +67,7 @@ func TestQuestion(t *testing.T) {
 
 	t.Run("goes to answer page to answer the question", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			SendKeyType(tea.KeyEnter).
 			Get()
@@ -88,7 +88,7 @@ func TestQuestion(t *testing.T) {
 		var nextQuestion string
 
 		newTestModel(test.TempDirCopy(t, fewDecks)).
-			init().
+			Init().
 			SendKeyType(tea.KeyDown).
 			SendKeyRune(studyKey).
 			Peek(func(m tea.Model) {
@@ -110,7 +110,7 @@ func TestQuestion(t *testing.T) {
 
 	t.Run("do not shows skip in the last question", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, fewDecks)).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyType(tea.KeyDown).
 			SendKeyRune(studyKey).
@@ -128,7 +128,7 @@ func TestQuestion(t *testing.T) {
 func TestAnswer(t *testing.T) {
 	t.Run("shows answer page", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			SendKeyType(tea.KeyEnter).
 			Get()
@@ -144,7 +144,7 @@ func TestAnswer(t *testing.T) {
 
 	t.Run("show full options help", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyRune(studyKey).
 			SendKeyType(tea.KeyEnter).
@@ -162,7 +162,7 @@ func TestAnswer(t *testing.T) {
 
 	t.Run("goes to deck page when the review is canceled", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			SendKeyType(tea.KeyEnter).
 			SendKeyType(tea.KeyEsc).
@@ -206,7 +206,7 @@ func TestAnswer(t *testing.T) {
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				m, _ := newTestModel(test.TempDirCopy(t, fewDecks)).
-					init().
+					Init().
 					SendKeyRune(studyKey).
 					SendKeyType(tea.KeyEnter).
 					SendKeyRune(tt.args.String()).
@@ -223,7 +223,7 @@ func TestAnswer(t *testing.T) {
 		require.NoError(t, err)
 
 		m, _ := newTestModel(location).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(flashcard.ReviewScoreNormal.String()).
@@ -234,7 +234,7 @@ func TestAnswer(t *testing.T) {
 
 	t.Run("goes to review page when the review ends", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, singleCardDeck)).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(flashcard.ReviewScoreNormal.String()).
@@ -247,7 +247,7 @@ func TestAnswer(t *testing.T) {
 func TestReview(t *testing.T) {
 	t.Run("shows review page", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, singleCardDeck)).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(flashcard.ReviewScoreNormal.String()).
@@ -262,7 +262,7 @@ func TestReview(t *testing.T) {
 
 	t.Run("show full options help", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, singleCardDeck)).
-			init().
+			Init().
 			SendMsg(windowSizeMsg).
 			SendKeyRune(studyKey).
 			SendKeyType(tea.KeyEnter).
@@ -279,7 +279,7 @@ func TestReview(t *testing.T) {
 
 	t.Run("goes to home page when review is closed", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, singleCardDeck)).
-			init().
+			Init().
 			SendKeyRune(studyKey).
 			SendKeyType(tea.KeyEnter).
 			SendKeyRune(flashcard.ReviewScoreNormal.String()).
