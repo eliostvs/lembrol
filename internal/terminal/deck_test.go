@@ -11,7 +11,6 @@ import (
 	"github.com/eliostvs/remembercli/internal/test"
 )
 
-// TODO: test filter
 func TestDecksList(t *testing.T) {
 	t.Run("shows homepage without decks", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
@@ -196,6 +195,20 @@ func TestDecksList(t *testing.T) {
 
 		assert.Contains(t, view, "Golang One")
 		assert.NotContains(t, view, "Decks")
+	})
+
+	t.Run("filters decks", func(t *testing.T) {
+		m, _ := newTestModel(manyDecks).
+			Init().
+			SendMsg(windowSizeMsg).
+			SendKeyRune(filterKey).
+			SendKeyRune("Golang A").
+			SendKeyType(tea.KeyEnter).
+			Get()
+
+		view := m.View()
+
+		assert.Contains(t, view, "“Golang A” 6 items")
 	})
 }
 
