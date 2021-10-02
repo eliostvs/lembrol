@@ -13,7 +13,6 @@ import (
 	"github.com/eliostvs/remembercli/internal/test"
 )
 
-// TODO: test full help
 // TODO: test filter
 func TestCardsList(t *testing.T) {
 	t.Run("shows deck with no cards", func(t *testing.T) {
@@ -27,6 +26,20 @@ func TestCardsList(t *testing.T) {
 		assert.Contains(t, view, "Empty")
 		assert.Contains(t, view, "No items")
 		assert.Contains(t, view, "a add • q quit • ? more ")
+	})
+
+	t.Run("shows full help with card page without cards", func(t *testing.T) {
+		m, _ := newTestModel(emptyDeck).
+			init().
+			SendMsg(windowSizeMsg).
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune(helpKey).
+			Get()
+
+		view := m.View()
+
+		assert.Contains(t, view, "a add    q quit")
+		assert.Contains(t, view, "? close help")
 	})
 
 	t.Run("shows deck with many cards", func(t *testing.T) {
@@ -48,6 +61,24 @@ func TestCardsList(t *testing.T) {
 		assert.Contains(t, view, fmt.Sprintf("Last review %s", humanize.Time(secondLatestCard.ReviewedAt)))
 		assert.Contains(t, view, "••")
 		assert.Contains(t, view, "↑/k up • ↓/j down • / filter • a add • s study • q quit • ? more")
+	})
+
+	t.Run("shows full help when there are many cards", func(t *testing.T) {
+		m, _ := newTestModel(manyDecks).
+			init().
+			SendMsg(windowSizeMsg).
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune(helpKey).
+			Get()
+
+		view := m.View()
+
+		assert.Contains(t, view, "↑/k      up             / filter    q quit")
+		assert.Contains(t, view, "↓/j      down           a add       ? close help")
+		assert.Contains(t, view, "→/l/pgdn next page      e edit")
+		assert.Contains(t, view, " ←/h/pgup prev page      x delete")
+		assert.Contains(t, view, "g/home   go to start    s study")
+		assert.Contains(t, view, "G/end    go to end")
 	})
 
 	t.Run("truncates very long question text", func(t *testing.T) {
