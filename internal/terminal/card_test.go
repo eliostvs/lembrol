@@ -13,7 +13,6 @@ import (
 	"github.com/eliostvs/remembercli/internal/test"
 )
 
-// TODO: test filter
 func TestCardsList(t *testing.T) {
 	t.Run("shows deck with no cards", func(t *testing.T) {
 		m, _ := newTestModel(emptyDeck).
@@ -163,6 +162,21 @@ func TestCardsList(t *testing.T) {
 			Get()
 
 		assert.Contains(t, m.View(), "Golang One")
+	})
+
+	t.Run("filters cards", func(t *testing.T) {
+		m, _ := newTestModel(manyDecks).
+			Init().
+			SendMsg(windowSizeMsg).
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune(filterKey).
+			SendKeyRune("Question A").
+			SendKeyType(tea.KeyEnter).
+			Get()
+
+		view := m.View()
+
+		assert.Contains(t, view, "“Question …” 6 items")
 	})
 }
 
