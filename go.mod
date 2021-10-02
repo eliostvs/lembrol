@@ -15,7 +15,6 @@ require (
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.15 // indirect
-	github.com/muesli/reflow v0.3.0
 	github.com/pelletier/go-toml v1.9.4
 	github.com/stretchr/testify v1.7.0
 	github.com/yuin/goldmark v1.4.1 // indirect
