@@ -46,7 +46,6 @@ const (
 	studyKey     = "s"
 	skipKey      = "s"
 	deleteKey    = "x"
-	renameKey    = "r"
 	keyDown      = "j"
 	keyUp        = "k"
 	editKey      = "e"

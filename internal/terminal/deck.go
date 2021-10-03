@@ -70,9 +70,9 @@ func newDeckKeys() *deckKeys {
 			key.WithKeys("s"),
 			key.WithHelp("s", "study"),
 		),
-		rename: key.NewBinding(
-			key.WithKeys("r"),
-			key.WithHelp("r", "rename"),
+		edit: key.NewBinding(
+			key.WithKeys("e"),
+			key.WithHelp("e", "edit"),
 		),
 		delete: key.NewBinding(
 			key.WithKeys("x"),
@@ -85,7 +85,7 @@ type deckKeys struct {
 	add     key.Binding
 	confirm key.Binding
 	study   key.Binding
-	rename  key.Binding
+	edit    key.Binding
 	delete  key.Binding
 }
 
@@ -107,7 +107,7 @@ func newDecksModel(decks []flashcard.Deck, repo *flashcard.Repository, v viewpor
 		return []key.Binding{
 			keys.add,
 			keys.confirm,
-			keys.rename,
+			keys.edit,
 			keys.delete,
 			keys.study,
 		}
@@ -143,7 +143,7 @@ func (m decksModel) View() string {
 		return largePaddingStyle.Render(content)
 
 	case deckEditing:
-		content := titleStyle.Render("Rename Deck")
+		content := titleStyle.Render("Edit Deck")
 		content += m.form.view()
 		return largePaddingStyle.Render(content)
 
@@ -172,7 +172,7 @@ type (
 		index int
 	}
 
-	renamedDeckMsg struct {
+	editDeckMsg struct {
 		index int
 		item  deckItem
 	}
@@ -200,7 +200,7 @@ func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 		m.keys.confirm.SetEnabled(hasDeck)
 		m.keys.confirm.SetHelp("enter", "open")
 		m.keys.delete.SetEnabled(hasDeck)
-		m.keys.rename.SetEnabled(hasDeck)
+		m.keys.edit.SetEnabled(hasDeck)
 		m.keys.study.SetEnabled(hasDeck)
 		m.list.NewStatusMessage("")
 		m.list.SetFilteringEnabled(hasDeck)
@@ -229,7 +229,7 @@ func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 		resetControls()
 		return m, cmd
 
-	case renamedDeckMsg:
+	case editDeckMsg:
 		m.status = deckBrowsing
 		m.list.RemoveItem(msg.index)
 		m.list.InsertItem(msg.index-1, msg.item)
@@ -245,7 +245,7 @@ func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 	case submittedFormMsg:
 		if m.status == deckEditing {
 			currentDeck.Name = m.form.Value("name")
-			return m, renameDeck(m.list.Index(), currentDeck, m.repository)
+			return m, editDeck(m.list.Index(), currentDeck, m.repository)
 		}
 
 		if m.status == deckCreating {
@@ -264,7 +264,7 @@ func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 			m.form, cmd = createDeckForm("")
 			return m, cmd
 
-		case m.status == deckBrowsing && key.Matches(msg, m.keys.rename) && hasDeck:
+		case m.status == deckBrowsing && key.Matches(msg, m.keys.edit) && hasDeck:
 			m.status = deckEditing
 			m.form, cmd = createDeckForm(currentDeck.Name)
 			return m, cmd
@@ -280,7 +280,7 @@ func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 			m.keys.confirm.SetHelp("enter", "confirm")
 			m.keys.add.SetEnabled(false)
 			m.keys.delete.SetEnabled(false)
-			m.keys.rename.SetEnabled(false)
+			m.keys.edit.SetEnabled(false)
 			m.keys.study.SetEnabled(false)
 			m.list.KeyMap.CloseFullHelp.SetEnabled(false)
 			m.list.KeyMap.CursorDown.SetEnabled(false)
@@ -351,12 +351,12 @@ func createDeck(name string, repo *flashcard.Repository) tea.Cmd {
 	}
 }
 
-func renameDeck(index int, deck flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
+func editDeck(index int, deck flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		if err := repo.Save(deck); err != nil {
 			return failed(err)
 		}
-		return renamedDeckMsg{index: index, item: deckItem{deck}}
+		return editDeckMsg{index: index, item: deckItem{deck}}
 	}
 }
 

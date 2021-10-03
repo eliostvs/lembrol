@@ -417,8 +417,8 @@ func TestCardDelete(t *testing.T) {
 				key:  studyKey,
 			},
 			{
-				name: "rename",
-				key:  renameKey,
+				name: "edit",
+				key:  editKey,
 			},
 			{
 				name: "help",

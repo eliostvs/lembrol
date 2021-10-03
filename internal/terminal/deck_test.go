@@ -289,25 +289,25 @@ func TestDeckCreate(t *testing.T) {
 	})
 }
 
-func TestDeckRename(t *testing.T) {
-	t.Run("shows rename form", func(t *testing.T) {
+func TestDeckEdit(t *testing.T) {
+	t.Run("shows edit form", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
 			Init().
 			SendMsg(windowSizeMsg).
-			SendKeyRune(renameKey).
+			SendKeyRune(editKey).
 			Get()
 
 		view := m.View()
 
-		assert.Contains(t, view, "Rename Deck")
+		assert.Contains(t, view, "Edit Deck")
 		assert.Contains(t, view, "enter confirm • esc cancel")
 	})
 
-	t.Run("shows homepage when deck is renamed", func(t *testing.T) {
+	t.Run("shows homepage when deck is edited", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
 			Init().
 			SendMsg(windowSizeMsg).
-			SendKeyRune(renameKey).
+			SendKeyRune(editKey).
 			SendKeyType(tea.KeyBackspace).
 			SendKeyRune("Q").
 			SendKeyType(tea.KeyEnter).
@@ -320,13 +320,13 @@ func TestDeckRename(t *testing.T) {
 		assert.Contains(t, view, activePrompt+"Golang Q")
 	})
 
-	t.Run("shows error when renames fail", func(t *testing.T) {
+	t.Run("shows error when edition fail", func(t *testing.T) {
 		location, cleanup := test.TempReadOnlyDirCopy(t, singleCardDeck)
 		t.Cleanup(cleanup)
 
 		m, _ := newTestModel(location).
 			Init().
-			SendKeyRune(renameKey).
+			SendKeyRune(editKey).
 			SendKeyRune(" Change").
 			SendKeyType(tea.KeyEnter).
 			Get()
@@ -381,8 +381,8 @@ func TestDeckDelete(t *testing.T) {
 				key:  studyKey,
 			},
 			{
-				name: "rename",
-				key:  renameKey,
+				name: "edit",
+				key:  editKey,
 			},
 			{
 				name: "help",
