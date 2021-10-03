@@ -69,7 +69,7 @@ upgrade:
 	go mod tidy
 
 .PHONY: build
-build: clean dev
+build: dev
 	echo "version: $(VERSION)"
 	CGO_ENABLED=0 GOARCH=amd64 go build -o $(BINARY) -ldflags '$(LDFLAGS)' $(BINARY_DIR)
 
