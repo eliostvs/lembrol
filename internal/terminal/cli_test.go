@@ -11,11 +11,12 @@ import (
 
 func TestCLI(t *testing.T) {
 	name := "remember"
+	version := "0.0.0-dev"
 
 	t.Run("shows help when help flags is given", func(t *testing.T) {
 		var output bytes.Buffer
 
-		got := terminal.CLI([]string{name, "-h"}, &output)
+		got := terminal.CLI([]string{name, "-h"}, version, &output)
 
 		assert.Equal(t, 0, got)
 		want := `remember 0.0.0-dev
@@ -35,7 +36,7 @@ OPTIONS:
 	t.Run("fails when an invalid flag is given", func(t *testing.T) {
 		var output bytes.Buffer
 
-		got := terminal.CLI([]string{name, "-foo"}, &output)
+		got := terminal.CLI([]string{name, "-foo"}, version, &output)
 
 		assert.Equal(t, 1, got)
 		assert.Contains(t, output.String(), "flag provided but not defined: -foo")

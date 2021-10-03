@@ -15,13 +15,11 @@ const (
 	successResult    = 0
 )
 
-var Version = "0.0.0-dev"
-
-func CLI(args []string, output io.Writer) int {
+func CLI(args []string, version string, output io.Writer) int {
 	fl := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	fl.SetOutput(output)
 	fl.Usage = func() {
-		fmt.Fprintf(fl.Output(), "%s %s", args[0], Version)
+		fmt.Fprintf(fl.Output(), "%s %s", args[0], version)
 		fmt.Fprintf(fl.Output(), "\n\nLearning things through spaced repetition.")
 		fmt.Fprintf(fl.Output(), "\n\nUSAGE:\n  %s [options]", args[0])
 		fmt.Fprintln(fl.Output(), "\n\nOPTIONS:")
