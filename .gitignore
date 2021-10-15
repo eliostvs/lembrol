@@ -2,6 +2,6 @@ coverage.*
 .tool-versions
 .idea
 .env
-remember
+./remember
 *.log
 .__dev
