@@ -232,6 +232,35 @@ func TestAnswer(t *testing.T) {
 		assert.Contains(t, m.View(), "Error")
 	})
 
+	t.Run("does nothing when rate values are out of valid range", func(t *testing.T) {
+		tests := []struct {
+			name  string
+			score string
+		}{
+			{
+				name:  "less than zero",
+				score: "-1",
+			},
+			{
+				name:  "more than 4",
+				score: "5",
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				m, _ := newTestModel(test.TempDirCopy(t, singleCardDeck)).
+					Init().
+					SendKeyRune(studyKey).
+					SendKeyType(tea.KeyEnter).
+					SendKeyRune(tt.score).
+					Get()
+
+				assert.Contains(t, m.View(), "Answer A")
+			})
+		}
+	})
+
 	t.Run("goes to review page when the review ends", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, singleCardDeck)).
 			Init().

@@ -29,7 +29,7 @@ func newReviewKeys() *reviewKeys {
 			key.WithHelp("q", "quit"),
 		),
 		score: key.NewBinding(
-			key.WithKeys("0", "1", "2", "3", "4", "5"),
+			key.WithKeys("0", "1", "2", "3", "4"),
 			key.WithHelp("1", "score"),
 		),
 		answer: key.NewBinding(
