@@ -10,7 +10,7 @@ import (
 var ErrEmptyReview = errors.New("no cards in queue")
 
 // NewReview returns a new Review from a given a deck.
-// It get the due cards from the deck an shuffle them.
+// It gets the due cards from the deck a shuffle them.
 func NewReview(deck Deck, clock Clock) Review {
 	dueCards := deck.DueCards()
 	shuffle(dueCards)
