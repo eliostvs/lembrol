@@ -1,7 +1,6 @@
 package flashcard
 
 import (
-	"encoding/json"
 	"errors"
 	"math"
 	"strconv"
@@ -51,12 +50,7 @@ const (
 )
 
 // Stats is the revised card statistics.
-// Each algorithm will have a different format, but all must be able to serialize to json.
-type Stats interface {
-	json.Marshaler
-}
-
-type SM2Stats struct {
+type Stats struct {
 	Algorithm      string `json:"algorithm"`
 	Card           string `json:"card"`
 	Timestamp      string `json:"timestamp"`
@@ -65,11 +59,6 @@ type SM2Stats struct {
 	Repetitions    int    `json:"repetitions"`
 	Interval       string `json:"interval"`
 	EasinessFactor string `json:"easiness_factor"`
-}
-
-func (s *SM2Stats) MarshalJSON() ([]byte, error) {
-	type Alias SM2Stats
-	return json.Marshal(&struct{ *Alias }{Alias: (*Alias)(s)})
 }
 
 // NewCard create a new Card instance.
@@ -96,7 +85,7 @@ type Card struct {
 }
 
 // Advance advances supermemo state for a card.
-func (c Card) Advance(ts time.Time, score ReviewScore) (Card, Stats) {
+func (c Card) Advance(ts time.Time, score ReviewScore) (Card, *Stats) {
 	previous := c
 	c.ReviewedAt = ts
 
@@ -129,8 +118,8 @@ func (c Card) nextEasinessFactor(score ReviewScore) float64 {
 	return math.Max(MinEasinessFactor, newEasinessFactor)
 }
 
-func (Card) stats(ts time.Time, score ReviewScore, previous Card) Stats {
-	return &SM2Stats{
+func (Card) stats(ts time.Time, score ReviewScore, previous Card) *Stats {
+	return &Stats{
 		Algorithm:      "sm2",
 		Timestamp:      ts.Format(time.RFC3339),
 		Card:           previous.id,

@@ -53,7 +53,7 @@ func (r Review) Completed() int {
 	return r.completed
 }
 
-func (r Review) Rate(score ReviewScore) (Stats, Review, error) {
+func (r Review) Rate(score ReviewScore) (*Stats, Review, error) {
 	card, err := r.CurrentCard()
 	if err != nil {
 		return nil, Review{}, err

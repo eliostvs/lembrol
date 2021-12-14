@@ -1,6 +1,7 @@
 package flashcard
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -157,8 +158,8 @@ func (r *Repository) Remove(deck Deck) error {
 }
 
 // SaveStats writes stats to disk.
-func (r *Repository) SaveStats(deck Deck, stats Stats) error {
-	data, err := stats.MarshalJSON()
+func (r *Repository) SaveStats(deck Deck, stats *Stats) error {
+	data, err := json.Marshal(stats)
 	if err != nil {
 		return fmt.Errorf("marshal stats: %w", err)
 	}

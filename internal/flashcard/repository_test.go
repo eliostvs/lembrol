@@ -1,7 +1,6 @@
 package flashcard_test
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -215,9 +214,8 @@ func TestRepository_SaveStats(t *testing.T) {
 		t.Cleanup(cleanup)
 		repo := newRepository(t, location)
 		deck, _ := repo.Open(smallDeck)
-		var stats flashcard.SM2Stats
 
-		err := repo.SaveStats(deck, &stats)
+		err := repo.SaveStats(deck, &flashcard.Stats{})
 
 		assert.Error(t, err)
 	})
@@ -227,15 +225,23 @@ func TestRepository_SaveStats(t *testing.T) {
 		repo := newRepository(t, location)
 		deck, _ := repo.Open(smallDeck)
 
-		s := customString("json")
-		err := repo.SaveStats(deck, &s)
+		stats := flashcard.Stats{
+			Algorithm:      "Algorithm",
+			Card:           "Card",
+			Timestamp:      "Timestamp",
+			Score:          "1",
+			LastReview:     "LastReview",
+			Repetitions:    1,
+			Interval:       "Interval",
+			EasinessFactor: "EasinessFactor",
+		}
+		err := repo.SaveStats(deck, &stats)
 		assert.NoError(t, err)
 
-		stats, err := os.ReadFile(filepath.Join(location, "golang-small-stats.jsonl"))
+		content, err := os.ReadFile(filepath.Join(location, "golang-small-stats.jsonl"))
 		require.NoError(t, err)
-		want := `"json"
-`
-		assert.Equal(t, want, string(stats))
+		want := `{"algorithm":"Algorithm","card":"Card","timestamp":"Timestamp","score":"1","last_review":"LastReview","repetitions":1,"interval":"Interval","easiness_factor":"EasinessFactor"}`
+		assert.JSONEq(t, want, string(content))
 	})
 }
 
@@ -248,12 +254,6 @@ var (
 	emptyDeckLocation   = "./testdata/empty"
 	invalidDeckLocation = "./testdata/invalid"
 )
-
-type customString string
-
-func (c customString) MarshalJSON() ([]byte, error) {
-	return json.Marshal(string(c))
-}
 
 func newRepository(t *testing.T, deckLocation string, cfgOpts ...configOption) *flashcard.Repository {
 	t.Helper()
