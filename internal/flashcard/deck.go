@@ -1,8 +1,30 @@
 package flashcard
 
 import (
+	"fmt"
 	"sort"
+
+	"github.com/pelletier/go-toml"
 )
+
+func OpenDeck(path string, clock Clock) (Deck, error) {
+	tree, err := toml.LoadFile(path)
+	if err != nil {
+		return Deck{}, fmt.Errorf("open deck file '%s' : %w", path, err)
+	}
+
+	var file deckFile
+	if err := tree.Unmarshal(&file); err != nil {
+		return Deck{}, fmt.Errorf("unmarshall deck '%s' : %w", path, err)
+	}
+
+	for id, card := range file.Cards {
+		card.id = id
+		file.Cards[id] = card
+	}
+
+	return Deck{Name: file.Name, cards: file.Cards, id: path, clock: clock}, nil
+}
 
 // Deck represents a named collection of cards.
 type Deck struct {
