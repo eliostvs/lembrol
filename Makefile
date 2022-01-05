@@ -27,22 +27,13 @@ else
 	OSFLAG = $(shell uname -s)
 endif
 
+## help: print this help message
 .PHONY: help
 help:
-	$(info Available tasks:)
-	$(info | build              Create binary)
-	$(info | clean              Delete binary and development files)
-	$(info | dev                Download development dependencies)
-	$(info | format             Format files using goimports)
-	$(info | help               Show this help message)
-	$(info | lint               Run lint)
-	$(info | outdated           List outdated dependencies)
-	$(info | run [args]         Run app in development mode)
-	$(info | test [args] [pkg]  Run tests)
-	$(info | test-all           Run lint and tests)
-	$(info | test-report        Open coverage report)
-	$(info | upgrade [pkg]      Upgrade dependencies)
+	echo 'Usage:'
+	sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' | sed -e 's/^/ /' | sort
 
+## clean: delete binary and development environment
 .PHONY: clean
 clean:
 	rm $(DEV_MARKER) 2> /dev/null || true
@@ -56,44 +47,57 @@ $(DEV_MARKER):
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOBIN) $(LINTER)
 	touch $(DEV_MARKER)
 
+## dev: prepare development environment
 .PHONY: dev
 dev: $(DEV_MARKER)
 
-.PHONY: outdated
-outdated:
+## deps/outdated: list outdated dependencies
+.PHONY: deps/outdated
+deps/outdated:
 	go list -f "{{if and (not .Main) (not .Indirect)}} {{if .Update}} {{.Update}} {{end}} {{end}}" -m -u all 2> /dev/null | awk NF
 
-.PHONY: upgrade
-upgrade:
+## deps/upgrade: upgrade dependencies
+.PHONY: deps/upgrade
+deps/upgrade:
 	go get -u $(pkg)
 	go mod tidy
+	go mod verify
 
+## build: create binary
 .PHONY: build
 build: dev
 	echo "version: $(VERSION)"
 	CGO_ENABLED=0 GOARCH=amd64 go build -o $(BINARY) -ldflags '$(LDFLAGS)' $(BINARY_DIR)
 
+## run [args]: run app in development mode
 .PHONY: run
 run: dev
 	go run $(BINARY_DIR) $(args)
 
+## format: format files
 .PHONY: format
 format: dev
 	goimports -l -w .
 
-.PHONY: lint
-lint: dev
+## test/lint: run lint
+.PHONY: test/lint
+test/lint: dev
 	golangci-lint run
 
+## test [args] [pkg]: run tests
 .PHONY: test
 test: dev
 	go test $(args) -v -race -cover -coverprofile=coverage.out $(pkg)
 
-.PHONY: test-all
-test-all: lint test
+## test/all: run lint and tests
+.PHONY: test/all
+test/all: test/lint test
 
-.PHONY: test-report
-test-report: test
+coverage.out: test
+
+## test/report: shows coverage report
+.PHONY: test/report
+test/report: coverage.out
 	go tool cover -html=coverage.out -o coverage.html
 ifeq ($(OSFLAG),Linux)
 	xdg-open coverage.html
