@@ -56,12 +56,15 @@ dev: $(DEV_MARKER)
 deps/outdated:
 	go list -f "{{if and (not .Main) (not .Indirect)}} {{if .Update}} {{.Update}} {{end}} {{end}}" -m -u all 2> /dev/null | awk NF
 
-## deps/upgrade: upgrade dependencies
-.PHONY: deps/upgrade
-deps/upgrade:
-	go get -u $(pkg)
+## deps/audit: remove unused and check hash of the dependencies
+deps/audit:
 	go mod tidy
 	go mod verify
+
+## deps/upgrade [pkg]: upgrade dependencies
+.PHONY: deps/upgrade
+deps/upgrade: deps/audit
+	go get -u $(pkg)
 
 ## build: create binary
 .PHONY: build
