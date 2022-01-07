@@ -9,7 +9,7 @@ repos:
         types: [go]
       - id: lint
         always_run: true
-        entry: make lint
+        entry: make test/lint
         language: system
         name: Running golang-ci
         require_serial: true
