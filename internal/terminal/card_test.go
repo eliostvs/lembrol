@@ -14,6 +14,8 @@ import (
 )
 
 func TestCardsList(t *testing.T) {
+	t.Parallel()
+
 	t.Run("shows deck with no cards", func(t *testing.T) {
 		m, _ := newTestModel(emptyDeck).
 			Init().
@@ -125,6 +127,7 @@ func TestCardsList(t *testing.T) {
 				want: activePrompt + latestCard.Question,
 			},
 		}
+
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				var batch []tea.Msg
@@ -181,6 +184,8 @@ func TestCardsList(t *testing.T) {
 }
 
 func TestCardCreate(t *testing.T) {
+	t.Parallel()
+
 	t.Run("shows create card form", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			Init().
@@ -310,6 +315,8 @@ func TestCardCreate(t *testing.T) {
 }
 
 func TestCardEdit(t *testing.T) {
+	t.Parallel()
+
 	t.Run("shows edit card form", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			Init().
@@ -369,6 +376,8 @@ func TestCardEdit(t *testing.T) {
 }
 
 func TestCardDelete(t *testing.T) {
+	t.Parallel()
+
 	t.Run("confirms card deletion", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
 			Init().

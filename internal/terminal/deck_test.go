@@ -12,6 +12,8 @@ import (
 )
 
 func TestDecksList(t *testing.T) {
+	t.Parallel()
+
 	t.Run("shows homepage without decks", func(t *testing.T) {
 		m, _ := newTestModel(t.TempDir()).
 			Init().
@@ -101,6 +103,7 @@ func TestDecksList(t *testing.T) {
 				want: activePrompt + "Golang A",
 			},
 		}
+
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				var batch []tea.Msg
@@ -154,6 +157,7 @@ func TestDecksList(t *testing.T) {
 				key:  keyDown,
 			},
 		}
+
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				m, _ := newTestModel(t.TempDir()).
@@ -213,6 +217,8 @@ func TestDecksList(t *testing.T) {
 }
 
 func TestDeckCreate(t *testing.T) {
+	t.Parallel()
+
 	t.Run("shows crate form", func(t *testing.T) {
 		m, _ := newTestModel(noneDeck).
 			Init().
@@ -290,6 +296,8 @@ func TestDeckCreate(t *testing.T) {
 }
 
 func TestDeckEdit(t *testing.T) {
+	t.Parallel()
+
 	t.Run("shows edit form", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
 			Init().
@@ -336,6 +344,8 @@ func TestDeckEdit(t *testing.T) {
 }
 
 func TestDeckDelete(t *testing.T) {
+	t.Parallel()
+
 	t.Run("confirms the deletion", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, fewDecks)).
 			Init().
@@ -417,6 +427,7 @@ func TestDeckDelete(t *testing.T) {
 				key:  filterKey,
 			},
 		}
+
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).

@@ -15,6 +15,8 @@ import (
 )
 
 func TestQuestion(t *testing.T) {
+	t.Parallel()
+
 	t.Run("show full options help", func(t *testing.T) {
 		m, _ := newTestModel(fewDecks).
 			Init().
@@ -126,6 +128,8 @@ func TestQuestion(t *testing.T) {
 }
 
 func TestAnswer(t *testing.T) {
+	t.Parallel()
+
 	t.Run("shows answer page", func(t *testing.T) {
 		m, _ := newTestModel(singleCardDeck).
 			Init().
@@ -203,6 +207,7 @@ func TestAnswer(t *testing.T) {
 				want: "2 of 6",
 			},
 		}
+
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				m, _ := newTestModel(test.TempDirCopy(t, fewDecks)).
@@ -274,6 +279,8 @@ func TestAnswer(t *testing.T) {
 }
 
 func TestReview(t *testing.T) {
+	t.Parallel()
+
 	t.Run("shows review page", func(t *testing.T) {
 		m, _ := newTestModel(test.TempDirCopy(t, singleCardDeck)).
 			Init().

@@ -9,6 +9,8 @@ import (
 )
 
 func TestLoading(t *testing.T) {
+	t.Parallel()
+
 	t.Run("goes to home page when loading is successful", func(t *testing.T) {
 		m, _ := newTestModel(manyDecks).
 			Init().
