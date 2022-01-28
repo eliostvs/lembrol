@@ -372,7 +372,6 @@ func TestCardEdit(t *testing.T) {
 
 		assert.Contains(t, view, activePrompt+latestCard.Question+"-q")
 	})
-
 }
 
 func TestCardDelete(t *testing.T) {
