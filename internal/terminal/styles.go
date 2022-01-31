@@ -77,13 +77,13 @@ func naturalTime(t time.Time) string {
 	return humanize.Time(t)
 }
 
-func RenderMarkdown(in string, width int) (string, error) {
+func RenderMarkdown(text string, width int) (string, error) {
 	r, _ := glamour.NewTermRenderer(
 		glamour.WithEnvironmentConfig(),
 		glamour.WithWordWrap(width),
 	)
 
-	lines, err := r.Render(renderMultiline(in, ""))
+	lines, err := r.Render(renderMultiline(text, ""))
 	if err != nil {
 		return "", err
 	}
