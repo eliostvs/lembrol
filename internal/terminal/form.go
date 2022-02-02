@@ -214,7 +214,7 @@ func NewForm(f Field, fields ...Field) Form {
 	return Form{
 		cursor: newCursor(len(fields)),
 		fields: append([]Field{f}, fields...),
-		help:   help.NewModel(),
+		help:   help.New(),
 		keys:   keys,
 	}
 }

@@ -95,7 +95,7 @@ type cardKeys struct {
 func newCardsModel(deck flashcard.Deck, clock flashcard.Clock, repo *flashcard.DeckRepository, v viewport) cardsModel {
 	keys := newCardKeys()
 	delegate := list.NewDefaultDelegate()
-	listModel := list.NewModel(newCardItems(deck.List(), clock), &delegate, 0, 0)
+	listModel := list.New(newCardItems(deck.List(), clock), &delegate, 0, 0)
 	listModel.Title = deck.Name
 	listModel.Styles.Title = titleStyle
 	listModel.AdditionalShortHelpKeys = func() []key.Binding {
@@ -336,7 +336,7 @@ func toCard(l list.Model) flashcard.Card {
 func createCardForm(question, answer string, width int) (Form, tea.Cmd) {
 	var cmd tea.Cmd
 
-	questionInput := textinput.NewModel()
+	questionInput := textinput.New()
 	questionInput.SetValue(question)
 	questionInput.Placeholder = "Enter a question"
 	questionInput.PromptStyle = Fuchsia
@@ -345,7 +345,7 @@ func createCardForm(question, answer string, width int) (Form, tea.Cmd) {
 	questionInput.CursorEnd()
 	cmd = questionInput.Focus()
 
-	answerInput := textinput.NewModel()
+	answerInput := textinput.New()
 	answerInput.SetValue(answer)
 	answerInput.Placeholder = "Enter an answer"
 	answerInput.PromptStyle = DarkFuchsia

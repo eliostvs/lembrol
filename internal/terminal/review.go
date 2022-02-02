@@ -126,7 +126,7 @@ func newReviewModel(review flashcard.Review, repo *flashcard.DeckRepository, v v
 		review:     review,
 		repository: repo,
 		keys:       newReviewKeys(),
-		help:       help.NewModel(),
+		help:       help.New(),
 		viewport:   v,
 	}
 }
