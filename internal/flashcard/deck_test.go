@@ -467,7 +467,7 @@ func newDeck(t *testing.T, deckName string, cfgOpts ...configOption) flashcard.D
 	return deck
 }
 
-func newRepository(t *testing.T, deckLocation string, cfgOpts ...configOption) *flashcard.Repository {
+func newRepository(t *testing.T, deckLocation string, cfgOpts ...configOption) *flashcard.DeckRepository {
 	t.Helper()
 
 	opts := option{

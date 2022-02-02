@@ -121,7 +121,7 @@ func (k *reviewKeys) FullHelp() [][]key.Binding {
 
 // MODEL
 
-func newReviewModel(review flashcard.Review, repo *flashcard.Repository, v viewport) reviewModel {
+func newReviewModel(review flashcard.Review, repo *flashcard.DeckRepository, v viewport) reviewModel {
 	return reviewModel{
 		review:     review,
 		repository: repo,
@@ -134,7 +134,7 @@ func newReviewModel(review flashcard.Review, repo *flashcard.Repository, v viewp
 type reviewModel struct {
 	review     flashcard.Review
 	help       help.Model
-	repository *flashcard.Repository
+	repository *flashcard.DeckRepository
 	status     reviewStatus
 	keys       *reviewKeys
 	viewport   viewport
@@ -309,7 +309,7 @@ func skipCard(review flashcard.Review) tea.Cmd {
 	}
 }
 
-func scoreCard(input string, review flashcard.Review, repo *flashcard.Repository) tea.Cmd {
+func scoreCard(input string, review flashcard.Review, repo *flashcard.DeckRepository) tea.Cmd {
 	return func() tea.Msg {
 		score, err := flashcard.NewReviewScore(input)
 		if err != nil {

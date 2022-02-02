@@ -91,7 +91,7 @@ type deckKeys struct {
 
 // MODEL
 
-func newDecksModel(decks []flashcard.Deck, repo *flashcard.Repository, v viewport) decksModel {
+func newDecksModel(decks []flashcard.Deck, repo *flashcard.DeckRepository, v viewport) decksModel {
 	keys := newDeckKeys()
 	delegate := list.NewDefaultDelegate()
 	listModel := list.NewModel(newDeckItems(decks), &delegate, 0, 0)
@@ -127,7 +127,7 @@ type decksModel struct {
 	form       Form
 	keys       *deckKeys
 	list       list.Model
-	repository *flashcard.Repository
+	repository *flashcard.DeckRepository
 	status     deckStatus
 	delegate   *list.DefaultDelegate
 	viewport   viewport
@@ -341,7 +341,7 @@ func createDeckForm(name string) (Form, tea.Cmd) {
 	return NewForm(NewField("name", input, WithLabel("Name"))), cmd
 }
 
-func createDeck(name string, repo *flashcard.Repository) tea.Cmd {
+func createDeck(name string, repo *flashcard.DeckRepository) tea.Cmd {
 	return func() tea.Msg {
 		deck, err := repo.Create(name)
 		if err != nil {
@@ -351,7 +351,7 @@ func createDeck(name string, repo *flashcard.Repository) tea.Cmd {
 	}
 }
 
-func editDeck(index int, deck flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
+func editDeck(index int, deck flashcard.Deck, repo *flashcard.DeckRepository) tea.Cmd {
 	return func() tea.Msg {
 		if err := repo.Save(deck); err != nil {
 			return failed(err)
@@ -360,7 +360,7 @@ func editDeck(index int, deck flashcard.Deck, repo *flashcard.Repository) tea.Cm
 	}
 }
 
-func deleteDeck(index int, deck flashcard.Deck, repo *flashcard.Repository) tea.Cmd {
+func deleteDeck(index int, deck flashcard.Deck, repo *flashcard.DeckRepository) tea.Cmd {
 	return func() tea.Msg {
 		if err := repo.Remove(deck); err != nil {
 			return failed(err)

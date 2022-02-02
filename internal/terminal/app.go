@@ -72,7 +72,7 @@ type Model struct {
 	initialDelay time.Duration
 	location     string
 	page         page
-	repository   *flashcard.Repository
+	repository   *flashcard.DeckRepository
 	reviewModel  reviewModel
 	viewport     viewport
 }
@@ -126,7 +126,7 @@ func createRepository(location string, clock flashcard.Clock) tea.Msg {
 }
 
 type createdRepositoryMsg struct {
-	*flashcard.Repository
+	*flashcard.DeckRepository
 }
 
 func (m Model) Init() tea.Cmd {
@@ -150,7 +150,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 
 	case createdRepositoryMsg:
-		m.repository = msg.Repository
+		m.repository = msg.DeckRepository
 		m.decksModel = newDecksModel(m.repository.List(), m.repository, m.viewport)
 		m.page = Decks
 		return m, m.decksModel.init()

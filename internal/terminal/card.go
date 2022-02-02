@@ -92,7 +92,7 @@ type cardKeys struct {
 
 // MODEL
 
-func newCardsModel(deck flashcard.Deck, clock flashcard.Clock, repo *flashcard.Repository, v viewport) cardsModel {
+func newCardsModel(deck flashcard.Deck, clock flashcard.Clock, repo *flashcard.DeckRepository, v viewport) cardsModel {
 	keys := newCardKeys()
 	delegate := list.NewDefaultDelegate()
 	listModel := list.NewModel(newCardItems(deck.List(), clock), &delegate, 0, 0)
@@ -133,7 +133,7 @@ type cardsModel struct {
 	form       Form
 	keys       *cardKeys
 	list       list.Model
-	repository *flashcard.Repository
+	repository *flashcard.DeckRepository
 	status     cardStatus
 	delegate   *list.DefaultDelegate
 	viewport   viewport
@@ -370,7 +370,7 @@ func createCardForm(question, answer string, width int) (Form, tea.Cmd) {
 	), cmd
 }
 
-func createCard(question, answer string, deck flashcard.Deck, repository *flashcard.Repository, clock flashcard.Clock) tea.Cmd {
+func createCard(question, answer string, deck flashcard.Deck, repository *flashcard.DeckRepository, clock flashcard.Clock) tea.Cmd {
 	return func() tea.Msg {
 		deck, card := deck.Add(question, answer)
 
@@ -382,7 +382,7 @@ func createCard(question, answer string, deck flashcard.Deck, repository *flashc
 	}
 }
 
-func updateCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.Repository, clock flashcard.Clock) tea.Cmd {
+func updateCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.DeckRepository, clock flashcard.Clock) tea.Cmd {
 	return func() tea.Msg {
 		if err := repository.Save(deck.Change(card)); err != nil {
 			return failed(err)
@@ -392,7 +392,7 @@ func updateCard(index int, card flashcard.Card, deck flashcard.Deck, repository 
 	}
 }
 
-func deleteCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
+func deleteCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.DeckRepository) tea.Cmd {
 	return func() tea.Msg {
 		if _, err := deck.Remove(card); err != nil {
 			return failed(err)
