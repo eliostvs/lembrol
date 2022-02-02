@@ -14,21 +14,21 @@ import (
 
 func TestNewDeckRepository(t *testing.T) {
 	t.Run("returns error deck format is invalid", func(t *testing.T) {
-		repo, err := flashcard.NewRepository(invalidDeckLocation, nil)
+		repo, err := flashcard.NewDeckRepository(invalidDeckLocation, nil)
 
 		assert.Error(t, err)
 		assert.Nil(t, repo)
 	})
 
 	t.Run("returns repository when the decks location is empty", func(t *testing.T) {
-		repo, err := flashcard.NewRepository(t.TempDir(), nil)
+		repo, err := flashcard.NewDeckRepository(t.TempDir(), nil)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, repo)
 	})
 
 	t.Run("returns repository when the location does not exist", func(t *testing.T) {
-		repo, err := flashcard.NewRepository(t.TempDir()+"/foo", nil)
+		repo, err := flashcard.NewDeckRepository(t.TempDir()+"/foo", nil)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, repo)
@@ -40,7 +40,7 @@ func TestNewDeckRepository(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		repo, err := flashcard.NewRepository(location+"/bar", nil)
+		repo, err := flashcard.NewDeckRepository(location+"/bar", nil)
 
 		assert.Error(t, err)
 		assert.Nil(t, repo)
@@ -78,7 +78,7 @@ func TestDeckRepository_Open(t *testing.T) {
 	})
 
 	t.Run("returns deck", func(t *testing.T) {
-		repo, err := flashcard.NewRepository(manyDecksLocation, nil)
+		repo, err := flashcard.NewDeckRepository(manyDecksLocation, nil)
 		require.NoError(t, err)
 
 		deck, err := repo.Open("Golang Small")
@@ -265,7 +265,7 @@ func newRepository(t *testing.T, deckLocation string, cfgOpts ...configOption) *
 		cfg(&opts)
 	}
 
-	repo, err := flashcard.NewRepository(deckLocation, opts.clock)
+	repo, err := flashcard.NewDeckRepository(deckLocation, opts.clock)
 	if err != nil {
 		t.Fatal(err)
 	}

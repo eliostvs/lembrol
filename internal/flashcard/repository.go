@@ -24,9 +24,9 @@ type deckFile struct {
 	Cards map[string]Card
 }
 
-// NewRepository create a new Repository by reading all decks
+// NewDeckRepository create a new deck repository by reading all decks
 // from a given folder.
-func NewRepository(directory string, clock Clock) (*Repository, error) {
+func NewDeckRepository(directory string, clock Clock) (*Repository, error) {
 	if err := assureDirExist(directory); err != nil {
 		return nil, err
 	}
@@ -170,9 +170,10 @@ func (r *Repository) SaveStats(deck Deck, stats *Stats) error {
 	}
 
 	_, err = f.Write(append(data, '\n'))
-	if err1 := f.Close(); err1 != nil && err == nil {
-		err = err1
+	if err0 := f.Close(); err0 != nil && err == nil {
+		err = fmt.Errorf("%w ", err)
 	}
+
 	if err != nil {
 		return fmt.Errorf("write stats: %w", err)
 	}

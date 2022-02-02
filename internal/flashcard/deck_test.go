@@ -217,7 +217,7 @@ func newDeck(t *testing.T, deckName string, cfgOpts ...configOption) flashcard.D
 		cfg(&opts)
 	}
 
-	repo, err := flashcard.NewRepository(test.TempDirCopy(t, opts.decksLocation), opts.clock)
+	repo, err := flashcard.NewDeckRepository(test.TempDirCopy(t, opts.decksLocation), opts.clock)
 	if err != nil {
 		t.Fatal(err)
 	}

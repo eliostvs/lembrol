@@ -118,7 +118,7 @@ func errorView(err string) string {
 // UPDATE
 
 func createRepository(location string, clock flashcard.Clock) tea.Msg {
-	repo, err := flashcard.NewRepository(location, clock)
+	repo, err := flashcard.NewDeckRepository(location, clock)
 	if err != nil {
 		return failed(err)
 	}
