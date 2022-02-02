@@ -127,16 +127,16 @@ func (d Deck) Remove(card Card) (Deck, error) {
 
 // NewDeckRepository create a new deck repository by reading all decks
 // from a given folder.
-func NewDeckRepository(directory string, clock Clock) (*DeckRepository, error) {
-	if err := assureDirExist(directory); err != nil {
+func NewDeckRepository(location string, clock Clock) (*DeckRepository, error) {
+	if err := assureDirExist(location); err != nil {
 		return nil, err
 	}
 
-	decks, err := loadDecks(directory, clock)
+	decks, err := loadDecks(location, clock)
 	if err != nil {
 		return nil, err
 	}
-	return &DeckRepository{decks: decks, clock: clock, directory: directory}, nil
+	return &DeckRepository{decks: decks, clock: clock, location: location}, nil
 }
 
 func assureDirExist(path string) error {
@@ -169,9 +169,9 @@ func loadDecks(path string, clock Clock) (map[string]Deck, error) {
 
 // DeckRepository defines storage interface that manages a set of decks.
 type DeckRepository struct {
-	directory string
-	decks     map[string]Deck
-	clock     Clock
+	location string
+	decks    map[string]Deck
+	clock    Clock
 }
 
 // List returns the available deck names.
@@ -212,7 +212,7 @@ func (r *DeckRepository) Create(name string) (Deck, error) {
 }
 
 func (r *DeckRepository) deckPath(name string) string {
-	return filepath.Join(r.directory, slugify.Slugify(name)+".toml")
+	return filepath.Join(r.location, slugify.Slugify(name)+".toml")
 }
 
 // Open returns a deck given a name.
@@ -283,5 +283,5 @@ func (r *DeckRepository) SaveStats(deck Deck, stats *Stats) error {
 }
 
 func (r *DeckRepository) statsPath(d Deck) string {
-	return filepath.Join(r.directory, slugify.Slugify(d.Name)+"-stats.jsonl")
+	return filepath.Join(r.location, slugify.Slugify(d.Name)+"-stats.jsonl")
 }
