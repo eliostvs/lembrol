@@ -281,7 +281,7 @@ func TestDeckCreate(t *testing.T) {
 	})
 
 	t.Run("shows error when create deck fail", func(t *testing.T) {
-		location, cleanup := test.TempReadOnlyDirCopy(t, t.TempDir())
+		location, cleanup := test.TempReadOnlyDir(t)
 		t.Cleanup(cleanup)
 
 		m, _ := newTestModel(location).

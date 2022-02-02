@@ -60,3 +60,9 @@ func TempReadOnlyDirCopy(t *testing.T, source string) (string, func()) {
 		}
 	}
 }
+
+func TempReadOnlyDir(t *testing.T) (string, func()) {
+	t.Helper()
+
+	return TempReadOnlyDirCopy(t, t.TempDir())
+}

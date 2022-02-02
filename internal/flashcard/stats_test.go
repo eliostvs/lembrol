@@ -14,7 +14,7 @@ import (
 
 func TestStatsRepository_Save(t *testing.T) {
 	t.Run("returns error when save stats fail", func(t *testing.T) {
-		location, cleanup := test.TempReadOnlyDirCopy(t, t.TempDir())
+		location, cleanup := test.TempReadOnlyDir(t)
 		t.Cleanup(cleanup)
 		deck := newDeck(t, smallDeck)
 		repo := flashcard.NewStatsRepository(location)
