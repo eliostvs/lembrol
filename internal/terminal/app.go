@@ -46,7 +46,7 @@ type viewport struct {
 
 // NewModel creates a new model instance given a decks location.
 func NewModel(location string, opts ...ModelOption) Model {
-	spin := spinner.NewModel()
+	spin := spinner.New()
 	spin.Spinner = spinner.Dot
 
 	m := Model{
