@@ -52,7 +52,7 @@ const (
 // Stats is the revised card statistics.
 type Stats struct {
 	Algorithm      string `json:"algorithm"`
-	Card           string `json:"card"`
+	CardID         string `json:"card_id"`
 	Timestamp      string `json:"timestamp"`
 	Score          string `json:"score"`
 	LastReview     string `json:"last_review"`
@@ -122,7 +122,7 @@ func (Card) stats(ts time.Time, score ReviewScore, previous Card) *Stats {
 	return &Stats{
 		Algorithm:      "sm2",
 		Timestamp:      ts.Format(time.RFC3339),
-		Card:           previous.id,
+		CardID:         previous.id,
 		Score:          score.String(),
 		LastReview:     previous.ReviewedAt.Format(time.RFC3339),
 		Repetitions:    previous.Repetitions,

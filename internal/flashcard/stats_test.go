@@ -31,7 +31,7 @@ func TestStatsRepository_Save(t *testing.T) {
 
 		stats := flashcard.Stats{
 			Algorithm:      "Algorithm",
-			Card:           "Card",
+			CardID:         "Card",
 			Timestamp:      "Timestamp",
 			Score:          "1",
 			LastReview:     "LastReview",
@@ -44,7 +44,7 @@ func TestStatsRepository_Save(t *testing.T) {
 
 		content, err := os.ReadFile(filepath.Join(location, "golang-small-stats.jsonl"))
 		require.NoError(t, err)
-		want := `{"algorithm":"Algorithm","card":"Card","timestamp":"Timestamp","score":"1","last_review":"LastReview","repetitions":1,"interval":"Interval","easiness_factor":"EasinessFactor"}`
+		want := `{"algorithm":"Algorithm","card_id":"Card","timestamp":"Timestamp","score":"1","last_review":"LastReview","repetitions":1,"interval":"Interval","easiness_factor":"EasinessFactor"}`
 		assert.JSONEq(t, want, string(content))
 	})
 }
