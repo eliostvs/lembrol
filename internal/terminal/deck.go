@@ -91,10 +91,10 @@ type deckKeys struct {
 
 // MODEL
 
-func newDecksModel(decks []flashcard.Deck, repo *flashcard.DeckRepository, v viewport) decksModel {
+func newDecksModel(repository *flashcard.DeckRepository, v viewport) decksModel {
 	keys := newDeckKeys()
 	delegate := list.NewDefaultDelegate()
-	listModel := list.New(newDeckItems(decks), &delegate, 0, 0)
+	listModel := list.New(newDeckItems(repository.List()), &delegate, 0, 0)
 	listModel.Title = "Decks"
 	listModel.Styles.Title = titleStyle
 	listModel.AdditionalShortHelpKeys = func() []key.Binding {
@@ -118,7 +118,7 @@ func newDecksModel(decks []flashcard.Deck, repo *flashcard.DeckRepository, v vie
 		delegate:   &delegate,
 		keys:       keys,
 		list:       listModel,
-		repository: repo,
+		repository: repository,
 		viewport:   v,
 	}
 }

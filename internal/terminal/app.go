@@ -151,7 +151,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case createdRepositoryMsg:
 		m.repository = msg.Repository
-		m.decksModel = newDecksModel(m.repository.Deck.List(), m.repository.Deck, m.viewport)
+		m.decksModel = newDecksModel(m.repository.Deck, m.viewport)
 		m.page = Decks
 		return m, m.decksModel.init()
 
