@@ -374,43 +374,6 @@ func TestDeckRepository_Total(t *testing.T) {
 	}
 }
 
-func TestRepository_SaveStats(t *testing.T) {
-	t.Run("returns error when save stats fail", func(t *testing.T) {
-		location, cleanup := test.TempReadOnlyDirCopy(t, manyDecksLocation)
-		t.Cleanup(cleanup)
-		repo := newRepository(t, location)
-		deck, _ := repo.Open(smallDeck)
-
-		err := repo.SaveStats(deck, &flashcard.Stats{})
-
-		assert.Error(t, err)
-	})
-
-	t.Run("save stats to disk", func(t *testing.T) {
-		location := test.TempDirCopy(t, manyDecksLocation)
-		repo := newRepository(t, location)
-		deck, _ := repo.Open(smallDeck)
-
-		stats := flashcard.Stats{
-			Algorithm:      "Algorithm",
-			Card:           "Card",
-			Timestamp:      "Timestamp",
-			Score:          "1",
-			LastReview:     "LastReview",
-			Repetitions:    1,
-			Interval:       "Interval",
-			EasinessFactor: "EasinessFactor",
-		}
-		err := repo.SaveStats(deck, &stats)
-		assert.NoError(t, err)
-
-		content, err := os.ReadFile(filepath.Join(location, "golang-small-stats.jsonl"))
-		require.NoError(t, err)
-		want := `{"algorithm":"Algorithm","card":"Card","timestamp":"Timestamp","score":"1","last_review":"LastReview","repetitions":1,"interval":"Interval","easiness_factor":"EasinessFactor"}`
-		assert.JSONEq(t, want, string(content))
-	})
-}
-
 /*
  Test Utilities
 */

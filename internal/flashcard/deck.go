@@ -1,7 +1,6 @@
 package flashcard
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -256,32 +255,4 @@ func (r *DeckRepository) Remove(deck Deck) error {
 	delete(r.decks, deck.id)
 
 	return nil
-}
-
-// SaveStats writes stats to disk.
-func (r *DeckRepository) SaveStats(deck Deck, stats *Stats) error {
-	data, err := json.Marshal(stats)
-	if err != nil {
-		return fmt.Errorf("marshal stats: %w", err)
-	}
-
-	f, err := os.OpenFile(r.statsPath(deck), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return fmt.Errorf("open stats file: %w", err)
-	}
-
-	_, err = f.Write(append(data, '\n'))
-	if err0 := f.Close(); err0 != nil && err == nil {
-		err = fmt.Errorf("%w ", err)
-	}
-
-	if err != nil {
-		return fmt.Errorf("write stats: %w", err)
-	}
-
-	return nil
-}
-
-func (r *DeckRepository) statsPath(d Deck) string {
-	return filepath.Join(r.location, slugify.Slugify(d.Name)+"-stats.jsonl")
 }
