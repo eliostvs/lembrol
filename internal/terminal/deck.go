@@ -91,10 +91,10 @@ type deckKeys struct {
 
 // MODEL
 
-func newDecksModel(repository *flashcard.DeckRepository, v viewport) decksModel {
+func newDecksModel(repository *flashcard.Repository, v viewport) decksModel {
 	keys := newDeckKeys()
 	delegate := list.NewDefaultDelegate()
-	listModel := list.New(newDeckItems(repository.List()), &delegate, 0, 0)
+	listModel := list.New(newDeckItems(repository.Deck.List()), &delegate, 0, 0)
 	listModel.Title = "Decks"
 	listModel.Styles.Title = titleStyle
 	listModel.AdditionalShortHelpKeys = func() []key.Binding {
@@ -127,7 +127,7 @@ type decksModel struct {
 	form       Form
 	keys       *deckKeys
 	list       list.Model
-	repository *flashcard.DeckRepository
+	repository *flashcard.Repository
 	status     deckStatus
 	delegate   *list.DefaultDelegate
 	viewport   viewport
@@ -341,9 +341,9 @@ func createDeckForm(name string) (Form, tea.Cmd) {
 	return NewForm(NewField("name", input, WithLabel("Name"))), cmd
 }
 
-func createDeck(name string, repository *flashcard.DeckRepository) tea.Cmd {
+func createDeck(name string, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
-		deck, err := repository.Create(name)
+		deck, err := repository.Deck.Create(name)
 		if err != nil {
 			return failed(err)
 		}
@@ -351,18 +351,18 @@ func createDeck(name string, repository *flashcard.DeckRepository) tea.Cmd {
 	}
 }
 
-func editDeck(index int, deck flashcard.Deck, repository *flashcard.DeckRepository) tea.Cmd {
+func editDeck(index int, deck flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
-		if err := repository.Save(deck); err != nil {
+		if err := repository.Deck.Save(deck); err != nil {
 			return failed(err)
 		}
 		return editDeckMsg{index: index, item: deckItem{deck}}
 	}
 }
 
-func deleteDeck(index int, deck flashcard.Deck, repository *flashcard.DeckRepository) tea.Cmd {
+func deleteDeck(index int, deck flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
-		if err := repository.Remove(deck); err != nil {
+		if err := repository.Deck.Remove(deck); err != nil {
 			return failed(err)
 		}
 		return deletedDeckMsg{index: index}
