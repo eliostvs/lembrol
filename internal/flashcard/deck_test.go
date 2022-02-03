@@ -169,7 +169,7 @@ func TestDeck_Add(t *testing.T) {
 }
 
 func TestDeck_Update(t *testing.T) {
-	deck := newDeck(t, "Empty", withDeck("./testdata/empty"))
+	deck := newDeck(t, "Empty", withLocation(test.TempDirCopy(t, "./testdata/empty")))
 	newDeck, card := deck.Add("Question", "Answer")
 
 	card.Question = "Not Question"
@@ -389,9 +389,9 @@ var (
 
 type configOption func(*option)
 
-func withDeck(location string) configOption {
+func withLocation(location string) configOption {
 	return func(o *option) {
-		o.decksLocation = location
+		o.location = location
 	}
 }
 
@@ -402,22 +402,22 @@ func withTestClock(t time.Time) configOption {
 }
 
 type option struct {
-	clock         flashcard.Clock
-	decksLocation string
+	clock    flashcard.Clock
+	location string
 }
 
 func newDeck(t *testing.T, deckName string, cfgOpts ...configOption) flashcard.Deck {
 	t.Helper()
 
 	opts := option{
-		decksLocation: manyDecksLocation,
-		clock:         flashcard.NewClock(),
+		location: test.TempDirCopy(t, manyDecksLocation),
+		clock:    flashcard.NewClock(),
 	}
 	for _, cfg := range cfgOpts {
 		cfg(&opts)
 	}
 
-	repo, err := flashcard.NewDeckRepository(test.TempDirCopy(t, opts.decksLocation), opts.clock)
+	repo, err := flashcard.NewDeckRepository(opts.location, opts.clock)
 	if err != nil {
 		t.Fatal(err)
 	}

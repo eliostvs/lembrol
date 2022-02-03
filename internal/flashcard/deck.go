@@ -198,7 +198,7 @@ func (r *DeckRepository) Create(name string) (Deck, error) {
 		Name:  name,
 		cards: make(map[string]Card),
 		clock: r.clock,
-		id:    r.deckPath(name),
+		id:    r.path(name),
 	}
 
 	r.decks[deck.id] = deck
@@ -210,7 +210,7 @@ func (r *DeckRepository) Create(name string) (Deck, error) {
 	return deck, nil
 }
 
-func (r *DeckRepository) deckPath(name string) string {
+func (r *DeckRepository) path(name string) string {
 	return filepath.Join(r.location, slugify.Slugify(name)+".toml")
 }
 
