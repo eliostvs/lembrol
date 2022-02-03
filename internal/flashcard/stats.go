@@ -36,6 +36,7 @@ func (s *StatsRepository) Save(deck Deck, stats *Stats) error {
 	if err1 := f.Close(); err1 != nil && err == nil {
 		err = err1
 	}
+
 	if err != nil {
 		return fmt.Errorf("write stats: %w", err)
 	}
