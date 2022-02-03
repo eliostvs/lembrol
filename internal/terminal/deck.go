@@ -341,9 +341,9 @@ func createDeckForm(name string) (Form, tea.Cmd) {
 	return NewForm(NewField("name", input, WithLabel("Name"))), cmd
 }
 
-func createDeck(name string, repo *flashcard.DeckRepository) tea.Cmd {
+func createDeck(name string, repository *flashcard.DeckRepository) tea.Cmd {
 	return func() tea.Msg {
-		deck, err := repo.Create(name)
+		deck, err := repository.Create(name)
 		if err != nil {
 			return failed(err)
 		}
@@ -351,18 +351,18 @@ func createDeck(name string, repo *flashcard.DeckRepository) tea.Cmd {
 	}
 }
 
-func editDeck(index int, deck flashcard.Deck, repo *flashcard.DeckRepository) tea.Cmd {
+func editDeck(index int, deck flashcard.Deck, repository *flashcard.DeckRepository) tea.Cmd {
 	return func() tea.Msg {
-		if err := repo.Save(deck); err != nil {
+		if err := repository.Save(deck); err != nil {
 			return failed(err)
 		}
 		return editDeckMsg{index: index, item: deckItem{deck}}
 	}
 }
 
-func deleteDeck(index int, deck flashcard.Deck, repo *flashcard.DeckRepository) tea.Cmd {
+func deleteDeck(index int, deck flashcard.Deck, repository *flashcard.DeckRepository) tea.Cmd {
 	return func() tea.Msg {
-		if err := repo.Remove(deck); err != nil {
+		if err := repository.Remove(deck); err != nil {
 			return failed(err)
 		}
 		return deletedDeckMsg{index: index}
