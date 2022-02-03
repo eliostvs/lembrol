@@ -6,11 +6,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/eliostvs/remembercli/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/terminal"
 )
 
 func TestCLI(t *testing.T) {
-	name := "remember"
+	name := "lembrol"
 	version := "0.0.0-dev"
 
 	t.Run("shows help when help flags is given", func(t *testing.T) {
@@ -19,12 +19,12 @@ func TestCLI(t *testing.T) {
 		got := terminal.CLI([]string{name, "-h"}, version, &output)
 
 		assert.Equal(t, 0, got)
-		want := `remember 0.0.0-dev
+		want := `lembrol 0.0.0-dev
 
 Learning things through spaced repetition.
 
 USAGE:
-  remember [options]
+  lembrol [options]
 
 OPTIONS:
   -decks string

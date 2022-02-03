@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/eliostvs/remembercli/internal/flashcard"
+	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
 // STATE

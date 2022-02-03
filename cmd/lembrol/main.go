@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/eliostvs/remembercli/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/terminal"
 )
 
 var Version = "0.0.0-dev"

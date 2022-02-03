@@ -10,8 +10,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/eliostvs/remembercli/internal/flashcard"
-	"github.com/eliostvs/remembercli/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/flashcard"
+	"github.com/eliostvs/lembrol/internal/terminal"
 )
 
 func TestMain(m *testing.M) {

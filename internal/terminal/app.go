@@ -8,11 +8,12 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/eliostvs/remembercli/internal/flashcard"
+	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
 const (
 	initialDelay = time.Millisecond * 800
+	projectName  = "Lembrol"
 )
 
 // MODEL
@@ -97,14 +98,14 @@ func (m Model) View() string {
 		return errorView(m.error)
 
 	case Quit:
-		return midPaddingStyle.Render("Thanks for using Remember CLI!")
+		return midPaddingStyle.Render(fmt.Sprintf("Thanks for using %s!", projectName))
 	}
 
 	panic(midPaddingStyle.Render(fmt.Sprintf("missing state %d in main view", m.page)))
 }
 
 func loadingView(m Model) string {
-	content := titleStyle.Render("Remember")
+	content := titleStyle.Render(projectName)
 	content += normalTextStyle.Render(fmt.Sprintf("%s Loading...", m.spinner.View()))
 	return largePaddingStyle.Render(content)
 }

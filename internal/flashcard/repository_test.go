@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/eliostvs/remembercli/internal/flashcard"
+	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
 func TestNewRepository(t *testing.T) {

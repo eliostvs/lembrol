@@ -30,7 +30,7 @@ func TestLoading(t *testing.T) {
 	t.Run("shows loading page", func(t *testing.T) {
 		newTestModel(manyDecks).
 			Peek(func(m tea.Model) {
-				assert.Contains(t, m.View(), "Remember")
+				assert.Contains(t, m.View(), "Lembrol")
 				assert.Contains(t, m.View(), "⣾  Loading...")
 			}).
 			ForceUpdate(spinner.TickMsg{}).

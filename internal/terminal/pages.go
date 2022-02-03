@@ -3,7 +3,7 @@ package terminal
 import (
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/eliostvs/remembercli/internal/flashcard"
+	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
 type page int

@@ -11,7 +11,7 @@ MAKEFLAGS      += --no-builtin-rules
 MAKEFLAGS      += --warn-undefined-variables
 SHELL          = bash
 
-BINARY         = remember
+BINARY         = lembrol
 BINARY_DIR     = ./cmd/$(BINARY)
 DEV_MARKER     = .__dev
 LDFLAGS        += -X "main.Version=${VERSION}"

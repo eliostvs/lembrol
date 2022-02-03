@@ -1,4 +1,4 @@
-module github.com/eliostvs/remembercli
+module github.com/eliostvs/lembrol
 
 go 1.16
 

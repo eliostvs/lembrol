@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/eliostvs/remembercli/internal/flashcard"
-	"github.com/eliostvs/remembercli/internal/test"
+	"github.com/eliostvs/lembrol/internal/flashcard"
+	"github.com/eliostvs/lembrol/internal/test"
 )
 
 func TestStatsRepository_Save(t *testing.T) {

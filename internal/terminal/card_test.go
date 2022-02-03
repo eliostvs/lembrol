@@ -9,8 +9,8 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/eliostvs/remembercli/internal/terminal"
-	"github.com/eliostvs/remembercli/internal/test"
+	"github.com/eliostvs/lembrol/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/test"
 )
 
 func TestCardsList(t *testing.T) {
