@@ -92,7 +92,7 @@ type cardKeys struct {
 
 // MODEL
 
-func newCardsModel(deck flashcard.Deck, clock flashcard.Clock, repository *flashcard.DeckRepository, v viewport) cardsModel {
+func newCardsModel(deck flashcard.Deck, clock flashcard.Clock, repository *flashcard.Repository, v viewport) cardsModel {
 	keys := newCardKeys()
 	delegate := list.NewDefaultDelegate()
 	listModel := list.New(newCardItems(deck.List(), clock), &delegate, 0, 0)
@@ -133,7 +133,7 @@ type cardsModel struct {
 	form       Form
 	keys       *cardKeys
 	list       list.Model
-	repository *flashcard.DeckRepository
+	repository *flashcard.Repository
 	status     cardStatus
 	delegate   *list.DefaultDelegate
 	viewport   viewport
@@ -370,11 +370,11 @@ func createCardForm(question, answer string, width int) (Form, tea.Cmd) {
 	), cmd
 }
 
-func createCard(question, answer string, deck flashcard.Deck, repository *flashcard.DeckRepository, clock flashcard.Clock) tea.Cmd {
+func createCard(question, answer string, deck flashcard.Deck, repository *flashcard.Repository, clock flashcard.Clock) tea.Cmd {
 	return func() tea.Msg {
 		deck, card := deck.Add(question, answer)
 
-		if err := repository.Save(deck); err != nil {
+		if err := repository.Deck.Save(deck); err != nil {
 			return failed(err)
 		}
 
@@ -382,9 +382,9 @@ func createCard(question, answer string, deck flashcard.Deck, repository *flashc
 	}
 }
 
-func updateCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.DeckRepository, clock flashcard.Clock) tea.Cmd {
+func updateCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.Repository, clock flashcard.Clock) tea.Cmd {
 	return func() tea.Msg {
-		if err := repository.Save(deck.Change(card)); err != nil {
+		if err := repository.Deck.Save(deck.Change(card)); err != nil {
 			return failed(err)
 		}
 
@@ -392,13 +392,13 @@ func updateCard(index int, card flashcard.Card, deck flashcard.Deck, repository 
 	}
 }
 
-func deleteCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.DeckRepository) tea.Cmd {
+func deleteCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		if _, err := deck.Remove(card); err != nil {
 			return failed(err)
 		}
 
-		if err := repository.Save(deck); err != nil {
+		if err := repository.Deck.Save(deck); err != nil {
 			return failed(err)
 		}
 
