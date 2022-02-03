@@ -72,7 +72,7 @@ type Model struct {
 	initialDelay time.Duration
 	location     string
 	page         page
-	repository   *flashcard.DeckRepository
+	repository   *flashcard.Repository
 	reviewModel  reviewModel
 	viewport     viewport
 }
@@ -118,7 +118,7 @@ func errorView(err string) string {
 // UPDATE
 
 func createRepository(location string, clock flashcard.Clock) tea.Msg {
-	repo, err := flashcard.NewDeckRepository(location, clock)
+	repo, err := flashcard.NewRepository(location, clock)
 	if err != nil {
 		return failed(err)
 	}
@@ -126,7 +126,7 @@ func createRepository(location string, clock flashcard.Clock) tea.Msg {
 }
 
 type createdRepositoryMsg struct {
-	*flashcard.DeckRepository
+	*flashcard.Repository
 }
 
 func (m Model) Init() tea.Cmd {
@@ -150,8 +150,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 
 	case createdRepositoryMsg:
-		m.repository = msg.DeckRepository
-		m.decksModel = newDecksModel(m.repository.List(), m.repository, m.viewport)
+		m.repository = msg.Repository
+		m.decksModel = newDecksModel(m.repository.Deck.List(), m.repository.Deck, m.viewport)
 		m.page = Decks
 		return m, m.decksModel.init()
 
@@ -160,7 +160,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.decksModel.init()
 
 	case setDeckPageMsg:
-		m.cardsModel = newCardsModel(msg.Deck, m.clock, m.repository, m.viewport)
+		m.cardsModel = newCardsModel(msg.Deck, m.clock, m.repository.Deck, m.viewport)
 		m.page = Cards
 		return m, m.cardsModel.init()
 

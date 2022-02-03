@@ -121,10 +121,10 @@ func (k *reviewKeys) FullHelp() [][]key.Binding {
 
 // MODEL
 
-func newReviewModel(review flashcard.Review, repo *flashcard.DeckRepository, v viewport) reviewModel {
+func newReviewModel(review flashcard.Review, repository *flashcard.Repository, v viewport) reviewModel {
 	return reviewModel{
 		review:     review,
-		repository: repo,
+		repository: repository,
 		keys:       newReviewKeys(),
 		help:       help.New(),
 		viewport:   v,
@@ -134,7 +134,7 @@ func newReviewModel(review flashcard.Review, repo *flashcard.DeckRepository, v v
 type reviewModel struct {
 	review     flashcard.Review
 	help       help.Model
-	repository *flashcard.DeckRepository
+	repository *flashcard.Repository
 	status     reviewStatus
 	keys       *reviewKeys
 	viewport   viewport
@@ -309,7 +309,7 @@ func skipCard(review flashcard.Review) tea.Cmd {
 	}
 }
 
-func scoreCard(input string, review flashcard.Review, repo *flashcard.DeckRepository) tea.Cmd {
+func scoreCard(input string, review flashcard.Review, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		score, err := flashcard.NewReviewScore(input)
 		if err != nil {
@@ -321,12 +321,12 @@ func scoreCard(input string, review flashcard.Review, repo *flashcard.DeckReposi
 			return failed(err)
 		}
 
-		if err = repo.Save(review.Deck()); err != nil {
+		if err = repository.Deck.Save(review.Deck()); err != nil {
 			return failed(err)
 		}
 
 		if stats != nil {
-			if err := repo.SaveStats(review.Deck(), stats); err != nil {
+			if err := repository.Stats.Save(review.Deck(), stats); err != nil {
 				return failed(err)
 			}
 		}
