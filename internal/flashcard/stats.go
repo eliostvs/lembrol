@@ -21,20 +21,20 @@ type StatsRepository struct {
 }
 
 // Save writes stats to disk.
-func (s *StatsRepository) Save(deck Deck, stats *Stats) error {
+func (r *StatsRepository) Save(deck Deck, stats *Stats) error {
 	data, err := json.Marshal(stats)
 	if err != nil {
 		return fmt.Errorf("marshal stats: %w", err)
 	}
 
-	f, err := os.OpenFile(s.path(deck), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(r.path(deck), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("open stats file: %w", err)
 	}
 
 	_, err = f.Write(append(data, '\n'))
-	if err1 := f.Close(); err1 != nil && err == nil {
-		err = err1
+	if err0 := f.Close(); err0 != nil && err == nil {
+		err = err0
 	}
 
 	if err != nil {
@@ -44,6 +44,6 @@ func (s *StatsRepository) Save(deck Deck, stats *Stats) error {
 	return nil
 }
 
-func (s *StatsRepository) path(d Deck) string {
-	return filepath.Join(s.location, slugify.Slugify(d.Name)+"-stats.jsonl")
+func (r *StatsRepository) path(d Deck) string {
+	return filepath.Join(r.location, slugify.Slugify(d.Name)+"-stats.jsonl")
 }
