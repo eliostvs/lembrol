@@ -92,7 +92,7 @@ type cardKeys struct {
 
 // MODEL
 
-func newCardsModel(deck flashcard.Deck, clock flashcard.Clock, repo *flashcard.DeckRepository, v viewport) cardsModel {
+func newCardsModel(deck flashcard.Deck, clock flashcard.Clock, repository *flashcard.DeckRepository, v viewport) cardsModel {
 	keys := newCardKeys()
 	delegate := list.NewDefaultDelegate()
 	listModel := list.New(newCardItems(deck.List(), clock), &delegate, 0, 0)
@@ -120,7 +120,7 @@ func newCardsModel(deck flashcard.Deck, clock flashcard.Clock, repo *flashcard.D
 		list:       listModel,
 		clock:      clock,
 		deck:       deck,
-		repository: repo,
+		repository: repository,
 		keys:       keys,
 		delegate:   &delegate,
 		viewport:   v,
