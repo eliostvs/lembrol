@@ -141,8 +141,8 @@ func (c Card) Due(t time.Time) bool {
 	return c.NextReviewAt().Before(t)
 }
 
-// Id returns card identifier.
-func (c Card) Id() string {
+// ID returns card identifier.
+func (c Card) ID() string {
 	return c.id
 }
 
