@@ -382,9 +382,10 @@ var (
 	smallDeck           = "Golang Small"
 	largeDeck           = "Golang Large"
 	oneCardDeck         = "Golang One"
+	emptyDeck           = "Empty"
 	manyDecksLocation   = "./testdata/many"
 	emptyDeckLocation   = "./testdata/empty"
-	invalidDeckLocation = "./testdata/invalid"
+	invalidDeckLocation = "./testdata/invalid-deck"
 )
 
 type configOption func(*option)

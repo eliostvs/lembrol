@@ -35,6 +35,10 @@ func (s ReviewScore) String() string {
 	return strconv.Itoa(int(s))
 }
 
+func (s ReviewScore) Int() int {
+	return int(s)
+}
+
 const (
 	ReviewScoreAgain ReviewScore = iota
 	ReviewScoreHard
@@ -48,18 +52,6 @@ const (
 	MinEasinessFactor = 1.3
 	hoursPerDay       = 24
 )
-
-// Stats is the revised card statistics.
-type Stats struct {
-	Algorithm      string `json:"algorithm"`
-	CardID         string `json:"card_id"`
-	Timestamp      string `json:"timestamp"`
-	Score          string `json:"score"`
-	LastReview     string `json:"last_review"`
-	Repetitions    int    `json:"repetitions"`
-	Interval       string `json:"interval"`
-	EasinessFactor string `json:"easiness_factor"`
-}
 
 // NewCard create a new Card instance.
 func NewCard(question, answer string, today time.Time) Card {
@@ -121,13 +113,13 @@ func (c Card) nextEasinessFactor(score ReviewScore) float64 {
 func (Card) stats(ts time.Time, score ReviewScore, previous Card) *Stats {
 	return &Stats{
 		Algorithm:      "sm2",
-		Timestamp:      ts.Format(time.RFC3339),
+		Timestamp:      ts,
 		CardID:         previous.id,
-		Score:          score.String(),
-		LastReview:     previous.ReviewedAt.Format(time.RFC3339),
+		Score:          int(score),
+		LastReview:     previous.ReviewedAt,
 		Repetitions:    previous.Repetitions,
-		Interval:       strconv.FormatFloat(previous.Interval, 'f', 2, 64),
-		EasinessFactor: strconv.FormatFloat(previous.EasinessFactor, 'f', 2, 64),
+		Interval:       previous.Interval,
+		EasinessFactor: previous.EasinessFactor,
 	}
 }
 

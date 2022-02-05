@@ -3,11 +3,25 @@ package flashcard
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/avelino/slugify"
 )
+
+// Stats is the revised card statistics.
+type Stats struct {
+	Algorithm      string    `json:"algorithm"`
+	CardID         string    `json:"card_id"`
+	Timestamp      time.Time `json:"timestamp"`
+	Score          int       `json:"score,string"`
+	LastReview     time.Time `json:"last_review"`
+	Repetitions    int       `json:"repetitions"`
+	Interval       float64   `json:"interval,string"`
+	EasinessFactor float64   `json:"easiness_factor,string"`
+}
 
 func NewStatsRepository(location string) *StatsRepository {
 	return &StatsRepository{
@@ -27,13 +41,13 @@ func (r *StatsRepository) Save(deck Deck, stats *Stats) error {
 		return fmt.Errorf("marshal stats: %w", err)
 	}
 
-	f, err := os.OpenFile(r.path(deck), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(r.path(deck), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("open stats file: %w", err)
 	}
 
-	_, err = f.Write(append(data, '\n'))
-	if err0 := f.Close(); err0 != nil && err == nil {
+	_, err = file.Write(append(data, '\n'))
+	if err0 := file.Close(); err0 != nil && err == nil {
 		err = err0
 	}
 
@@ -42,6 +56,38 @@ func (r *StatsRepository) Save(deck Deck, stats *Stats) error {
 	}
 
 	return nil
+}
+
+// Find returns the stats from a given card.
+func (r *StatsRepository) Find(deck Deck, card Card) ([]*Stats, error) {
+	file, err := os.Open(r.path(deck))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []*Stats{}, nil
+		}
+		return nil, fmt.Errorf("open stats file: %w", err)
+	}
+
+	found := make([]*Stats, 0, 0)
+	decoder := json.NewDecoder(file)
+	for {
+		var stats Stats
+
+		err := decoder.Decode(&stats)
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("unmarshalling stats: %w", err)
+		}
+
+		if stats.CardID == card.ID() {
+			found = append(found, &stats)
+		}
+	}
+
+	return found, nil
 }
 
 func (r *StatsRepository) path(d Deck) string {
