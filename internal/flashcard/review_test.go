@@ -99,7 +99,7 @@ func TestReview_Rate(t *testing.T) {
 			{
 				name: "current is never greater than total",
 				args: args{
-					deck:  oneCardDeck,
+					deck:  singleCardDeck,
 					time:  time.Now(),
 					score: flashcard.ReviewScoreNormal,
 				},

@@ -1,4 +1,4 @@
-Name = "Golang One"
+Name = "Single"
 
 [Cards.1]
   Answer = "if _, ok := map[key]; ok {}"

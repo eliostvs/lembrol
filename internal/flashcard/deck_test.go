@@ -224,7 +224,7 @@ func TestDeckRepository_List(t *testing.T) {
 		for _, deck := range got {
 			deckNames = append(deckNames, deck.Name)
 		}
-		assert.Equal(t, []string{"Golang Large", "Golang One", "Golang Small"}, deckNames)
+		assert.ElementsMatch(t, []string{"Large", "Single", "Small"}, deckNames)
 	})
 
 	t.Run("returns empty slice when repository has not decks", func(t *testing.T) {
@@ -247,7 +247,7 @@ func TestDeckRepository_Open(t *testing.T) {
 		repo, err := flashcard.NewDeckRepository(manyDecksLocation, nil)
 		require.NoError(t, err)
 
-		deck, err := repo.Open("Golang Small")
+		deck, err := repo.Open("Small")
 
 		assert.NoError(t, err)
 		assert.Equal(t, 3, deck.Total())
@@ -379,9 +379,9 @@ func TestDeckRepository_Total(t *testing.T) {
 */
 
 var (
-	smallDeck           = "Golang Small"
-	largeDeck           = "Golang Large"
-	oneCardDeck         = "Golang One"
+	smallDeck           = "Small"
+	largeDeck           = "Large"
+	singleCardDeck      = "Single"
 	emptyDeck           = "Empty"
 	manyDecksLocation   = "./testdata/many"
 	emptyDeckLocation   = "./testdata/empty"

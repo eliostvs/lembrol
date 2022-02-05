@@ -1,4 +1,4 @@
-Name = "Golang Large"
+Name = "Large"
 
 [Cards.1]
   Answer = "import \"os\"\n\nos.Remove(path) error"

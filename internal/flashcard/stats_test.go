@@ -54,7 +54,7 @@ func TestStatsRepository_Find(t *testing.T) {
 	t.Run("returns no stats when file doesn't exist", func(t *testing.T) {
 		location := test.TempDirCopy(t, manyDecksLocation)
 		repo := flashcard.NewStatsRepository(location)
-		deck := newDeck(t, oneCardDeck, withLocation(location))
+		deck := newDeck(t, singleCardDeck, withLocation(location))
 
 		for _, card := range deck.List() {
 			t.Run(card.Question, func(t *testing.T) {
