@@ -26,6 +26,8 @@ const (
 
 type cardItem struct {
 	flashcard.Card
+	// is used in the render phase to check if the card is due
+	// need to be here because the default delegate don't send parameter to the description method
 	clock flashcard.Clock
 }
 
