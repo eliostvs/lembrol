@@ -264,7 +264,7 @@ func (m reviewModel) Update(msg tea.Msg) (reviewModel, tea.Cmd) {
 			if m.status == reviewFinished {
 				return m, showDecks
 			}
-			return m, showCards(m.review.Deck())
+			return m, showCards(m.review.Deck(), firstCard)
 
 		case key.Matches(msg, m.keys.answer):
 			if m.status == reviewQuestion {

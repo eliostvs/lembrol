@@ -31,14 +31,15 @@ func showDecks() tea.Msg {
 
 type setDecksPageMsg struct{}
 
-func showCards(d flashcard.Deck) tea.Cmd {
+func showCards(deck flashcard.Deck, card int) tea.Cmd {
 	return func() tea.Msg {
-		return setCardsPageMsg{d}
+		return setCardsPageMsg{deck: deck, card: card}
 	}
 }
 
 type setCardsPageMsg struct {
-	flashcard.Deck
+	deck flashcard.Deck
+	card int
 }
 
 func startReview(d flashcard.Deck) tea.Cmd {

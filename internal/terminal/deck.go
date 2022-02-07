@@ -297,7 +297,7 @@ func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 			return m, exitCmd
 
 		case m.status == deckBrowsing && key.Matches(msg, m.keys.confirm) && hasDeck:
-			return m, showCards(currentDeck)
+			return m, showCards(currentDeck, firstCard)
 
 		case m.status == deckDeleting && key.Matches(msg, m.keys.confirm):
 			return m, deleteDeck(m.list.Index(), currentDeck, m.repository)

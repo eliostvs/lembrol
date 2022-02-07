@@ -161,7 +161,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.decksModel.init()
 
 	case setCardsPageMsg:
-		m.cardsModel = newCardsModel(msg.Deck, m.clock, m.repository, m.viewport)
+		m.cardsModel = newCardsModel(msg, m.clock, m.repository, m.viewport)
 		m.page = Cards
 		return m, m.cardsModel.init()
 

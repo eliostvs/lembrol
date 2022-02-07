@@ -20,6 +20,8 @@ const (
 	cardCreating
 	cardEditing
 	cardDeleting
+
+	firstCard = 0
 )
 
 // ITEM
@@ -94,11 +96,12 @@ type cardKeys struct {
 
 // MODEL
 
-func newCardsModel(deck flashcard.Deck, clock flashcard.Clock, repository *flashcard.Repository, v viewport) cardsModel {
+func newCardsModel(msg setCardsPageMsg, clock flashcard.Clock, repository *flashcard.Repository, v viewport) cardsModel {
 	keys := newCardKeys()
 	delegate := list.NewDefaultDelegate()
-	listModel := list.New(newCardItems(deck.List(), clock), &delegate, 0, 0)
-	listModel.Title = deck.Name
+	listModel := list.New(newCardItems(msg.deck.List(), clock), &delegate, 0, 0)
+	listModel.Select(msg.card)
+	listModel.Title = msg.deck.Name
 	listModel.Styles.Title = titleStyle
 	listModel.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
@@ -121,7 +124,7 @@ func newCardsModel(deck flashcard.Deck, clock flashcard.Clock, repository *flash
 	return cardsModel{
 		list:       listModel,
 		clock:      clock,
-		deck:       deck,
+		deck:       msg.deck,
 		repository: repository,
 		keys:       keys,
 		delegate:   &delegate,
