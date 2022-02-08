@@ -94,7 +94,7 @@ func newCardsModel(msg setCardsPageMsg, clock flashcard.Clock, repository *flash
 	keys := newCardKeys()
 	delegate := list.NewDefaultDelegate()
 	listModel := list.New(newCardItems(msg.deck.List(), clock), &delegate, 0, 0)
-	listModel.Select(msg.card)
+	listModel.Select(msg.cardIndex)
 	listModel.Title = msg.deck.Name
 	listModel.Styles.Title = titleStyle
 	listModel.AdditionalShortHelpKeys = func() []key.Binding {
@@ -140,7 +140,7 @@ type cardsModel struct {
 
 // INIT
 
-func (m cardsModel) init() tea.Cmd {
+func (m cardsModel) Init() tea.Cmd {
 	return func() tea.Msg {
 		return initCardMsg{}
 	}
@@ -303,7 +303,7 @@ func (m cardsModel) Update(msg tea.Msg) (cardsModel, tea.Cmd) {
 			return m, nil
 
 		case m.status == cardDeleting && key.Matches(msg, m.list.KeyMap.Quit):
-			return m, m.init()
+			return m, m.Init()
 
 		case m.status == cardDeleting && key.Matches(msg, m.keys.confirm):
 			return m, deleteCard(m.list.Index(), currentCard, m.deck, m.repository)

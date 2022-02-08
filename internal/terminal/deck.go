@@ -129,7 +129,7 @@ type decksModel struct {
 
 // INIT
 
-func (m decksModel) init() tea.Cmd {
+func (m decksModel) Init() tea.Cmd {
 	return func() tea.Msg {
 		return initDeckMsg{}
 	}
@@ -275,7 +275,7 @@ func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 			return m, deleteDeck(m.list.Index(), currentDeck, m.repository)
 
 		case m.status == deckDeleting && key.Matches(msg, m.list.KeyMap.Quit):
-			return m, m.init()
+			return m, m.Init()
 
 			// the only two actions in delete state should confirm or cancel
 		case m.status == deckDeleting:

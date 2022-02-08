@@ -75,6 +75,7 @@ type Model struct {
 	page         page
 	repository   *flashcard.Repository
 	reviewModel  reviewModel
+	statsModel   statsModel
 	viewport     viewport
 }
 
@@ -116,21 +117,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.repository = msg.Repository
 		m.decksModel = newDecksModel(m.repository, m.viewport)
 		m.page = Decks
-		return m, m.decksModel.init()
+		return m, m.decksModel.Init()
 
 	case setDecksPageMsg:
 		m.page = Decks
-		return m, m.decksModel.init()
+		return m, m.decksModel.Init()
 
 	case setCardsPageMsg:
 		m.cardsModel = newCardsModel(msg, m.clock, m.repository, m.viewport)
 		m.page = Cards
-		return m, m.cardsModel.init()
+		return m, m.cardsModel.Init()
+
+	case setStatsPageMsg:
+		m.statsModel = newStatsModel(msg, m.repository, m.viewport)
+		m.page = Stats
+		return m, m.statsModel.Init()
 
 	case setReviewPageMsg:
 		m.reviewModel = newReviewModel(flashcard.NewReview(msg.Deck, m.clock), m.repository, m.viewport)
 		m.page = Review
-		return m, m.reviewModel.init()
+		return m, m.reviewModel.Init()
 
 	case setErrorPageMsg:
 		m.error = msg.Error
@@ -164,6 +170,11 @@ func updateChildren(msg tea.Msg, m Model) (Model, tea.Cmd) {
 		m.cardsModel, cmd = m.cardsModel.Update(msg)
 		return m, cmd
 
+	case Stats:
+		m.statsModel.viewport = m.viewport
+		m.statsModel, cmd = m.statsModel.Update(msg)
+		return m, cmd
+
 	case Review:
 		m.reviewModel.viewport = m.viewport
 		m.reviewModel, cmd = m.reviewModel.Update(msg)
@@ -188,6 +199,9 @@ func (m Model) View() string {
 
 	case Review:
 		return m.reviewModel.View()
+
+	case Stats:
+		return m.statsModel.View()
 
 	case Error:
 		return errorView(m.error)

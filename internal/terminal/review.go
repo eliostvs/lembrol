@@ -138,7 +138,7 @@ type reviewModel struct {
 
 // INIT
 
-func (m reviewModel) init() tea.Cmd {
+func (m reviewModel) Init() tea.Cmd {
 	return func() tea.Msg {
 		return reviewQuestionMsg{m.review}
 	}
