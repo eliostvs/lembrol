@@ -2,6 +2,7 @@ package flashcard
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -74,7 +75,7 @@ func (r *StatsRepository) Find(deck Deck, card Card) ([]*Stats, error) {
 		var stats Stats
 
 		err := decoder.Decode(&stats)
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 
