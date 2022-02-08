@@ -10,7 +10,7 @@ import (
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
-// STATE
+// MODEL
 
 type reviewStatus int
 
@@ -19,8 +19,6 @@ const (
 	reviewAnswer
 	reviewFinished
 )
-
-// KEYS
 
 func newReviewKeys() *reviewKeys {
 	return &reviewKeys{
@@ -119,8 +117,6 @@ func (k *reviewKeys) FullHelp() [][]key.Binding {
 	}
 }
 
-// MODEL
-
 func newReviewModel(review flashcard.Review, repository *flashcard.Repository, v viewport) reviewModel {
 	return reviewModel{
 		review:     review,
@@ -138,76 +134,6 @@ type reviewModel struct {
 	status     reviewStatus
 	keys       *reviewKeys
 	viewport   viewport
-}
-
-// VIEW
-
-func (m reviewModel) View() string {
-	switch m.status {
-	case reviewQuestion:
-		return reviewQuestionView(m)
-
-	case reviewAnswer:
-		return reviewAnswerView(m)
-
-	case reviewFinished:
-		return reviewFinishedView(m)
-
-	default:
-		return ""
-	}
-}
-
-func reviewQuestionView(m reviewModel) string {
-	content := titleReviewStyle.Render("Question")
-	content += deckName.Render(m.review.Deck().Name)
-	content += status.Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total()))
-
-	card, err := m.review.CurrentCard()
-	if err != nil {
-		return errorView(err.Error())
-	}
-
-	markdown, err := RenderMarkdown(card.Question, m.viewport.width)
-	if err != nil {
-		return errorView(err.Error())
-	}
-
-	content += markdownStyle.Render(markdown)
-	content += helpReviewStyle.Render(m.help.View(m.keys))
-
-	return reviewScreenStyle.Render(content)
-}
-
-func reviewAnswerView(m reviewModel) string {
-	content := titleReviewStyle.Render("Answer")
-	content += deckName.Render(m.review.Deck().Name)
-	content += status.Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total()))
-
-	card, err := m.review.CurrentCard()
-	if err != nil {
-		return errorView(err.Error())
-	}
-
-	markdown, err := RenderMarkdown(card.Answer, m.viewport.width)
-	if err != nil {
-		return errorView(err.Error())
-	}
-
-	content += markdownStyle.Render(markdown)
-	content += helpReviewStyle.Render(m.help.View(m.keys))
-
-	return reviewScreenStyle.Render(content)
-
-}
-
-func reviewFinishedView(m reviewModel) string {
-	total := m.review.Completed()
-	content := titleStyle.Render("Congratulations!")
-	content += normalTextStyle.Render(fmt.Sprintf("%d card%s reviewed.", total, pluralize(total, "s")))
-
-	content += helpStyle.Render(m.help.View(m.keys))
-	return largePaddingStyle.Render(content)
 }
 
 // INIT
@@ -337,4 +263,74 @@ func scoreCard(input string, review flashcard.Review, repository *flashcard.Repo
 
 		return reviewQuestionMsg{review}
 	}
+}
+
+// VIEW
+
+func (m reviewModel) View() string {
+	switch m.status {
+	case reviewQuestion:
+		return reviewQuestionView(m)
+
+	case reviewAnswer:
+		return reviewAnswerView(m)
+
+	case reviewFinished:
+		return reviewFinishedView(m)
+
+	default:
+		return ""
+	}
+}
+
+func reviewQuestionView(m reviewModel) string {
+	content := titleReviewStyle.Render("Question")
+	content += deckName.Render(m.review.Deck().Name)
+	content += status.Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total()))
+
+	card, err := m.review.CurrentCard()
+	if err != nil {
+		return errorView(err.Error())
+	}
+
+	markdown, err := RenderMarkdown(card.Question, m.viewport.width)
+	if err != nil {
+		return errorView(err.Error())
+	}
+
+	content += markdownStyle.Render(markdown)
+	content += helpReviewStyle.Render(m.help.View(m.keys))
+
+	return reviewScreenStyle.Render(content)
+}
+
+func reviewAnswerView(m reviewModel) string {
+	content := titleReviewStyle.Render("Answer")
+	content += deckName.Render(m.review.Deck().Name)
+	content += status.Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total()))
+
+	card, err := m.review.CurrentCard()
+	if err != nil {
+		return errorView(err.Error())
+	}
+
+	markdown, err := RenderMarkdown(card.Answer, m.viewport.width)
+	if err != nil {
+		return errorView(err.Error())
+	}
+
+	content += markdownStyle.Render(markdown)
+	content += helpReviewStyle.Render(m.help.View(m.keys))
+
+	return reviewScreenStyle.Render(content)
+
+}
+
+func reviewFinishedView(m reviewModel) string {
+	total := m.review.Completed()
+	content := titleStyle.Render("Congratulations!")
+	content += normalTextStyle.Render(fmt.Sprintf("%d card%s reviewed.", total, pluralize(total, "s")))
+
+	content += helpStyle.Render(m.help.View(m.keys))
+	return largePaddingStyle.Render(content)
 }

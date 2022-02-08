@@ -78,44 +78,6 @@ type Model struct {
 	viewport     viewport
 }
 
-// VIEW
-
-func (m Model) View() string {
-	switch m.page {
-	case Loading:
-		return loadingView(m)
-
-	case Decks:
-		return m.decksModel.View()
-
-	case Cards:
-		return m.cardsModel.View()
-
-	case Review:
-		return m.reviewModel.View()
-
-	case Error:
-		return errorView(m.error)
-
-	case Quit:
-		return midPaddingStyle.Render(fmt.Sprintf("Thanks for using %s!", projectName))
-	}
-
-	panic(midPaddingStyle.Render(fmt.Sprintf("missing state %d in main view", m.page)))
-}
-
-func loadingView(m Model) string {
-	content := titleStyle.Render(projectName)
-	content += normalTextStyle.Render(fmt.Sprintf("%s Loading...", m.spinner.View()))
-	return largePaddingStyle.Render(content)
-}
-
-func errorView(err string) string {
-	content := titleStyle.Render("Error")
-	content += Red.Render(err)
-	return largePaddingStyle.Render(content)
-}
-
 // UPDATE
 
 func createRepository(location string, clock flashcard.Clock) tea.Msg {
@@ -209,4 +171,42 @@ func updateChildren(msg tea.Msg, m Model) (Model, tea.Cmd) {
 	}
 
 	return m, nil
+}
+
+// VIEW
+
+func (m Model) View() string {
+	switch m.page {
+	case Loading:
+		return loadingView(m)
+
+	case Decks:
+		return m.decksModel.View()
+
+	case Cards:
+		return m.cardsModel.View()
+
+	case Review:
+		return m.reviewModel.View()
+
+	case Error:
+		return errorView(m.error)
+
+	case Quit:
+		return midPaddingStyle.Render(fmt.Sprintf("Thanks for using %s!", projectName))
+	}
+
+	panic(midPaddingStyle.Render(fmt.Sprintf("missing state %d in main view", m.page)))
+}
+
+func loadingView(m Model) string {
+	content := titleStyle.Render(projectName)
+	content += normalTextStyle.Render(fmt.Sprintf("%s Loading...", m.spinner.View()))
+	return largePaddingStyle.Render(content)
+}
+
+func errorView(err string) string {
+	content := titleStyle.Render("Error")
+	content += Red.Render(err)
+	return largePaddingStyle.Render(content)
 }

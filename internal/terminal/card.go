@@ -11,7 +11,7 @@ import (
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
-// STATE
+// MODEL
 
 type cardStatus int
 
@@ -23,8 +23,6 @@ const (
 
 	firstCard = 0
 )
-
-// ITEM
 
 type cardItem struct {
 	flashcard.Card
@@ -57,8 +55,6 @@ func newCardItems(cards []flashcard.Card, clock flashcard.Clock) []list.Item {
 	}
 	return items
 }
-
-// KEYS
 
 func newCardKeys() *cardKeys {
 	return &cardKeys{
@@ -93,8 +89,6 @@ type cardKeys struct {
 	delete  key.Binding
 	confirm key.Binding
 }
-
-// MODEL
 
 func newCardsModel(msg setCardsPageMsg, clock flashcard.Clock, repository *flashcard.Repository, v viewport) cardsModel {
 	keys := newCardKeys()
@@ -144,6 +138,14 @@ type cardsModel struct {
 	viewport   viewport
 }
 
+// INIT
+
+func (m cardsModel) init() tea.Cmd {
+	return func() tea.Msg {
+		return initCardMsg{}
+	}
+}
+
 // VIEW
 
 func (m cardsModel) View() string {
@@ -163,14 +165,6 @@ func (m cardsModel) View() string {
 
 	default:
 		return midPaddingStyle.Render(m.list.View())
-	}
-}
-
-// INIT
-
-func (m cardsModel) init() tea.Cmd {
-	return func() tea.Msg {
-		return initCardMsg{}
 	}
 }
 

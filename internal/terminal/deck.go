@@ -12,7 +12,7 @@ import (
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
-// STATE
+// MODEL
 
 type deckStatus int
 
@@ -22,8 +22,6 @@ const (
 	deckDeleting
 	deckEditing
 )
-
-// ITEM
 
 type deckItem struct {
 	flashcard.Deck
@@ -53,8 +51,6 @@ func newDeckItems(decks []flashcard.Deck) []list.Item {
 	}
 	return items
 }
-
-// KEYS
 
 func newDeckKeys() *deckKeys {
 	return &deckKeys{
@@ -88,8 +84,6 @@ type deckKeys struct {
 	edit    key.Binding
 	delete  key.Binding
 }
-
-// MODEL
 
 func newDecksModel(repository *flashcard.Repository, v viewport) decksModel {
 	keys := newDeckKeys()
@@ -131,28 +125,6 @@ type decksModel struct {
 	status     deckStatus
 	delegate   *list.DefaultDelegate
 	viewport   viewport
-}
-
-// VIEW
-
-func (m decksModel) View() string {
-	switch m.status {
-	case deckCreating:
-		content := titleStyle.Render("New Deck")
-		content += m.form.view()
-		return largePaddingStyle.Render(content)
-
-	case deckEditing:
-		content := titleStyle.Render("Edit Deck")
-		content += m.form.view()
-		return largePaddingStyle.Render(content)
-
-	case deckBrowsing, deckDeleting:
-		fallthrough
-
-	default:
-		return midPaddingStyle.Render(m.list.View())
-	}
 }
 
 // INIT
@@ -366,5 +338,27 @@ func deleteDeck(index int, deck flashcard.Deck, repository *flashcard.Repository
 			return failed(err)
 		}
 		return deletedDeckMsg{index: index}
+	}
+}
+
+// VIEW
+
+func (m decksModel) View() string {
+	switch m.status {
+	case deckCreating:
+		content := titleStyle.Render("New Deck")
+		content += m.form.view()
+		return largePaddingStyle.Render(content)
+
+	case deckEditing:
+		content := titleStyle.Render("Edit Deck")
+		content += m.form.view()
+		return largePaddingStyle.Render(content)
+
+	case deckBrowsing, deckDeleting:
+		fallthrough
+
+	default:
+		return midPaddingStyle.Render(m.list.View())
 	}
 }
