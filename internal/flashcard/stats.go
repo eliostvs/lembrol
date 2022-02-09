@@ -60,16 +60,16 @@ func (r *StatsRepository) Save(deck Deck, stats *Stats) error {
 }
 
 // Find returns the stats from a given card.
-func (r *StatsRepository) Find(deck Deck, card Card) ([]*Stats, error) {
+func (r *StatsRepository) Find(deck Deck, card Card) ([]Stats, error) {
 	file, err := os.Open(r.path(deck))
 	if err != nil {
 		if os.IsNotExist(err) {
-			return []*Stats{}, nil
+			return nil, nil
 		}
 		return nil, fmt.Errorf("open stats file: %w", err)
 	}
 
-	found := make([]*Stats, 0, 0)
+	found := make([]Stats, 0, 0)
 	decoder := json.NewDecoder(file)
 	for {
 		var stats Stats
@@ -84,7 +84,7 @@ func (r *StatsRepository) Find(deck Deck, card Card) ([]*Stats, error) {
 		}
 
 		if stats.CardID == card.ID() {
-			found = append(found, &stats)
+			found = append(found, stats)
 		}
 	}
 

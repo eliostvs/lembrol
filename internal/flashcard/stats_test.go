@@ -100,7 +100,7 @@ func TestStatsRepository_Find(t *testing.T) {
 		location := test.TempDirCopy(t, manyDecksLocation)
 		repo := flashcard.NewStatsRepository(location)
 		deck := newDeck(t, largeDeck, withLocation(location))
-		wantStats := map[string][]*flashcard.Stats{
+		wantStats := map[string][]flashcard.Stats{
 			"1": {{
 				Algorithm:      "sm2",
 				CardID:         "1",
