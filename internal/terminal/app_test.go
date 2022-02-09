@@ -38,7 +38,8 @@ const (
 	singleCardDeck = "./testdata/single"
 	emptyDeck      = "./testdata/empty"
 	noneDeck       = "./testdata/none"
-	invalidDeck    = "./testdata/invalid"
+	invalidDeck    = "./testdata/invalid-deck"
+	invalidStats   = "./testdata/invalid-stats"
 	longNamesDeck  = "./testdata/long"
 
 	createKey    = "a"
@@ -50,6 +51,7 @@ const (
 	keyUp        = "k"
 	editKey      = "e"
 	helpKey      = "?"
+	statsKey     = "v"
 	filterKey    = "/"
 	activePrompt = "│ "
 )

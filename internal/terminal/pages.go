@@ -13,6 +13,7 @@ const (
 	Decks
 	Cards
 	Review
+	Stats
 	Quit
 	Error
 )
@@ -39,6 +40,18 @@ func showCards(deck flashcard.Deck, cardIndex int) tea.Cmd {
 
 type setCardsPageMsg struct {
 	deck      flashcard.Deck
+	cardIndex int
+}
+
+func showStats(deck flashcard.Deck, card flashcard.Card, cardIndex int) tea.Cmd {
+	return func() tea.Msg {
+		return setStatsPageMsg{deck: deck, card: card, cardIndex: cardIndex}
+	}
+}
+
+type setStatsPageMsg struct {
+	deck      flashcard.Deck
+	card      flashcard.Card
 	cardIndex int
 }
 

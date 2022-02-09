@@ -10,7 +10,7 @@ import (
 )
 
 func TestNewRepository(t *testing.T) {
-	t.Run("returns error when inittialization of the wrapped repositories fails", func(t *testing.T) {
+	t.Run("returns error when initialization of the wrapped repositories fails", func(t *testing.T) {
 		location := t.TempDir() + "/foo"
 		if err := os.Mkdir(location, 0444); err != nil {
 			t.Fatal(err)

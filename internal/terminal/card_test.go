@@ -78,8 +78,9 @@ func TestCardsList(t *testing.T) {
 		assert.Contains(t, view, "↓/j      down           a add       ? close help")
 		assert.Contains(t, view, "→/l/pgdn next page      e edit")
 		assert.Contains(t, view, " ←/h/pgup prev page      x delete")
-		assert.Contains(t, view, "g/home   go to start    s study")
-		assert.Contains(t, view, "G/end    go to end")
+		assert.Contains(t, view, "g/home   go to start    v stats")
+		assert.Contains(t, view, "G/end    go to end      s study")
+		assert.Contains(t, view, "v stats")
 	})
 
 	t.Run("truncates very long question text", func(t *testing.T) {
@@ -181,6 +182,8 @@ func TestCardsList(t *testing.T) {
 
 		assert.Contains(t, view, "“Question …” 6 items")
 	})
+
+	// TODO: open stats page
 }
 
 func TestCardCreate(t *testing.T) {

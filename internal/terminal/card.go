@@ -74,6 +74,11 @@ func newCardKeys() *cardKeys {
 			key.WithKeys("x"),
 			key.WithHelp("x", "delete"),
 		),
+		stats: key.NewBinding(
+			key.WithKeys("v"),
+			key.WithHelp("v", "stats"),
+			key.WithDisabled(),
+		),
 		confirm: key.NewBinding(
 			key.WithKeys("enter"),
 			key.WithHelp("enter", "confirm"),
@@ -88,6 +93,7 @@ type cardKeys struct {
 	edit    key.Binding
 	delete  key.Binding
 	confirm key.Binding
+	stats   key.Binding
 }
 
 func newCardsModel(msg setCardsPageMsg, clock flashcard.Clock, repository *flashcard.Repository, v viewport) cardsModel {
@@ -110,6 +116,7 @@ func newCardsModel(msg setCardsPageMsg, clock flashcard.Clock, repository *flash
 			keys.confirm,
 			keys.edit,
 			keys.delete,
+			keys.stats,
 			keys.study,
 		}
 	}
@@ -205,6 +212,7 @@ func (m cardsModel) Update(msg tea.Msg) (cardsModel, tea.Cmd) {
 		m.keys.add.SetEnabled(true)
 		m.keys.delete.SetEnabled(hasCards)
 		m.keys.edit.SetEnabled(hasCards)
+		m.keys.stats.SetEnabled(hasCards)
 		m.keys.study.SetEnabled(m.deck.HasDueCards())
 		m.keys.confirm.SetEnabled(m.status == cardDeleting)
 		m.list.NewStatusMessage("")
@@ -277,6 +285,9 @@ func (m cardsModel) Update(msg tea.Msg) (cardsModel, tea.Cmd) {
 
 		case m.status == cardBrowsing && key.Matches(msg, m.keys.study) && m.deck.HasDueCards():
 			return m, startReview(m.deck)
+
+		case m.status == cardBrowsing && key.Matches(msg, m.keys.stats):
+			return m, showStats(m.deck, currentCard, m.list.Index())
 
 		case m.status == cardBrowsing && key.Matches(msg, m.list.KeyMap.Quit) && m.list.FilterState() != list.FilterApplied:
 			return m, showDecks
