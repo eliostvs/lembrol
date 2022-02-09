@@ -24,8 +24,8 @@ type Stats struct {
 	EasinessFactor float64   `json:"easiness_factor,string"`
 }
 
-func NewStatsRepository(location string) *StatsRepository {
-	return &StatsRepository{
+func NewStatsRepository(location string) StatsRepository {
+	return StatsRepository{
 		location: location,
 	}
 }
@@ -36,13 +36,13 @@ type StatsRepository struct {
 }
 
 // Save writes stats to disk.
-func (r *StatsRepository) Save(deck Deck, stats *Stats) error {
+func (r StatsRepository) Save(deck Deck, stats *Stats) error {
 	data, err := json.Marshal(stats)
 	if err != nil {
 		return fmt.Errorf("marshal stats: %w", err)
 	}
 
-	file, err := os.OpenFile(r.path(deck), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(StatsPath(r.location, deck.Name), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("open stats file: %w", err)
 	}
@@ -60,8 +60,8 @@ func (r *StatsRepository) Save(deck Deck, stats *Stats) error {
 }
 
 // Find returns the stats from a given card.
-func (r *StatsRepository) Find(deck Deck, card Card) ([]Stats, error) {
-	file, err := os.Open(r.path(deck))
+func (r StatsRepository) Find(deck Deck, card Card) ([]Stats, error) {
+	file, err := os.Open(StatsPath(r.location, deck.Name))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -91,6 +91,6 @@ func (r *StatsRepository) Find(deck Deck, card Card) ([]Stats, error) {
 	return found, nil
 }
 
-func (r *StatsRepository) path(d Deck) string {
-	return filepath.Join(r.location, slugify.Slugify(d.Name)+"-stats.jsonl")
+func StatsPath(location, deck string) string {
+	return filepath.Join(location, slugify.Slugify(deck)+"-stats.jsonl")
 }

@@ -13,5 +13,5 @@ func NewRepository(location string, clock Clock) (*Repository, error) {
 // Repository wraps deck and stats repositories.
 type Repository struct {
 	Deck  *DeckRepository
-	Stats *StatsRepository
+	Stats StatsRepository
 }

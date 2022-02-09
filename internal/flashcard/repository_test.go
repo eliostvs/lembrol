@@ -28,6 +28,6 @@ func TestNewRepository(t *testing.T) {
 		assert.NotNil(t, repo)
 		assert.NoError(t, err)
 		assert.IsType(t, repo.Deck, &flashcard.DeckRepository{})
-		assert.IsType(t, repo.Stats, &flashcard.StatsRepository{})
+		assert.IsType(t, repo.Stats, flashcard.StatsRepository{})
 	})
 }
