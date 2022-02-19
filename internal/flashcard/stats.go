@@ -74,12 +74,9 @@ func (r StatsRepository) Find(deck Deck, card Card) ([]Stats, error) {
 	for {
 		var stats Stats
 
-		err := decoder.Decode(&stats)
-		if errors.Is(err, io.EOF) {
+		if err := decoder.Decode(&stats); errors.Is(err, io.EOF) {
 			break
-		}
-
-		if err != nil {
+		} else if err != nil {
 			return nil, fmt.Errorf("unmarshalling stats: %w", err)
 		}
 
