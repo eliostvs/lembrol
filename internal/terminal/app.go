@@ -149,7 +149,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	}
 
-	m, cmd = updateChildren(msg, m)
+	m, cmd = updatePage(msg, m)
 	if cmd != nil {
 		cmds = append(cmds, cmd)
 	}
@@ -157,7 +157,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func updateChildren(msg tea.Msg, m Model) (Model, tea.Cmd) {
+func updatePage(msg tea.Msg, m Model) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch m.page {
@@ -190,7 +190,7 @@ func updateChildren(msg tea.Msg, m Model) (Model, tea.Cmd) {
 func (m Model) View() string {
 	switch m.page {
 	case Loading:
-		return loadingView(m)
+		return loadingView(projectName, m.spinner)
 
 	case Decks:
 		return m.decksModel.View()
@@ -211,17 +211,5 @@ func (m Model) View() string {
 		return midPaddingStyle.Render(fmt.Sprintf("Thanks for using %s!", projectName))
 	}
 
-	panic(midPaddingStyle.Render(fmt.Sprintf("missing state %d in main view", m.page)))
-}
-
-func loadingView(m Model) string {
-	content := titleStyle.Render(projectName)
-	content += normalTextStyle.Render(fmt.Sprintf("%s Loading...", m.spinner.View()))
-	return largePaddingStyle.Render(content)
-}
-
-func errorView(err string) string {
-	content := titleStyle.Render("Error")
-	content += Red.Render(err)
-	return largePaddingStyle.Render(content)
+	panic(fmt.Sprintf("missing state %d in main view", m.page))
 }
