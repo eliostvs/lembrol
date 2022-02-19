@@ -35,10 +35,6 @@ func (s ReviewScore) String() string {
 	return strconv.Itoa(int(s))
 }
 
-func (s ReviewScore) Int() int {
-	return int(s)
-}
-
 const (
 	ReviewScoreAgain ReviewScore = iota
 	ReviewScoreHard
@@ -115,7 +111,7 @@ func (Card) stats(ts time.Time, score ReviewScore, previous Card) *Stats {
 		Algorithm:      "sm2",
 		Timestamp:      ts,
 		CardID:         previous.id,
-		Score:          int(score),
+		Score:          score,
 		LastReview:     previous.ReviewedAt,
 		Repetitions:    previous.Repetitions,
 		Interval:       previous.Interval,

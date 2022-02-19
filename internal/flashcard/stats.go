@@ -14,14 +14,14 @@ import (
 
 // Stats is the revised card statistics.
 type Stats struct {
-	Algorithm      string    `json:"algorithm"`
-	CardID         string    `json:"card_id"`
-	Timestamp      time.Time `json:"timestamp"`
-	Score          int       `json:"score,string"`
-	LastReview     time.Time `json:"last_review"`
-	Repetitions    int       `json:"repetitions"`
-	Interval       float64   `json:"interval,string"`
-	EasinessFactor float64   `json:"easiness_factor,string"`
+	Algorithm      string      `json:"algorithm"`
+	CardID         string      `json:"card_id"`
+	Timestamp      time.Time   `json:"timestamp"`
+	Score          ReviewScore `json:"score,string"`
+	LastReview     time.Time   `json:"last_review"`
+	Repetitions    int         `json:"repetitions"`
+	Interval       float64     `json:"interval,string"`
+	EasinessFactor float64     `json:"easiness_factor,string"`
 }
 
 func NewStatsRepository(location string) StatsRepository {
