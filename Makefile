@@ -75,7 +75,7 @@ build: dev
 ## run [args]: run app in development mode
 .PHONY: run
 run: dev
-	go run $(BINARY_DIR) $(args)
+	LEMBROL_DEBUG=true go run $(BINARY_DIR) $(args)
 
 ## format: format files
 .PHONY: format

@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -32,6 +33,15 @@ func CLI(args []string, version string, output io.Writer) int {
 			return successResult
 		}
 		return paramErrResult
+	}
+
+	if os.Getenv("LEMBROL_DEBUG") != "" {
+		if f, err := tea.LogToFile("debug.log", "help"); err != nil {
+			fmt.Println("Couldn't open a file for logging:", err)
+			os.Exit(1)
+		} else {
+			defer f.Close()
+		}
 	}
 
 	program := tea.NewProgram(NewModel(*decksLocation))
