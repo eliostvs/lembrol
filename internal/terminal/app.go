@@ -110,10 +110,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.viewport = newViewport(largePaddingStyle, msg)
 
-	case spinner.TickMsg:
-		m.spinner, cmd = m.spinner.Update(msg)
-		return m, cmd
-
 	case createdRepositoryMsg:
 		m.repository = msg.Repository
 		m.decksModel = newDecksModel(m.repository, m.viewport)
@@ -161,6 +157,10 @@ func updatePage(msg tea.Msg, m Model) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch m.page {
+	case Loading:
+		m.spinner, cmd = m.spinner.Update(msg)
+		return m, cmd
+
 	case Decks:
 		m.decksModel.viewport = m.viewport
 		m.decksModel, cmd = m.decksModel.Update(msg)
