@@ -11,7 +11,6 @@ require (
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/matoous/go-nanoid/v2 v2.0.0
-	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.18 // indirect
 	github.com/muesli/ansi v0.0.0-20211031195517-c9f0611b6c70 // indirect
 	github.com/pelletier/go-toml v1.9.4
