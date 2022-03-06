@@ -5,3 +5,4 @@ coverage.*
 ./remember
 *.log
 .__dev
+dist/
