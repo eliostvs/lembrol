@@ -14,10 +14,8 @@ SHELL          = bash
 BINARY         = lembrol
 BINARY_DIR     = ./cmd/$(BINARY)
 DEV_MARKER     = .__dev
-LDFLAGS        += -X "main.Version=${VERSION}"
 LINTER         = v1.42.1
 OSFLAG         ?=
-VERSION        ?= $(shell git describe --tags $(shell git rev-list --tags --max-count=1) 2>/dev/null || echo "dev")
 args           ?=
 pkg            ?=./...
 
@@ -37,13 +35,13 @@ help:
 .PHONY: clean
 clean:
 	rm $(DEV_MARKER) 2> /dev/null || true
-	rm $(BINARY) 2> /dev/null || true
 	rm coverage.out 2> /dev/null || true
 	rm coverage.html 2> /dev/null || true
 
 $(DEV_MARKER):
 	go mod download
 	go install golang.org/x/tools/cmd/goimports@latest
+	go install github.com/goreleaser/goreleaser@latest
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOBIN) $(LINTER)
 	touch $(DEV_MARKER)
 
@@ -66,11 +64,10 @@ deps/audit:
 deps/upgrade: deps/audit
 	go get -u $(pkg)
 
-## build: create binary
-.PHONY: build
-build: dev
-	echo "version: $(VERSION)"
-	CGO_ENABLED=0 GOARCH=amd64 go build -o $(BINARY) -ldflags '$(LDFLAGS)' $(BINARY_DIR)
+## snapshot: create snapshot release
+.PHONY: snapshot
+snapshot: dev
+	goreleaser build --rm-dist --snapshot --single-target
 
 ## run [args]: run app in development mode
 .PHONY: run
