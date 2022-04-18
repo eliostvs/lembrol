@@ -37,7 +37,7 @@ func (c cardItem) Title() string {
 
 func (c cardItem) Description() string {
 	var due string
-	if c.Due(c.clock.Now()) {
+	if c.IsDue(c.clock.Now()) {
 		due += " • due"
 	}
 

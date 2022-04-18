@@ -147,14 +147,16 @@ func TestCard_Advance(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			card, stats := tt.card.Advance(now, tt.score)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				card, stats := tt.card.Advance(now, tt.score)
 
-			assert.Equal(t, tt.want.repetitions, card.Repetitions)
-			assert.Equal(t, tt.want.nextReview, card.NextReviewAt())
-			assert.GreaterOrEqual(t, tt.want.easinessFactor, card.EasinessFactor)
-			assert.NotNil(t, stats)
-		})
+				assert.Equal(t, tt.want.repetitions, card.Repetitions)
+				assert.Equal(t, tt.want.nextReview, card.NextReviewAt())
+				assert.GreaterOrEqual(t, tt.want.easinessFactor, card.EasinessFactor)
+				assert.NotNil(t, stats)
+			},
+		)
 	}
 }
 
@@ -177,9 +179,11 @@ func TestCard_Due(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.card.Due(now), tt.want)
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				assert.Equal(t, tt.card.IsDue(now), tt.want)
+			},
+		)
 	}
 }
 
@@ -216,9 +220,11 @@ func TestReviewScore_String(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, tt.score.String())
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				assert.Equal(t, tt.want, tt.score.String())
+			},
+		)
 	}
 }
 
@@ -274,12 +280,14 @@ func TestNewReviewScore(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := flashcard.NewReviewScore(tt.args)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				got, err := flashcard.NewReviewScore(tt.args)
 
-			assert.Equal(t, tt.want.err, err)
-			assert.Equal(t, tt.want.score, got)
-		})
+				assert.Equal(t, tt.want.err, err)
+				assert.Equal(t, tt.want.score, got)
+			},
+		)
 	}
 }
 

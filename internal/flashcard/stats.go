@@ -42,7 +42,7 @@ func (r StatsRepository) Save(deck Deck, stats *Stats) error {
 		return fmt.Errorf("marshal stats: %w", err)
 	}
 
-	file, err := os.OpenFile(StatsPath(r.location, deck.Name), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(r.path(deck.Name), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("open stats file: %w", err)
 	}
@@ -61,7 +61,7 @@ func (r StatsRepository) Save(deck Deck, stats *Stats) error {
 
 // Find returns the stats from a given card.
 func (r StatsRepository) Find(deck Deck, card Card) ([]Stats, error) {
-	file, err := os.Open(StatsPath(r.location, deck.Name))
+	file, err := os.Open(r.path(deck.Name))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -88,6 +88,6 @@ func (r StatsRepository) Find(deck Deck, card Card) ([]Stats, error) {
 	return found, nil
 }
 
-func StatsPath(location, deck string) string {
-	return filepath.Join(location, slugify.Slugify(deck)+"-stats.jsonl")
+func (r StatsRepository) path(name string) string {
+	return filepath.Join(r.location, slugify.Slugify(name)+"-stats.jsonl")
 }

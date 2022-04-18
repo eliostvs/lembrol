@@ -23,32 +23,45 @@ type deckFile struct {
 	Cards map[string]Card
 }
 
-func OpenDeck(path string, clock Clock) (Deck, error) {
-	tree, err := toml.LoadFile(path)
+func ReadDeck(location string, clock Clock) (Deck, error) {
+	tree, err := toml.LoadFile(location)
 	if err != nil {
-		return Deck{}, fmt.Errorf("open deck file '%s' : %w", path, err)
+		return Deck{}, fmt.Errorf("open deck file '%s' : %w", location, err)
 	}
 
-	var file deckFile
-	if err := tree.Unmarshal(&file); err != nil {
-		return Deck{}, fmt.Errorf("unmarshall deck '%s' : %w", path, err)
+	var d deckFile
+	if err := tree.Unmarshal(&d); err != nil {
+		return Deck{}, fmt.Errorf("unmarshall deck '%s' : %w", location, err)
 	}
 
-	for id, card := range file.Cards {
+	for id, card := range d.Cards {
 		card.id = id
-		file.Cards[id] = card
+		d.Cards[id] = card
 	}
 
-	return Deck{Name: file.Name, cards: file.Cards, id: path, clock: clock}, nil
+	return newDeck(d.Name, location, clock, d.Cards), nil
+}
+
+func newDeck(name, location string, clock Clock, cards map[string]Card) Deck {
+	if cards == nil {
+		cards = make(map[string]Card)
+	}
+
+	return Deck{
+		Name:     name,
+		location: location,
+		cards:    cards,
+		clock:    clock,
+	}
 }
 
 // Deck represents a named collection of cards.
 type Deck struct {
 	Name string
 
-	cards map[string]Card
-	id    string
-	clock Clock
+	location string
+	cards    map[string]Card
+	clock    Clock
 }
 
 // List returns a collection of cards order by the time of the last review and question.
@@ -58,12 +71,14 @@ func (d Deck) List() []Card {
 		cards = append(cards, card)
 	}
 
-	sort.Slice(cards, func(i, j int) bool {
-		if cards[i].ReviewedAt.Equal(cards[j].ReviewedAt) {
-			return cards[i].Question < cards[j].Question
-		}
-		return cards[i].ReviewedAt.After(cards[j].ReviewedAt)
-	})
+	sort.Slice(
+		cards, func(i, j int) bool {
+			if cards[i].ReviewedAt.Equal(cards[j].ReviewedAt) {
+				return cards[i].Question < cards[j].Question
+			}
+			return cards[i].ReviewedAt.After(cards[j].ReviewedAt)
+		},
+	)
 
 	return cards
 }
@@ -78,7 +93,7 @@ func (d Deck) DueCards() []Card {
 
 	date := d.clock.Now()
 	for _, card := range d.cards {
-		if card.Due(date) {
+		if card.IsDue(date) {
 			cards = append(cards, card)
 		}
 	}
@@ -89,11 +104,6 @@ func (d Deck) DueCards() []Card {
 // HasDueCards says if the deck has due cards.
 func (d Deck) HasDueCards() bool {
 	return len(d.DueCards()) > 0
-}
-
-// Id returns the deck identifier.
-func (d Deck) Id() string {
-	return d.id
 }
 
 // Total returns number of cards in the deck.
@@ -122,6 +132,13 @@ func (d Deck) Remove(card Card) (Deck, error) {
 
 	delete(d.cards, card.id)
 	return d, nil
+}
+
+func (d Deck) Validate() error {
+	if d.Name == "" {
+		return errors.New("invalid empty file name")
+	}
+	return nil
 }
 
 // NewDeckRepository create a new deck repository by reading all decks
@@ -157,11 +174,11 @@ func loadDecks(path string, clock Clock) (map[string]Deck, error) {
 
 	decks := make(map[string]Deck, len(files))
 	for _, file := range files {
-		deck, err := OpenDeck(file, clock)
+		deck, err := ReadDeck(file, clock)
 		if err != nil {
 			return nil, err
 		}
-		decks[deck.id] = deck
+		decks[deck.location] = deck
 	}
 	return decks, nil
 }
@@ -180,9 +197,11 @@ func (r *DeckRepository) List() []Deck {
 		decks = append(decks, deck)
 	}
 
-	sort.Slice(decks, func(i, j int) bool {
-		return decks[i].Name < decks[j].Name
-	})
+	sort.Slice(
+		decks, func(i, j int) bool {
+			return decks[i].Name < decks[j].Name
+		},
+	)
 
 	return decks
 }
@@ -194,18 +213,12 @@ func (r *DeckRepository) Total() int {
 
 // Create creates a new deck from a given name.
 func (r *DeckRepository) Create(name string) (Deck, error) {
-	deck := Deck{
-		Name:  name,
-		cards: make(map[string]Card),
-		clock: r.clock,
-		id:    r.path(name),
-	}
+	deck := newDeck(name, r.path(name), r.clock, nil)
 
-	r.decks[deck.id] = deck
 	if err := r.Save(deck); err != nil {
-		delete(r.decks, deck.id)
 		return Deck{}, err
 	}
+	r.decks[deck.location] = deck
 
 	return deck, nil
 }
@@ -226,8 +239,8 @@ func (r DeckRepository) Open(name string) (Deck, error) {
 
 // Save writes changes to disk.
 func (r *DeckRepository) Save(deck Deck) error {
-	if _, ok := r.decks[deck.id]; !ok {
-		return ErrDeckNotExist
+	if err := deck.Validate(); err != nil {
+		return err
 	}
 
 	data, err := toml.Marshal(deckFile{deck.Name, deck.cards})
@@ -235,7 +248,7 @@ func (r *DeckRepository) Save(deck Deck) error {
 		return fmt.Errorf("marshall deck: %w", err)
 	}
 
-	if err := os.WriteFile(deck.id, data, 0644); err != nil {
+	if err := os.WriteFile(deck.location, data, 0644); err != nil {
 		return fmt.Errorf("write deck: %w", err)
 	}
 
@@ -244,15 +257,15 @@ func (r *DeckRepository) Save(deck Deck) error {
 
 // Remove removes the deck from the repository.
 func (r *DeckRepository) Remove(deck Deck) error {
-	if _, ok := r.decks[deck.id]; !ok {
+	if _, ok := r.decks[deck.location]; !ok {
 		return ErrDeckNotExist
 	}
 
-	if err := os.Remove(deck.id); err != nil {
+	if err := os.Remove(deck.location); err != nil {
 		return fmt.Errorf("remove deck '%s': %w", deck.Name, err)
 	}
 
-	delete(r.decks, deck.id)
+	delete(r.decks, deck.location)
 
 	return nil
 }

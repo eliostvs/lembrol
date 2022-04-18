@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	gonanoid "github.com/matoous/go-nanoid/v2"
+	nanoid "github.com/matoous/go-nanoid/v2"
 )
 
 // ErrInvalidScore is returned by NewReviewScore
@@ -52,7 +52,7 @@ const (
 // NewCard create a new Card instance.
 func NewCard(question, answer string, today time.Time) Card {
 	return Card{
-		id:             gonanoid.Must(),
+		id:             nanoid.Must(),
 		Question:       question,
 		Answer:         answer,
 		ReviewedAt:     today,
@@ -124,8 +124,8 @@ func (c Card) NextReviewAt() time.Time {
 	return c.ReviewedAt.Add(time.Duration(hoursPerDay*c.Interval) * time.Hour)
 }
 
-// Due reports whether the card is due at the instant t.
-func (c Card) Due(t time.Time) bool {
+// IsDue reports whether the card is due at the instant t.
+func (c Card) IsDue(t time.Time) bool {
 	return c.NextReviewAt().Before(t)
 }
 

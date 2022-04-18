@@ -43,7 +43,7 @@ func (r Review) Left() int {
 // Current returns the number of cards already reviewed.
 func (r Review) Current() int {
 	if r.completed == r.Total() {
-		return r.Total()
+		return r.completed
 	}
 	return r.completed + 1
 }

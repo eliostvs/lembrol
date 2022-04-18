@@ -14,60 +14,68 @@ import (
 )
 
 func TestOpenDeck(t *testing.T) {
-	t.Run("returns error when deck file is invalid", func(t *testing.T) {
-		location := t.TempDir() + "/foo.toml"
-		if err := os.WriteFile(location, []byte("{}"), 0444); err != nil {
-			t.Fatal(err)
-		}
+	t.Run(
+		"returns error when deck file is invalid", func(t *testing.T) {
+			location := t.TempDir() + "/foo.toml"
+			if err := os.WriteFile(location, []byte("{}"), 0444); err != nil {
+				t.Fatal(err)
+			}
 
-		_, err := flashcard.OpenDeck(location, nil)
+			_, err := flashcard.ReadDeck(location, nil)
 
-		assert.Error(t, err)
-	})
+			assert.Error(t, err)
+		},
+	)
 }
 
 func TestDeck_DueCards(t *testing.T) {
-	t.Run("empty deck", func(t *testing.T) {
-		assert.Equal(t, []flashcard.Card{}, flashcard.Deck{}.DueCards())
-	})
+	t.Run(
+		"empty deck", func(t *testing.T) {
+			assert.Equal(t, []flashcard.Card{}, flashcard.Deck{}.DueCards())
+		},
+	)
 
-	t.Run("non empty deck", func(t *testing.T) {
-		tests := []struct {
-			name string
-			args time.Time
-			deck string
-			want int
-		}{
-			{
-				name: "one day after oldest card",
-				args: afterOldestCard,
-				want: 1,
-			},
-			{
-				name: "two days after oldest card",
-				args: afterOldestCard.Add(2 * time.Hour * 24),
-				want: 3,
-			},
-			{
-				name: "four days after oldest card",
-				args: afterOldestCard.Add(4 * time.Hour * 24),
-				want: 5,
-			},
-			{
-				name: "six days after oldest card",
-				args: afterOldestCard.Add(6 * time.Hour * 24),
-				want: 7,
-			},
-		}
+	t.Run(
+		"non empty deck", func(t *testing.T) {
+			tests := []struct {
+				name string
+				args time.Time
+				deck string
+				want int
+			}{
+				{
+					name: "one day after oldest card",
+					args: afterOldestCard,
+					want: 1,
+				},
+				{
+					name: "two days after oldest card",
+					args: afterOldestCard.Add(2 * time.Hour * 24),
+					want: 3,
+				},
+				{
+					name: "four days after oldest card",
+					args: afterOldestCard.Add(4 * time.Hour * 24),
+					want: 5,
+				},
+				{
+					name: "six days after oldest card",
+					args: afterOldestCard.Add(6 * time.Hour * 24),
+					want: 7,
+				},
+			}
 
-		for _, tt := range tests {
-			t.Run(tt.name, func(t *testing.T) {
-				deck := newDeck(t, largeDeck, withTestClock(tt.args))
+			for _, tt := range tests {
+				t.Run(
+					tt.name, func(t *testing.T) {
+						deck := newDeck(t, largeDeck, withTestClock(tt.args))
 
-				assert.Len(t, deck.DueCards(), tt.want)
-			})
-		}
-	})
+						assert.Len(t, deck.DueCards(), tt.want)
+					},
+				)
+			}
+		},
+	)
 }
 
 func TestDeck_Total(t *testing.T) {
@@ -86,11 +94,13 @@ func TestDeck_Total(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			deck := newDeck(t, tt.name)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				deck := newDeck(t, tt.name)
 
-			assert.Equal(t, tt.want, deck.Total())
-		})
+				assert.Equal(t, tt.want, deck.Total())
+			},
+		)
 	}
 }
 
@@ -112,34 +122,40 @@ func TestDeck_HasDueCards(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			deck := newDeck(t, largeDeck, withTestClock(tt.args))
+		t.Run(
+			tt.name, func(t *testing.T) {
+				deck := newDeck(t, largeDeck, withTestClock(tt.args))
 
-			assert.Equal(t, tt.want, deck.HasDueCards())
-		})
+				assert.Equal(t, tt.want, deck.HasDueCards())
+			},
+		)
 	}
 }
 
 func TestDeck_Remove(t *testing.T) {
-	t.Run("returns error when parameter is missing", func(t *testing.T) {
-		deck := newDeck(t, smallDeck)
+	t.Run(
+		"returns error when parameter is missing", func(t *testing.T) {
+			deck := newDeck(t, smallDeck)
 
-		_, err := deck.Remove(flashcard.Card{})
+			_, err := deck.Remove(flashcard.Card{})
 
-		assert.ErrorIs(t, err, flashcard.ErrCardNotExist)
-	})
+			assert.ErrorIs(t, err, flashcard.ErrCardNotExist)
+		},
+	)
 
-	t.Run("removes card from deck", func(t *testing.T) {
-		deck := newDeck(t, smallDeck)
-		card := deck.List()[0]
-		total := deck.Total()
+	t.Run(
+		"removes card from deck", func(t *testing.T) {
+			deck := newDeck(t, smallDeck)
+			card := deck.List()[0]
+			total := deck.Total()
 
-		newDeck, err := deck.Remove(card)
+			newDeck, err := deck.Remove(card)
 
-		assert.NoError(t, err)
-		assert.Equal(t, total-1, newDeck.Total())
-		assert.NotContains(t, newDeck.List(), card)
-	})
+			assert.NoError(t, err)
+			assert.Equal(t, total-1, newDeck.Total())
+			assert.NotContains(t, newDeck.List(), card)
+		},
+	)
 }
 
 func TestDeck_List(t *testing.T) {
@@ -179,178 +195,210 @@ func TestDeck_Update(t *testing.T) {
 }
 
 func TestNewDeckRepository(t *testing.T) {
-	t.Run("returns error deck format is invalid", func(t *testing.T) {
-		repo, err := flashcard.NewDeckRepository(invalidDeckLocation, nil)
+	t.Run(
+		"returns error deck format is invalid", func(t *testing.T) {
+			repo, err := flashcard.NewDeckRepository(invalidDeckLocation, nil)
 
-		assert.Error(t, err)
-		assert.Nil(t, repo)
-	})
+			assert.Error(t, err)
+			assert.Nil(t, repo)
+		},
+	)
 
-	t.Run("returns repository when the decks location is empty", func(t *testing.T) {
-		repo, err := flashcard.NewDeckRepository(t.TempDir(), nil)
+	t.Run(
+		"returns repository when the decks location is empty", func(t *testing.T) {
+			repo, err := flashcard.NewDeckRepository(t.TempDir(), nil)
 
-		assert.NoError(t, err)
-		assert.NotNil(t, repo)
-	})
+			assert.NoError(t, err)
+			assert.NotNil(t, repo)
+		},
+	)
 
-	t.Run("returns repository when the location does not exist", func(t *testing.T) {
-		repo, err := flashcard.NewDeckRepository(t.TempDir()+"/foo", nil)
+	t.Run(
+		"returns repository when the location does not exist", func(t *testing.T) {
+			repo, err := flashcard.NewDeckRepository(t.TempDir()+"/foo", nil)
 
-		assert.NoError(t, err)
-		assert.NotNil(t, repo)
-	})
+			assert.NoError(t, err)
+			assert.NotNil(t, repo)
+		},
+	)
 
-	t.Run("returns error when create repository fails", func(t *testing.T) {
-		location := t.TempDir() + "/foo"
-		if err := os.Mkdir(location, 0444); err != nil {
-			t.Fatal(err)
-		}
+	t.Run(
+		"returns error when create repository fails", func(t *testing.T) {
+			location := t.TempDir() + "/foo"
+			if err := os.Mkdir(location, 0444); err != nil {
+				t.Fatal(err)
+			}
 
-		repo, err := flashcard.NewDeckRepository(location+"/bar", nil)
+			repo, err := flashcard.NewDeckRepository(location+"/bar", nil)
 
-		assert.Error(t, err)
-		assert.Nil(t, repo)
-	})
+			assert.Error(t, err)
+			assert.Nil(t, repo)
+		},
+	)
 }
 
 func TestDeckRepository_List(t *testing.T) {
-	t.Run("returns all decks in repository order by name", func(t *testing.T) {
-		repo := newRepository(t, manyDecksLocation)
+	t.Run(
+		"returns all decks in repository order by name", func(t *testing.T) {
+			repo := newRepository(t, manyDecksLocation)
 
-		got := repo.List()
+			got := repo.List()
 
-		assert.Len(t, got, 3)
-		deckNames := make([]string, 0, len(got))
-		for _, deck := range got {
-			deckNames = append(deckNames, deck.Name)
-		}
-		assert.ElementsMatch(t, []string{"Large", "Single", "Small"}, deckNames)
-	})
+			assert.Len(t, got, 3)
+			deckNames := make([]string, 0, len(got))
+			for _, deck := range got {
+				deckNames = append(deckNames, deck.Name)
+			}
+			assert.ElementsMatch(t, []string{"Large", "Single", "Small"}, deckNames)
+		},
+	)
 
-	t.Run("returns empty slice when repository has not decks", func(t *testing.T) {
-		repo := newRepository(t, t.TempDir())
+	t.Run(
+		"returns empty slice when repository has not decks", func(t *testing.T) {
+			repo := newRepository(t, t.TempDir())
 
-		assert.Empty(t, repo.List())
-	})
+			assert.Empty(t, repo.List())
+		},
+	)
 }
 
 func TestDeckRepository_Open(t *testing.T) {
-	t.Run("returns err when deck not exist", func(t *testing.T) {
-		repo := newRepository(t, manyDecksLocation)
+	t.Run(
+		"returns err when deck not exist", func(t *testing.T) {
+			repo := newRepository(t, manyDecksLocation)
 
-		_, err := repo.Open("Not Found")
+			_, err := repo.Open("Not Found")
 
-		assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
-	})
+			assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
+		},
+	)
 
-	t.Run("returns deck", func(t *testing.T) {
-		repo, err := flashcard.NewDeckRepository(manyDecksLocation, nil)
-		require.NoError(t, err)
+	t.Run(
+		"returns deck", func(t *testing.T) {
+			repo, err := flashcard.NewDeckRepository(manyDecksLocation, nil)
+			require.NoError(t, err)
 
-		deck, err := repo.Open("Small")
+			deck, err := repo.Open("Small")
 
-		assert.NoError(t, err)
-		assert.Equal(t, 3, deck.Total())
-		assert.Len(t, deck.List(), 3)
-	})
+			assert.NoError(t, err)
+			assert.Equal(t, 3, deck.Total())
+			assert.Len(t, deck.List(), 3)
+		},
+	)
 }
 
 func TestDeckRepository_Save(t *testing.T) {
-	t.Run("persist deck changes", func(t *testing.T) {
-		location := test.TempDirCopy(t, manyDecksLocation)
-		repo := newRepository(t, location)
-		originalDeck, _ := repo.Open(smallDeck)
+	t.Run(
+		"persist deck changes", func(t *testing.T) {
+			location := test.TempDirCopy(t, manyDecksLocation)
+			repo := newRepository(t, location)
+			originalDeck, _ := repo.Open(smallDeck)
 
-		originalDeck.Name = "Foo"
-		err := repo.Save(originalDeck)
+			originalDeck.Name = "Foo"
+			err := repo.Save(originalDeck)
 
-		assert.NoError(t, err)
-		newDeck, _ := flashcard.OpenDeck(filepath.Join(location, "small.toml"), nil)
-		assert.Equal(t, originalDeck.Name, newDeck.Name)
-	})
+			assert.NoError(t, err)
+			newDeck, _ := flashcard.ReadDeck(filepath.Join(location, "small.toml"), nil)
+			assert.Equal(t, originalDeck.Name, newDeck.Name)
+		},
+	)
 
-	t.Run("returns error when deck is not found", func(t *testing.T) {
-		repo := newRepository(t, manyDecksLocation)
+	t.Run(
+		"returns error when deck name is invalid", func(t *testing.T) {
+			repo := newRepository(t, manyDecksLocation)
 
-		err := repo.Save(flashcard.Deck{})
+			err := repo.Save(flashcard.Deck{})
 
-		assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
-	})
+			assert.EqualError(t, err, "invalid empty file name")
+		},
+	)
 
-	t.Run("persists new cards", func(t *testing.T) {
-		location := test.TempDirCopy(t, emptyDeckLocation)
-		repo := newRepository(t, location)
-		originalDeck, _ := repo.Open("Empty")
-		_, card := originalDeck.Add("question", "answer")
+	t.Run(
+		"persists new cards", func(t *testing.T) {
+			location := test.TempDirCopy(t, emptyDeckLocation)
+			repo := newRepository(t, location)
+			originalDeck, _ := repo.Open("Empty")
+			_, card := originalDeck.Add("question", "answer")
 
-		err := repo.Save(originalDeck)
+			err := repo.Save(originalDeck)
 
-		assert.NoError(t, err)
-		newDeck, _ := flashcard.OpenDeck(filepath.Join(location, "empty.toml"), nil)
-		assert.Equal(t, 1, newDeck.Total())
-		assert.Equal(t, card.Question, newDeck.List()[0].Question)
-		assert.Equal(t, card.Answer, newDeck.List()[0].Answer)
-	})
+			assert.NoError(t, err)
+			newDeck, _ := flashcard.ReadDeck(filepath.Join(location, "empty.toml"), nil)
+			assert.Equal(t, 1, newDeck.Total())
+			assert.Equal(t, card.Question, newDeck.List()[0].Question)
+			assert.Equal(t, card.Answer, newDeck.List()[0].Answer)
+		},
+	)
 }
 
 func TestDeckRepository_Create(t *testing.T) {
-	t.Run("creates deck", func(t *testing.T) {
-		location := t.TempDir()
-		repo := newRepository(t, location)
+	t.Run(
+		"creates deck", func(t *testing.T) {
+			location := t.TempDir()
+			repo := newRepository(t, location)
 
-		deck, err := repo.Create("Foo Bar")
+			deck, err := repo.Create("Foo Bar")
 
-		assert.NoError(t, err)
-		assert.Len(t, repo.List(), 1)
-		d, err := flashcard.OpenDeck(filepath.Join(location, "foo-bar.toml"), flashcard.NewClock())
-		require.NoError(t, err)
-		assert.Equal(t, deck.Name, d.Name)
-	})
+			assert.NoError(t, err)
+			assert.Len(t, repo.List(), 1)
+			d, err := flashcard.ReadDeck(filepath.Join(location, "foo-bar.toml"), flashcard.NewClock())
+			require.NoError(t, err)
+			assert.Equal(t, deck.Name, d.Name)
+		},
+	)
 
-	t.Run("returns error when persist fails", func(t *testing.T) {
-		location, cleanup := test.TempReadOnlyDir(t)
-		t.Cleanup(cleanup)
-		repo := newRepository(t, location)
+	t.Run(
+		"returns error when persist fails", func(t *testing.T) {
+			location, cleanup := test.TempReadOnlyDir(t)
+			t.Cleanup(cleanup)
+			repo := newRepository(t, location)
 
-		_, err := repo.Create("Foo Bar")
-		assert.Error(t, err)
-	})
+			_, err := repo.Create("Foo Bar")
+			assert.Error(t, err)
+		},
+	)
 }
 
 func TestDeckRepository_Remove(t *testing.T) {
-	t.Run("removes deck from repository", func(t *testing.T) {
-		location := test.TempDirCopy(t, manyDecksLocation)
-		repo := newRepository(t, location)
-		deck, _ := repo.Open(smallDeck)
+	t.Run(
+		"removes deck from repository", func(t *testing.T) {
+			location := test.TempDirCopy(t, manyDecksLocation)
+			repo := newRepository(t, location)
+			deck, _ := repo.Open(smallDeck)
 
-		err := repo.Remove(deck)
+			err := repo.Remove(deck)
 
-		assert.NoError(t, err)
-		_, err = os.Stat(filepath.Join(location, "small.toml"))
-		assert.ErrorIs(t, err, os.ErrNotExist)
+			assert.NoError(t, err)
+			_, err = os.Stat(filepath.Join(location, "small.toml"))
+			assert.ErrorIs(t, err, os.ErrNotExist)
 
-		_, err = repo.Open(smallDeck)
-		assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
-	})
+			_, err = repo.Open(smallDeck)
+			assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
+		},
+	)
 
-	t.Run("return error when remove resource fails", func(t *testing.T) {
-		location, cleanup := test.TempReadOnlyDirCopy(t, manyDecksLocation)
-		t.Cleanup(cleanup)
-		repo := newRepository(t, location)
-		deck, _ := repo.Open(smallDeck)
+	t.Run(
+		"return error when remove resource fails", func(t *testing.T) {
+			location, cleanup := test.TempReadOnlyDirCopy(t, manyDecksLocation)
+			t.Cleanup(cleanup)
+			repo := newRepository(t, location)
+			deck, _ := repo.Open(smallDeck)
 
-		err := repo.Remove(deck)
+			err := repo.Remove(deck)
 
-		assert.Error(t, err)
-	})
+			assert.Error(t, err)
+		},
+	)
 
-	t.Run("returns error when deck is not found", func(t *testing.T) {
-		repo := newRepository(t, manyDecksLocation)
+	t.Run(
+		"returns error when deck is not found", func(t *testing.T) {
+			repo := newRepository(t, manyDecksLocation)
 
-		err := repo.Remove(flashcard.Deck{})
+			err := repo.Remove(flashcard.Deck{})
 
-		assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
-	})
+			assert.ErrorIs(t, err, flashcard.ErrDeckNotExist)
+		},
+	)
 }
 
 func TestDeckRepository_Total(t *testing.T) {
@@ -366,11 +414,13 @@ func TestDeckRepository_Total(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			repo := newRepository(t, tt.args)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				repo := newRepository(t, tt.args)
 
-			assert.Equal(t, repo.Total(), tt.want)
-		})
+				assert.Equal(t, repo.Total(), tt.want)
+			},
+		)
 	}
 }
 

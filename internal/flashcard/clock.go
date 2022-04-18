@@ -2,6 +2,7 @@ package flashcard
 
 import "time"
 
+// Clock abstracts the time module to make it easier to test the system.
 type Clock interface {
 	Now() time.Time
 }
@@ -11,6 +12,7 @@ func NewClock() RealClock {
 	return RealClock{}
 }
 
+// RealClock uses the time module underneath and should use the production code.
 type RealClock struct {
 }
 
