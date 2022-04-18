@@ -120,7 +120,6 @@ func newCardsModel(msg setCardsPageMsg, clock flashcard.Clock, repository *flash
 			keys.study,
 		}
 	}
-	listModel.DisableQuitKeybindings()
 
 	return cardsModel{
 		list:       listModel,

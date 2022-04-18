@@ -4,8 +4,8 @@ go 1.18
 
 require (
 	github.com/avelino/slugify v0.0.0-20180501145920-855f152bd774
-	github.com/charmbracelet/bubbles v0.10.2
-	github.com/charmbracelet/bubbletea v0.19.3
+	github.com/charmbracelet/bubbles v0.10.3
+	github.com/charmbracelet/bubbletea v0.20.0
 	github.com/charmbracelet/glamour v0.5.0
 	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/dustin/go-humanize v1.0.0
@@ -28,17 +28,16 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.18 // indirect
 	github.com/muesli/ansi v0.0.0-20211031195517-c9f0611b6c70 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
-	github.com/muesli/termenv v0.11.1-0.20220204035834-5ac8409525e0 // indirect
+	github.com/muesli/termenv v0.11.1-0.20220212125758-44cd13922739 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sahilm/fuzzy v0.1.0 // indirect
-	github.com/stretchr/objx v0.3.0 // indirect
-	github.com/yuin/goldmark v1.4.6 // indirect
+	github.com/yuin/goldmark v1.4.11 // indirect
 	github.com/yuin/goldmark-emoji v1.0.1 // indirect
-	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
-	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
+	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
+	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
+	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

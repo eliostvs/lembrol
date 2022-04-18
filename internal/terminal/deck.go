@@ -106,7 +106,6 @@ func newDecksModel(repository *flashcard.Repository, v viewport) decksModel {
 			keys.study,
 		}
 	}
-	listModel.DisableQuitKeybindings()
 
 	return decksModel{
 		delegate:   &delegate,
