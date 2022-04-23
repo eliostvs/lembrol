@@ -44,7 +44,7 @@ func CLI(args []string, version string, output io.Writer) int {
 		}
 	}
 
-	program := tea.NewProgram(NewModel(*decksLocation))
+	program := tea.NewProgram(NewModel(*decksLocation), tea.WithAltScreen())
 	if err := program.Start(); err != nil {
 		fmt.Fprintf(output, "failed: %v", err)
 		return programErrResult
