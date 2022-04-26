@@ -94,9 +94,15 @@ type createdRepositoryMsg struct {
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(tea.Tick(m.initialDelay, func(time.Time) tea.Msg {
-		return createRepository(m.location, m.clock)
-	}), spinner.Tick)
+	return tea.Batch(
+		tea.Tick(
+			m.initialDelay,
+			func(time.Time) tea.Msg {
+				return createRepository(m.location, m.clock)
+			},
+		),
+		spinner.Tick,
+	)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
