@@ -12,7 +12,7 @@ func NewClock() RealClock {
 	return RealClock{}
 }
 
-// RealClock uses the time module underneath and should use the production code.
+// RealClock uses the time module underneath and should be used the production code.
 type RealClock struct {
 }
 
