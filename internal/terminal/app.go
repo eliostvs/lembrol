@@ -207,7 +207,5 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // VIEW
 
 func (m Model) View() string {
-	// update viewport before rendering
-
 	return m.page.View()
 }
