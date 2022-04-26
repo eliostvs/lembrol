@@ -110,6 +110,20 @@ type viewport struct {
 	Width, Height int
 }
 
+func createRepository(location string, clock clock.Clock) tea.Msg {
+	repo, err := flashcard.NewRepository(location, clock)
+	if err != nil {
+		return failed(err)
+	}
+	return createdRepositoryMsg{repo}
+}
+
+type createdRepositoryMsg struct {
+	*flashcard.Repository
+}
+
+// MODEL
+
 // NewModel creates a new model instance given a decks location.
 func NewModel(location string, opts ...ModelOption) Model {
 	m := Model{
@@ -136,18 +150,6 @@ type Model struct {
 }
 
 // UPDATE
-
-func createRepository(location string, clock clock.Clock) tea.Msg {
-	repo, err := flashcard.NewRepository(location, clock)
-	if err != nil {
-		return failed(err)
-	}
-	return createdRepositoryMsg{repo}
-}
-
-type createdRepositoryMsg struct {
-	*flashcard.Repository
-}
 
 func (m Model) Init() tea.Cmd {
 	return tea.Batch(
