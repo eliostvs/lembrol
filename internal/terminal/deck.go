@@ -117,7 +117,7 @@ func newDecksModel(repository *flashcard.Repository, v viewport) decksModel {
 }
 
 type decksModel struct {
-	form       Form
+	form       form
 	keys       *deckKeys
 	list       list.Model
 	repository *flashcard.Repository
@@ -300,7 +300,7 @@ func toDeck(l list.Model) flashcard.Deck {
 	return flashcard.Deck{}
 }
 
-func createDeckForm(name string) (Form, tea.Cmd) {
+func createDeckForm(name string) (form, tea.Cmd) {
 	input := textinput.New()
 	input.CharLimit = 30
 	input.SetValue(name)
@@ -309,7 +309,7 @@ func createDeckForm(name string) (Form, tea.Cmd) {
 	input.TextStyle = Fuchsia
 	input.PromptStyle = Fuchsia
 	cmd := input.Focus()
-	return NewForm(NewField("name", input, WithLabel("Name"))), cmd
+	return newForm(newField("name", input, withLabel("Name"))), cmd
 }
 
 func createDeck(name string, repository *flashcard.Repository) tea.Cmd {

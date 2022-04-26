@@ -135,7 +135,7 @@ func newCardsModel(msg setCardsPageMsg, clock flashcard.Clock, repository *flash
 type cardsModel struct {
 	clock      flashcard.Clock
 	deck       flashcard.Deck
-	form       Form
+	form       form
 	keys       *cardKeys
 	list       list.Model
 	repository *flashcard.Repository
@@ -342,7 +342,7 @@ func toCard(l list.Model) flashcard.Card {
 	return flashcard.Card{}
 }
 
-func createCardForm(question, answer string, width int) (Form, tea.Cmd) {
+func createCardForm(question, answer string, width int) (form, tea.Cmd) {
 	var cmd tea.Cmd
 
 	questionInput := textinput.New()
@@ -363,18 +363,18 @@ func createCardForm(question, answer string, width int) (Form, tea.Cmd) {
 	answerInput.CursorEnd()
 	answerInput.Blur()
 
-	return NewForm(
-		NewField(
+	return newForm(
+		newField(
 			"question",
 			questionInput,
-			WithMultiline(),
-			WithLabel("Front"),
+			withMultiline(),
+			withLabel("Front"),
 		),
-		NewField(
+		newField(
 			"answer",
 			answerInput,
-			WithMultiline(),
-			WithLabel("Back"),
+			withMultiline(),
+			withLabel("Back"),
 		),
 	), cmd
 }

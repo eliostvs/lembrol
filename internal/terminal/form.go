@@ -80,34 +80,34 @@ func (k formKeys) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{}}
 }
 
-type FieldOption func(Field) Field
+type fieldOption func(field) field
 
-// WithMultiline enables multiline text input prepending the given prefix in the beginning of the new line.
-func WithMultiline() FieldOption {
-	return func(f Field) Field {
+// withMultiline enables multiline text input prepending the given prefix in the beginning of the new line.
+func withMultiline() fieldOption {
+	return func(f field) field {
 		f.multiline = true
 		return f
 	}
 }
 
-func WithLabel(label string) FieldOption {
-	return func(f Field) Field {
+func withLabel(label string) fieldOption {
+	return func(f field) field {
 		f.label = label
 		return f
 	}
 }
 
-// NewField creates a new field.
-func NewField(name string, model textinput.Model, options ...FieldOption) Field {
-	f := Field{name: name, model: model}
+// newField creates a new field.
+func newField(name string, model textinput.Model, options ...fieldOption) field {
+	f := field{name: name, model: model}
 	for _, option := range options {
 		f = option(f)
 	}
 	return f
 }
 
-// Field specifies an input Field where the user can enter data.
-type Field struct {
+// field specifies an input field where the user can enter data.
+type field struct {
 	name      string
 	label     string
 	model     textinput.Model
@@ -115,14 +115,14 @@ type Field struct {
 }
 
 // Focus sets the focus on this field.
-func (f Field) Focus() (Field, tea.Cmd) {
+func (f field) Focus() (field, tea.Cmd) {
 	f.model.PromptStyle = Fuchsia
 	f.model.TextStyle = Fuchsia
 	return f, f.model.Focus()
 }
 
 // Blur removes the focus from this field.
-func (f Field) Blur() Field {
+func (f field) Blur() field {
 	f.model.PromptStyle = DarkFuchsia
 	f.model.TextStyle = DarkFuchsia
 	f.model.Blur()
@@ -130,24 +130,24 @@ func (f Field) Blur() Field {
 }
 
 // Update changes the input model.
-func (f Field) Update(msg tea.Msg) (Field, tea.Cmd) {
+func (f field) Update(msg tea.Msg) (field, tea.Cmd) {
 	var cmd tea.Cmd
 	f.model, cmd = f.model.Update(msg)
 	return f, cmd
 }
 
 // Match returns if the input has the given name.
-func (f Field) Match(name string) bool {
+func (f field) Match(name string) bool {
 	return f.name == name
 }
 
 // IsValid returns is input content is valid.
-func (f Field) IsValid() bool {
+func (f field) IsValid() bool {
 	return 0 < len(f.model.Value())
 }
 
 // View renders the input.
-func (f Field) View() string {
+func (f field) View() string {
 	color := White
 	if !f.IsValid() {
 		color = Red
@@ -165,12 +165,12 @@ func (f Field) View() string {
 }
 
 // Focused returns if the input is focused.
-func (f Field) Focused() bool {
+func (f field) Focused() bool {
 	return f.model.Focused()
 }
 
 // BreakLine inserts a new line.
-func (f Field) BreakLine() Field {
+func (f field) BreakLine() field {
 	if !f.multiline {
 		return f
 	}
@@ -179,19 +179,19 @@ func (f Field) BreakLine() Field {
 }
 
 // Value returns the input value.
-func (f Field) Value() string {
+func (f field) Value() string {
 	return f.model.Value()
 }
 
 // SubmitForm triggers the form submit.
-func SubmitForm(f Form) tea.Cmd {
+func SubmitForm(f form) tea.Cmd {
 	return func() tea.Msg {
 		return submittedFormMsg{f}
 	}
 }
 
 type submittedFormMsg struct {
-	Form Form
+	Form form
 }
 
 // CancelForm triggers the form submit.
@@ -204,29 +204,28 @@ func CancelForm() tea.Cmd {
 type canceledFormMsg struct {
 }
 
-// NewForm creates a new form with the given fields.
-func NewForm(f Field, fields ...Field) Form {
+// newForm creates a new form with the given fields.
+func newForm(f field, fields ...field) form {
 	keys := newFormKeys()
 	keys.next.SetEnabled(len(fields) != 0)
 	keys.previous.SetEnabled(len(fields) != 0)
-
-	return Form{
+	return form{
 		cursor: newCursor(len(fields)),
-		fields: append([]Field{f}, fields...),
+		fields: append([]field{f}, fields...),
 		help:   help.New(),
 		keys:   keys,
 	}
 }
 
-// Form is set of fields.
-type Form struct {
+// form is set of fields.
+type form struct {
 	cursor cursor
-	fields []Field
+	fields []field
 	help   help.Model
 	keys   formKeys
 }
 
-func (f Form) focus(index int) (Form, tea.Cmd) {
+func (f form) focus(index int) (form, tea.Cmd) {
 	var cmd tea.Cmd
 
 	for i := range f.fields {
@@ -240,7 +239,7 @@ func (f Form) focus(index int) (Form, tea.Cmd) {
 	return f, cmd
 }
 
-func (f Form) isValid() bool {
+func (f form) isValid() bool {
 	for _, field := range f.fields {
 		if !field.IsValid() {
 			return false
@@ -250,7 +249,7 @@ func (f Form) isValid() bool {
 }
 
 // Value returns the given field value.
-func (f Form) Value(name string) string {
+func (f form) Value(name string) string {
 	for _, field := range f.fields {
 		if field.Match(name) {
 			return field.Value()
@@ -259,18 +258,18 @@ func (f Form) Value(name string) string {
 	return ""
 }
 
-func (f Form) prev() (Form, tea.Cmd) {
+func (f form) prev() (form, tea.Cmd) {
 	f.cursor.Up()
 	return f.focus(f.cursor.Value())
 }
 
-func (f Form) next() (Form, tea.Cmd) {
+func (f form) next() (form, tea.Cmd) {
 	f.cursor.Down()
 	return f.focus(f.cursor.Value())
 }
 
 // Update the form fields inner state.
-func (f Form) Update(msg tea.Msg) (Form, tea.Cmd) {
+func (f form) Update(msg tea.Msg) (form, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -301,7 +300,7 @@ func (f Form) Update(msg tea.Msg) (Form, tea.Cmd) {
 	return f.updateFields(msg)
 }
 
-func (f Form) updateFields(msg tea.Msg) (Form, tea.Cmd) {
+func (f form) updateFields(msg tea.Msg) (form, tea.Cmd) {
 	var (
 		cmds []tea.Cmd
 		cmd  tea.Cmd
@@ -317,7 +316,7 @@ func (f Form) updateFields(msg tea.Msg) (Form, tea.Cmd) {
 	return f, tea.Batch(cmds...)
 }
 
-func (f Form) view() string {
+func (f form) view() string {
 	var content string
 
 	for _, field := range f.fields {
