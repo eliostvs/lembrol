@@ -1,13 +1,35 @@
 package terminal
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/bubbles/spinner"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
-func loadingView(title string, spin spinner.Model) string {
-	content := titleStyle.Render(title)
-	content += normalTextStyle.Render(fmt.Sprintf("%s Loading...", spin.View()))
-	return largePaddingStyle.Render(content)
+func newLoadinModel(title string) loadingModel {
+	s := spinner.New()
+	s.Spinner = spinner.Dot
+	return loadingModel{
+		spinner: s,
+		title:   title,
+	}
+
+}
+
+type loadingModel struct {
+	title   string
+	spinner spinner.Model
+}
+
+func (loadingModel) Init() tea.Cmd {
+	return nil
+}
+
+func (m loadingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.spinner, cmd = m.spinner.Update(msg)
+	return m, cmd
+}
+
+func (m loadingModel) View() string {
+	return loadingView(m.title, m.spinner)
 }

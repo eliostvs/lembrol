@@ -4,6 +4,8 @@ import (
 	"errors"
 	"math/rand"
 	"time"
+
+	"github.com/eliostvs/lembrol/internal/clock"
 )
 
 // ErrEmptyReview indicates the review session has not more cards left to review.
@@ -11,7 +13,7 @@ var ErrEmptyReview = errors.New("no cards in queue")
 
 // NewReview returns a new Review from a given a deck.
 // It gets the due cards from the deck a shuffle them.
-func NewReview(deck Deck, clock Clock) Review {
+func NewReview(deck Deck, clock clock.Clock) Review {
 	dueCards := deck.DueCards()
 	shuffle(dueCards)
 	return Review{queue: dueCards, deck: deck, clock: clock}
@@ -26,7 +28,7 @@ func shuffle(cards []Card) {
 type Review struct {
 	deck      Deck
 	queue     []Card
-	clock     Clock
+	clock     clock.Clock
 	completed int
 }
 

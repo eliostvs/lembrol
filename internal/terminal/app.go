@@ -1,13 +1,13 @@
 package terminal
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/eliostvs/lembrol/internal/clock"
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
@@ -15,6 +15,71 @@ const (
 	initialDelay = time.Millisecond * 600
 	projectName  = "Lembrol"
 )
+
+// MSG
+
+func viewportChanged(v viewport) tea.Cmd {
+	return func() tea.Msg {
+		return viewportMsg{v}
+	}
+}
+
+type viewportMsg struct {
+	viewport viewport
+}
+
+func failed(err error) tea.Msg {
+	return setErrorPageMsg{err}
+}
+
+type setErrorPageMsg struct {
+	err error
+}
+
+func showDecks() tea.Msg {
+	return setDecksPageMsg{}
+}
+
+type setDecksPageMsg struct{}
+
+func showCards(deck flashcard.Deck, cardIndex int) tea.Cmd {
+	return func() tea.Msg {
+		return setCardsPageMsg{deck: deck, cardIndex: cardIndex}
+	}
+}
+
+type setCardsPageMsg struct {
+	deck      flashcard.Deck
+	cardIndex int
+}
+
+func showStats(deck flashcard.Deck, card flashcard.Card, cardIndex int) tea.Cmd {
+	return func() tea.Msg {
+		return setStatsPageMsg{deck: deck, card: card, cardIndex: cardIndex}
+	}
+}
+
+type setStatsPageMsg struct {
+	deck      flashcard.Deck
+	card      flashcard.Card
+	cardIndex int
+}
+
+func startReview(d flashcard.Deck) tea.Cmd {
+	return func() tea.Msg {
+		return setReviewPageMsg{d}
+	}
+}
+
+type setReviewPageMsg struct {
+	flashcard.Deck
+}
+
+type setQuitPageMsg struct{}
+
+func exitCmd() tea.Msg {
+	return setQuitPageMsg{}
+}
 
 // MODEL
 
@@ -26,7 +91,7 @@ func WithInitialDelay(delay time.Duration) ModelOption {
 	}
 }
 
-func WithClock(clock flashcard.Clock) ModelOption {
+func WithClock(clock clock.Clock) ModelOption {
 	return func(m *Model) {
 		m.clock = clock
 	}
@@ -35,26 +100,23 @@ func WithClock(clock flashcard.Clock) ModelOption {
 func newViewport(style lipgloss.Style, msg tea.WindowSizeMsg) viewport {
 	topGap, rightGap, bottomGap, leftGap := style.GetPadding()
 	return viewport{
-		width:  msg.Width - leftGap - rightGap - 2,
-		height: msg.Height - topGap - bottomGap,
+		Width:  msg.Width - leftGap - rightGap - 2,
+		Height: msg.Height - topGap - bottomGap,
 	}
 }
 
 // viewport is the size of terminal minus the edges paddings.
 type viewport struct {
-	width, height int
+	Width, Height int
 }
 
 // NewModel creates a new model instance given a decks location.
 func NewModel(location string, opts ...ModelOption) Model {
-	spin := spinner.New()
-	spin.Spinner = spinner.Dot
-
 	m := Model{
-		spinner:      spin,
-		clock:        flashcard.NewClock(),
+		clock:        clock.New(),
 		initialDelay: initialDelay,
 		location:     location,
+		page:         newLoadinModel(projectName),
 	}
 
 	for _, opt := range opts {
@@ -65,23 +127,17 @@ func NewModel(location string, opts ...ModelOption) Model {
 }
 
 type Model struct {
-	error        string
-	spinner      spinner.Model
-	cardsModel   cardsModel
-	clock        flashcard.Clock
-	decksModel   decksModel
+	clock        clock.Clock
 	initialDelay time.Duration
 	location     string
-	page         page
 	repository   *flashcard.Repository
-	reviewModel  reviewModel
-	statsModel   statsModel
 	viewport     viewport
+	page         tea.Model
 }
 
 // UPDATE
 
-func createRepository(location string, clock flashcard.Clock) tea.Msg {
+func createRepository(location string, clock clock.Clock) tea.Msg {
 	repo, err := flashcard.NewRepository(location, clock)
 	if err != nil {
 		return failed(err)
@@ -106,115 +162,52 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var (
-		cmd  tea.Cmd
-		cmds []tea.Cmd
-	)
+	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.viewport = newViewport(largePaddingStyle, msg)
+		return m, viewportChanged(m.viewport)
 
 	case createdRepositoryMsg:
 		m.repository = msg.Repository
-		m.decksModel = newDecksModel(m.repository, m.viewport)
-		m.page = Decks
-		return m, m.decksModel.Init()
+		m.page = newDecksModel(m.repository, m.viewport)
+		return m, m.page.Init()
 
 	case setDecksPageMsg:
-		m.page = Decks
-		return m, m.decksModel.Init()
+		m.page = newDecksModel(m.repository, m.viewport)
+		return m, m.page.Init()
 
 	case setCardsPageMsg:
-		m.cardsModel = newCardsModel(msg, m.clock, m.repository, m.viewport)
-		m.page = Cards
-		return m, m.cardsModel.Init()
+		m.page = newCardsModel(msg, m.clock, m.repository, m.viewport)
+		return m, m.page.Init()
 
 	case setStatsPageMsg:
-		m.statsModel = newStatsModel(msg, m.repository, m.viewport)
-		m.page = Stats
-		return m, m.statsModel.Init()
+		m.page = newStatsModel(msg, m.repository, m.viewport)
+		return m, m.page.Init()
 
 	case setReviewPageMsg:
-		m.reviewModel = newReviewModel(flashcard.NewReview(msg.Deck, m.clock), m.repository, m.viewport)
-		m.page = Review
-		return m, m.reviewModel.Init()
+		m.page = newReviewModel(flashcard.NewReview(msg.Deck, m.clock), m.repository, m.viewport)
+		return m, m.page.Init()
 
 	case setErrorPageMsg:
-		m.error = msg.Error
-		m.page = Error
+		m.page = errorModel{msg.err}
 		return m, tea.Quit
 
 	case setQuitPageMsg:
-		m.page = Quit
+		m.page = quitModel{}
 		return m, tea.Quit
 	}
 
-	m, cmd = updatePage(msg, m)
-	if cmd != nil {
-		cmds = append(cmds, cmd)
-	}
+	m.page, cmd = m.page.Update(msg)
 
-	return m, tea.Batch(cmds...)
-}
-
-func updatePage(msg tea.Msg, m Model) (Model, tea.Cmd) {
-	var cmd tea.Cmd
-
-	switch m.page {
-	case Loading:
-		m.spinner, cmd = m.spinner.Update(msg)
-		return m, cmd
-
-	case Decks:
-		m.decksModel.viewport = m.viewport
-		m.decksModel, cmd = m.decksModel.Update(msg)
-		return m, cmd
-
-	case Cards:
-		m.cardsModel.viewport = m.viewport
-		m.cardsModel, cmd = m.cardsModel.Update(msg)
-		return m, cmd
-
-	case Stats:
-		m.statsModel.viewport = m.viewport
-		m.statsModel, cmd = m.statsModel.Update(msg)
-		return m, cmd
-
-	case Review:
-		m.reviewModel.viewport = m.viewport
-		m.reviewModel, cmd = m.reviewModel.Update(msg)
-		return m, cmd
-	}
-
-	return m, nil
+	return m, cmd
 }
 
 // VIEW
 
 func (m Model) View() string {
-	switch m.page {
-	case Loading:
-		return loadingView(projectName, m.spinner)
+	// update viewport before rendering
 
-	case Decks:
-		return m.decksModel.View()
-
-	case Cards:
-		return m.cardsModel.View()
-
-	case Review:
-		return m.reviewModel.View()
-
-	case Stats:
-		return m.statsModel.View()
-
-	case Error:
-		return errorView(m.error)
-
-	case Quit:
-		return midPaddingStyle.Render(fmt.Sprintf("Thanks for using %s!", projectName))
-	}
-
-	panic(fmt.Sprintf("missing state %d in main view", m.page))
+	return m.page.View()
 }

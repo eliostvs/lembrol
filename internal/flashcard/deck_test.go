@@ -9,6 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/eliostvs/lembrol/internal/clock"
+	clocktest "github.com/eliostvs/lembrol/internal/clock/test"
 	"github.com/eliostvs/lembrol/internal/flashcard"
 	"github.com/eliostvs/lembrol/internal/test"
 )
@@ -341,7 +343,7 @@ func TestDeckRepository_Create(t *testing.T) {
 
 			assert.NoError(t, err)
 			assert.Len(t, repo.List(), 1)
-			d, err := flashcard.ReadDeck(filepath.Join(location, "foo-bar.toml"), flashcard.NewClock())
+			d, err := flashcard.ReadDeck(filepath.Join(location, "foo-bar.toml"), clock.New())
 			require.NoError(t, err)
 			assert.Equal(t, deck.Name, d.Name)
 		},
@@ -448,12 +450,12 @@ func withLocation(location string) configOption {
 
 func withTestClock(t time.Time) configOption {
 	return func(o *option) {
-		o.clock = test.NewClock(t)
+		o.clock = clocktest.New(t)
 	}
 }
 
 type option struct {
-	clock    flashcard.Clock
+	clock    clock.Clock
 	location string
 }
 
@@ -462,7 +464,7 @@ func newDeck(t *testing.T, deckName string, cfgOpts ...configOption) flashcard.D
 
 	opts := option{
 		location: test.TempDirCopy(t, manyDecksLocation),
-		clock:    flashcard.NewClock(),
+		clock:    clock.New(),
 	}
 	for _, cfg := range cfgOpts {
 		cfg(&opts)
@@ -485,7 +487,7 @@ func newRepository(t *testing.T, deckLocation string, cfgOpts ...configOption) *
 	t.Helper()
 
 	opts := option{
-		clock: flashcard.NewClock(),
+		clock: clock.New(),
 	}
 	for _, cfg := range cfgOpts {
 		cfg(&opts)

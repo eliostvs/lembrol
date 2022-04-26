@@ -118,11 +118,14 @@ func (k *reviewKeys) FullHelp() [][]key.Binding {
 }
 
 func newReviewModel(review flashcard.Review, repository *flashcard.Repository, v viewport) reviewModel {
+	helpModel := help.New()
+	helpModel.Width = v.Width
+
 	return reviewModel{
 		review:     review,
 		repository: repository,
 		keys:       newReviewKeys(),
-		help:       help.New(),
+		help:       helpModel,
 		viewport:   v,
 	}
 }
@@ -157,10 +160,13 @@ type (
 )
 
 // nolint:cyclop
-func (m reviewModel) Update(msg tea.Msg) (reviewModel, tea.Cmd) {
-	m.help.Width = m.viewport.width
-
+func (m reviewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case viewportMsg:
+		m.viewport = msg.viewport
+		m.help.Width = m.viewport.Width
+		return m, nil
+
 	case reviewQuestionMsg:
 		m.review = msg.Review
 		m.status = reviewQuestion
@@ -293,7 +299,7 @@ func reviewQuestionView(m reviewModel) string {
 		return errorView(err.Error())
 	}
 
-	markdown, err := RenderMarkdown(card.Question, m.viewport.width)
+	markdown, err := RenderMarkdown(card.Question, m.viewport.Width)
 	if err != nil {
 		return errorView(err.Error())
 	}
@@ -314,7 +320,7 @@ func reviewAnswerView(m reviewModel) string {
 		return errorView(err.Error())
 	}
 
-	markdown, err := RenderMarkdown(card.Answer, m.viewport.width)
+	markdown, err := RenderMarkdown(card.Answer, m.viewport.Width)
 	if err != nil {
 		return errorView(err.Error())
 	}

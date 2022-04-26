@@ -9,6 +9,8 @@ import (
 
 	"github.com/avelino/slugify"
 	"github.com/pelletier/go-toml"
+
+	"github.com/eliostvs/lembrol/internal/clock"
 )
 
 var (
@@ -23,7 +25,7 @@ type deckFile struct {
 	Cards map[string]Card
 }
 
-func ReadDeck(location string, clock Clock) (Deck, error) {
+func ReadDeck(location string, clock clock.Clock) (Deck, error) {
 	tree, err := toml.LoadFile(location)
 	if err != nil {
 		return Deck{}, fmt.Errorf("open deck file '%s' : %w", location, err)
@@ -42,7 +44,7 @@ func ReadDeck(location string, clock Clock) (Deck, error) {
 	return newDeck(d.Name, location, clock, d.Cards), nil
 }
 
-func newDeck(name, location string, clock Clock, cards map[string]Card) Deck {
+func newDeck(name, location string, clock clock.Clock, cards map[string]Card) Deck {
 	if cards == nil {
 		cards = make(map[string]Card)
 	}
@@ -61,7 +63,7 @@ type Deck struct {
 
 	location string
 	cards    map[string]Card
-	clock    Clock
+	clock    clock.Clock
 }
 
 // List returns a collection of cards order by the time of the last review and question.
@@ -143,7 +145,7 @@ func (d Deck) Validate() error {
 
 // NewDeckRepository create a new deck repository by reading all decks
 // from a given folder.
-func NewDeckRepository(location string, clock Clock) (*DeckRepository, error) {
+func NewDeckRepository(location string, clock clock.Clock) (*DeckRepository, error) {
 	if err := assureDirExist(location); err != nil {
 		return nil, err
 	}
@@ -166,7 +168,7 @@ func assureDirExist(path string) error {
 	return nil
 }
 
-func loadDecks(path string, clock Clock) (map[string]Deck, error) {
+func loadDecks(path string, clock clock.Clock) (map[string]Deck, error) {
 	files, err := filepath.Glob(path + "/*.toml")
 	if err != nil {
 		return nil, fmt.Errorf("find decks: %w", err)
@@ -187,7 +189,7 @@ func loadDecks(path string, clock Clock) (map[string]Deck, error) {
 type DeckRepository struct {
 	location string
 	decks    map[string]Deck
-	clock    Clock
+	clock    clock.Clock
 }
 
 // List returns the available deck names.

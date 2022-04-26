@@ -1,7 +1,7 @@
 package terminal
 
 import (
-	"log"
+	"fmt"
 	"sort"
 	"strconv"
 	"time"
@@ -44,6 +44,9 @@ func newStatsModel(msg setStatsPageMsg, repo *flashcard.Repository, viewport vie
 	spin := spinner.New()
 	spin.Spinner = spinner.Dot
 
+	helpModel := help.New()
+	helpModel.Width = viewport.Width
+
 	return statsModel{
 		card:       msg.card,
 		cardIndex:  msg.cardIndex,
@@ -51,12 +54,15 @@ func newStatsModel(msg setStatsPageMsg, repo *flashcard.Repository, viewport vie
 		repository: repo,
 		spinner:    spin,
 		state:      statsLoading,
-		keys: statsKeys{key.NewBinding(
-			key.WithKeys("q"),
-			key.WithHelp("q", "quit"))},
+		keys: statsKeys{
+			key.NewBinding(
+				key.WithKeys("q"),
+				key.WithHelp("q", "quit"),
+			),
+		},
 		viewport: viewport,
 		totals:   make(map[flashcard.ReviewScore]int),
-		help:     help.New(),
+		help:     helpModel,
 	}
 }
 
@@ -89,9 +95,14 @@ type statsModel struct {
 // INIT
 
 func (m statsModel) Init() tea.Cmd {
-	return tea.Batch(tea.Tick(time.Millisecond*500, func(time.Time) tea.Msg {
-		return loadStats(m.repository, m.deck, m.card)
-	}), spinner.Tick)
+	return tea.Batch(
+		tea.Tick(
+			time.Millisecond*500, func(time.Time) tea.Msg {
+				return loadStats(m.repository, m.deck, m.card)
+			},
+		),
+		spinner.Tick,
+	)
 }
 
 // UPDATE
@@ -102,10 +113,15 @@ type (
 	}
 )
 
-func (m statsModel) Update(msg tea.Msg) (statsModel, tea.Cmd) {
+func (m statsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case viewportMsg:
+		m.viewport = msg.viewport
+		m.help.Width = m.viewport.Width
+		return m, nil
+
 	case spinner.TickMsg:
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
@@ -120,9 +136,6 @@ func (m statsModel) Update(msg tea.Msg) (statsModel, tea.Cmd) {
 		if key.Matches(msg, m.keys.cancel) {
 			return m, showCards(m.deck, m.cardIndex)
 		}
-
-	default:
-		log.Printf("%v", msg)
 	}
 
 	return m, nil
@@ -144,9 +157,11 @@ func createSparkline(stats []flashcard.Stats) []sparklineItem {
 		sparkline = append(sparkline, newSparklineItem(stat.Score, stat.Timestamp))
 	}
 
-	sort.Slice(sparkline, func(i, j int) bool {
-		return sparkline[i].timestamp.Before(sparkline[j].timestamp)
-	})
+	sort.Slice(
+		sparkline, func(i, j int) bool {
+			return sparkline[i].timestamp.Before(sparkline[j].timestamp)
+		},
+	)
 
 	return sparkline
 }
@@ -171,24 +186,32 @@ func (m statsModel) View() string {
 		if len(m.sparkline) > 0 {
 			return cardStatsView(m)
 		}
-		return notStatsView(m.card.Question)
+		return notStatsView(m)
 
 	default:
 		return ""
 	}
 }
 
-func notStatsView(question string) string {
+func loadingView(title string, spin spinner.Model) string {
+	content := titleStyle.Render(title)
+	content += normalTextStyle.Render(fmt.Sprintf("%s Loading...", spin.View()))
+	return largePaddingStyle.Render(content)
+}
+
+func notStatsView(m statsModel) string {
 	content := titleStyle.Render("Stats")
-	content += Fuchsia.Copy().Margin(2, 0, 1).Render(question)
+	content += Fuchsia.Copy().Margin(2, 0, 1).Render(m.card.Question)
 	content += "\n"
 	content += White.Render("No stats")
+	content += "\n"
+	content += helpStyle.Render(m.help.View(m.keys))
 	return largePaddingStyle.Render(content)
 }
 
 func cardStatsView(m statsModel) string {
 	sections := 5
-	width := min(m.viewport.width/sections, 15)
+	width := min(m.viewport.Width/sections, 15)
 	firstSession := m.sparkline[0].timestamp
 	lastSession := m.sparkline[len(m.sparkline)-1].timestamp
 

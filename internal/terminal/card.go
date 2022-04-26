@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/eliostvs/lembrol/internal/clock"
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
@@ -28,7 +29,7 @@ type cardItem struct {
 	flashcard.Card
 	// is used in the render phase to check if the card is due
 	// need to be here because the default delegate don't send parameter to the description method
-	clock flashcard.Clock
+	clock clock.Clock
 }
 
 func (c cardItem) Title() string {
@@ -48,7 +49,7 @@ func (c cardItem) FilterValue() string {
 	return c.Question
 }
 
-func newCardItems(cards []flashcard.Card, clock flashcard.Clock) []list.Item {
+func newCardItems(cards []flashcard.Card, clock clock.Clock) []list.Item {
 	items := make([]list.Item, 0, len(cards))
 	for _, card := range cards {
 		items = append(items, cardItem{Card: card, clock: clock})
@@ -96,10 +97,10 @@ type cardKeys struct {
 	stats   key.Binding
 }
 
-func newCardsModel(msg setCardsPageMsg, clock flashcard.Clock, repository *flashcard.Repository, v viewport) cardsModel {
+func newCardsModel(msg setCardsPageMsg, clock clock.Clock, repository *flashcard.Repository, v viewport) cardsModel {
 	keys := newCardKeys()
 	delegate := list.NewDefaultDelegate()
-	listModel := list.New(newCardItems(msg.deck.List(), clock), &delegate, 0, 0)
+	listModel := list.New(newCardItems(msg.deck.List(), clock), &delegate, v.Width, v.Height)
 	listModel.Select(msg.cardIndex)
 	listModel.Title = msg.deck.Name
 	listModel.Styles.Title = titleStyle
@@ -133,7 +134,7 @@ func newCardsModel(msg setCardsPageMsg, clock flashcard.Clock, repository *flash
 }
 
 type cardsModel struct {
-	clock      flashcard.Clock
+	clock      clock.Clock
 	deck       flashcard.Deck
 	form       form
 	keys       *cardKeys
@@ -196,11 +197,11 @@ type (
 )
 
 // nolint:cyclop,gocyclo
-func (m cardsModel) Update(msg tea.Msg) (cardsModel, tea.Cmd) {
+func (m cardsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	m.list.SetWidth(m.viewport.width)
-	m.list.SetHeight(m.viewport.height)
+	m.list.SetWidth(m.viewport.Width)
+	m.list.SetHeight(m.viewport.Height)
 
 	currentCard := toCard(m.list)
 	hasCards := len(m.list.Items()) != 0
@@ -230,6 +231,12 @@ func (m cardsModel) Update(msg tea.Msg) (cardsModel, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case viewportMsg:
+		m.viewport = msg.viewport
+		m.list.SetHeight(m.viewport.Height)
+		m.list.SetWidth(m.viewport.Width)
+		return m, nil
+
 	case initCardMsg, canceledFormMsg:
 		m.status = cardBrowsing
 		resetControls()
@@ -274,12 +281,12 @@ func (m cardsModel) Update(msg tea.Msg) (cardsModel, tea.Cmd) {
 		switch {
 		case m.status == cardBrowsing && key.Matches(msg, m.keys.add):
 			m.status = cardCreating
-			m.form, cmd = createCardForm("", "", m.viewport.width)
+			m.form, cmd = createCardForm("", "", m.viewport.Width)
 			return m, cmd
 
 		case m.status == cardBrowsing && key.Matches(msg, m.keys.edit) && hasCards:
 			m.status = cardEditing
-			m.form, cmd = createCardForm(currentCard.Question, currentCard.Answer, m.viewport.width)
+			m.form, cmd = createCardForm(currentCard.Question, currentCard.Answer, m.viewport.Width)
 			return m, cmd
 
 		case m.status == cardBrowsing && key.Matches(msg, m.keys.study) && m.deck.HasDueCards():
@@ -379,7 +386,7 @@ func createCardForm(question, answer string, width int) (form, tea.Cmd) {
 	), cmd
 }
 
-func createCard(question, answer string, deck flashcard.Deck, repository *flashcard.Repository, clock flashcard.Clock) tea.Cmd {
+func createCard(question, answer string, deck flashcard.Deck, repository *flashcard.Repository, clock clock.Clock) tea.Cmd {
 	return func() tea.Msg {
 		deck, card := deck.Add(question, answer)
 
@@ -391,7 +398,7 @@ func createCard(question, answer string, deck flashcard.Deck, repository *flashc
 	}
 }
 
-func updateCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.Repository, clock flashcard.Clock) tea.Cmd {
+func updateCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.Repository, clock clock.Clock) tea.Cmd {
 	return func() tea.Msg {
 		if err := repository.Deck.Save(deck.Change(card)); err != nil {
 			return failed(err)

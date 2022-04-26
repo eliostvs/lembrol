@@ -88,7 +88,7 @@ type deckKeys struct {
 func newDecksModel(repository *flashcard.Repository, v viewport) decksModel {
 	keys := newDeckKeys()
 	delegate := list.NewDefaultDelegate()
-	listModel := list.New(newDeckItems(repository.Deck.List()), &delegate, 0, 0)
+	listModel := list.New(newDeckItems(repository.Deck.List()), &delegate, v.Width, v.Height)
 	listModel.Title = "Decks"
 	listModel.Styles.Title = titleStyle
 	listModel.AdditionalShortHelpKeys = func() []key.Binding {
@@ -155,12 +155,8 @@ type (
 )
 
 // nolint:cyclop,gocyclo
-func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
+func (m decksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-
-	m.list.SetHeight(m.viewport.height)
-	m.list.SetWidth(m.viewport.width)
-
 	currentDeck := toDeck(m.list)
 	hasDeck := len(m.list.Items()) != 0
 
@@ -189,6 +185,12 @@ func (m decksModel) Update(msg tea.Msg) (decksModel, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case viewportMsg:
+		m.viewport = msg.viewport
+		m.list.SetHeight(m.viewport.Height)
+		m.list.SetWidth(m.viewport.Width)
+		return m, nil
+
 	case initDeckMsg, canceledFormMsg:
 		m.status = deckBrowsing
 		resetControls()

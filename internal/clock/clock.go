@@ -1,14 +1,16 @@
-package flashcard
+package clock
 
-import "time"
+import (
+	"time"
+)
 
 // Clock abstracts the time module to make it easier to test the system.
 type Clock interface {
 	Now() time.Time
 }
 
-// NewClock creates a RealClock instance.
-func NewClock() RealClock {
+// New creates a RealClock instance.
+func New() RealClock {
 	return RealClock{}
 }
 

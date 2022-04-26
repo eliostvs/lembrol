@@ -36,7 +36,7 @@ func CLI(args []string, version string, output io.Writer) int {
 	}
 
 	if os.Getenv("LEMBROL_DEBUG") != "" {
-		if f, err := tea.LogToFile("debug.log", "help"); err != nil {
+		if f, err := tea.LogToFile("debug.log", "lembrol"); err != nil {
 			fmt.Println("Couldn't open a file for logging:", err)
 			os.Exit(1)
 		} else {

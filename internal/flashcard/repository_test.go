@@ -6,28 +6,33 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/eliostvs/lembrol/internal/clock"
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
 func TestNewRepository(t *testing.T) {
-	t.Run("returns error when initialization of the wrapped repositories fails", func(t *testing.T) {
-		location := t.TempDir() + "/foo"
-		if err := os.Mkdir(location, 0444); err != nil {
-			t.Fatal(err)
-		}
+	t.Run(
+		"returns error when initialization of the wrapped repositories fails", func(t *testing.T) {
+			location := t.TempDir() + "/foo"
+			if err := os.Mkdir(location, 0444); err != nil {
+				t.Fatal(err)
+			}
 
-		repo, err := flashcard.NewRepository(location+"/foo", flashcard.NewClock())
+			repo, err := flashcard.NewRepository(location+"/foo", clock.New())
 
-		assert.Nil(t, repo)
-		assert.Error(t, err)
-	})
+			assert.Nil(t, repo)
+			assert.Error(t, err)
+		},
+	)
 
-	t.Run("return repository when initializing succeed", func(t *testing.T) {
-		repo, err := flashcard.NewRepository(t.TempDir(), flashcard.NewClock())
+	t.Run(
+		"return repository when initializing succeed", func(t *testing.T) {
+			repo, err := flashcard.NewRepository(t.TempDir(), clock.New())
 
-		assert.NotNil(t, repo)
-		assert.NoError(t, err)
-		assert.IsType(t, repo.Deck, &flashcard.DeckRepository{})
-		assert.IsType(t, repo.Stats, flashcard.StatsRepository{})
-	})
+			assert.NotNil(t, repo)
+			assert.NoError(t, err)
+			assert.IsType(t, repo.Deck, &flashcard.DeckRepository{})
+			assert.IsType(t, repo.Stats, flashcard.StatsRepository{})
+		},
+	)
 }

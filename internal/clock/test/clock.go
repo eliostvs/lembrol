@@ -2,7 +2,7 @@ package test
 
 import "time"
 
-func NewClock(t time.Time) Clock {
+func New(t time.Time) Clock {
 	return Clock{t}
 }
 
