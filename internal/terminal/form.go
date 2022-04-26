@@ -207,7 +207,6 @@ type canceledFormMsg struct {
 // NewForm creates a new form with the given fields.
 func NewForm(f Field, fields ...Field) Form {
 	keys := newFormKeys()
-
 	keys.next.SetEnabled(len(fields) != 0)
 	keys.previous.SetEnabled(len(fields) != 0)
 
