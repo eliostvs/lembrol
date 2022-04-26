@@ -145,37 +145,7 @@ type cardsModel struct {
 	viewport   viewport
 }
 
-// INIT
-
-func (m cardsModel) Init() tea.Cmd {
-	return func() tea.Msg {
-		return initCardMsg{}
-	}
-}
-
-// VIEW
-
-func (m cardsModel) View() string {
-	switch m.status {
-	case cardCreating:
-		content := titleStyle.Render(m.deck.Name)
-		content += m.form.view()
-		return largePaddingStyle.Render(content)
-
-	case cardEditing:
-		content := titleStyle.Render(m.deck.Name)
-		content += m.form.view()
-		return largePaddingStyle.Render(content)
-
-	case cardBrowsing, cardDeleting:
-		fallthrough
-
-	default:
-		return midPaddingStyle.Render(m.list.View())
-	}
-}
-
-// UPDATE
+// MESSAGE
 
 type (
 	initCardMsg struct{}
@@ -195,6 +165,14 @@ type (
 		deck  flashcard.Deck
 	}
 )
+
+// UPDATE
+
+func (m cardsModel) Init() tea.Cmd {
+	return func() tea.Msg {
+		return initCardMsg{}
+	}
+}
 
 // nolint:cyclop,gocyclo
 func (m cardsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -419,5 +397,27 @@ func deleteCard(index int, card flashcard.Card, deck flashcard.Deck, repository 
 		}
 
 		return deletedCardMsg{index}
+	}
+}
+
+// VIEW
+
+func (m cardsModel) View() string {
+	switch m.status {
+	case cardCreating:
+		content := titleStyle.Render(m.deck.Name)
+		content += m.form.view()
+		return largePaddingStyle.Render(content)
+
+	case cardEditing:
+		content := titleStyle.Render(m.deck.Name)
+		content += m.form.view()
+		return largePaddingStyle.Render(content)
+
+	case cardBrowsing, cardDeleting:
+		fallthrough
+
+	default:
+		return midPaddingStyle.Render(m.list.View())
 	}
 }

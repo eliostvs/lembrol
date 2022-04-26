@@ -139,15 +139,7 @@ type reviewModel struct {
 	viewport   viewport
 }
 
-// INIT
-
-func (m reviewModel) Init() tea.Cmd {
-	return func() tea.Msg {
-		return reviewQuestionMsg{m.review}
-	}
-}
-
-// UPDATE
+// MESSAGES
 
 type (
 	reviewQuestionMsg struct {
@@ -158,6 +150,14 @@ type (
 		flashcard.Review
 	}
 )
+
+// UPDATE
+
+func (m reviewModel) Init() tea.Cmd {
+	return func() tea.Msg {
+		return reviewQuestionMsg{m.review}
+	}
+}
 
 // nolint:cyclop
 func (m reviewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

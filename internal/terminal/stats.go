@@ -92,7 +92,15 @@ type statsModel struct {
 	help       help.Model
 }
 
-// INIT
+// MESSAGES
+
+type (
+	statsLoadedMsg struct {
+		stats []flashcard.Stats
+	}
+)
+
+// UPDATE
 
 func (m statsModel) Init() tea.Cmd {
 	return tea.Batch(
@@ -104,14 +112,6 @@ func (m statsModel) Init() tea.Cmd {
 		spinner.Tick,
 	)
 }
-
-// UPDATE
-
-type (
-	statsLoadedMsg struct {
-		stats []flashcard.Stats
-	}
-)
 
 func (m statsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd

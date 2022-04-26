@@ -16,7 +16,73 @@ const (
 	projectName  = "Lembrol"
 )
 
-// MSG
+// MODEL
+
+type ModelOption func(*Model)
+
+func WithInitialDelay(delay time.Duration) ModelOption {
+	return func(m *Model) {
+		m.initialDelay = delay
+	}
+}
+
+func WithClock(clock clock.Clock) ModelOption {
+	return func(m *Model) {
+		m.clock = clock
+	}
+}
+
+func newViewport(style lipgloss.Style, msg tea.WindowSizeMsg) viewport {
+	topGap, rightGap, bottomGap, leftGap := style.GetPadding()
+	return viewport{
+		Width:  msg.Width - leftGap - rightGap - 2,
+		Height: msg.Height - topGap - bottomGap,
+	}
+}
+
+// viewport is the size of terminal minus the edges paddings.
+type viewport struct {
+	Width, Height int
+}
+
+func createRepository(location string, clock clock.Clock) tea.Msg {
+	repo, err := flashcard.NewRepository(location, clock)
+	if err != nil {
+		return failed(err)
+	}
+	return createdRepositoryMsg{repo}
+}
+
+type createdRepositoryMsg struct {
+	*flashcard.Repository
+}
+
+// NewModel creates a new model instance given a decks location.
+func NewModel(location string, opts ...ModelOption) Model {
+	m := Model{
+		clock:        clock.New(),
+		initialDelay: initialDelay,
+		location:     location,
+		page:         newLoadinModel(projectName),
+	}
+
+	for _, opt := range opts {
+		opt(&m)
+	}
+
+	return m
+}
+
+type Model struct {
+	clock        clock.Clock
+	initialDelay time.Duration
+	location     string
+	repository   *flashcard.Repository
+	viewport     viewport
+	page         tea.Model
+}
+
+// MESSAGES
 
 func viewportChanged(v viewport) tea.Cmd {
 	return func() tea.Msg {
@@ -79,74 +145,6 @@ type setQuitPageMsg struct{}
 
 func exitCmd() tea.Msg {
 	return setQuitPageMsg{}
-}
-
-// MODEL
-
-type ModelOption func(*Model)
-
-func WithInitialDelay(delay time.Duration) ModelOption {
-	return func(m *Model) {
-		m.initialDelay = delay
-	}
-}
-
-func WithClock(clock clock.Clock) ModelOption {
-	return func(m *Model) {
-		m.clock = clock
-	}
-}
-
-func newViewport(style lipgloss.Style, msg tea.WindowSizeMsg) viewport {
-	topGap, rightGap, bottomGap, leftGap := style.GetPadding()
-	return viewport{
-		Width:  msg.Width - leftGap - rightGap - 2,
-		Height: msg.Height - topGap - bottomGap,
-	}
-}
-
-// viewport is the size of terminal minus the edges paddings.
-type viewport struct {
-	Width, Height int
-}
-
-func createRepository(location string, clock clock.Clock) tea.Msg {
-	repo, err := flashcard.NewRepository(location, clock)
-	if err != nil {
-		return failed(err)
-	}
-	return createdRepositoryMsg{repo}
-}
-
-type createdRepositoryMsg struct {
-	*flashcard.Repository
-}
-
-// MODEL
-
-// NewModel creates a new model instance given a decks location.
-func NewModel(location string, opts ...ModelOption) Model {
-	m := Model{
-		clock:        clock.New(),
-		initialDelay: initialDelay,
-		location:     location,
-		page:         newLoadinModel(projectName),
-	}
-
-	for _, opt := range opts {
-		opt(&m)
-	}
-
-	return m
-}
-
-type Model struct {
-	clock        clock.Clock
-	initialDelay time.Duration
-	location     string
-	repository   *flashcard.Repository
-	viewport     viewport
-	page         tea.Model
 }
 
 // UPDATE

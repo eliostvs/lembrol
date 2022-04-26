@@ -126,15 +126,7 @@ type decksModel struct {
 	viewport   viewport
 }
 
-// INIT
-
-func (m decksModel) Init() tea.Cmd {
-	return func() tea.Msg {
-		return initDeckMsg{}
-	}
-}
-
-// UPDATE
+// MESSAGE
 
 type (
 	initDeckMsg struct{}
@@ -153,6 +145,14 @@ type (
 		item  deckItem
 	}
 )
+
+// UPDATE
+
+func (m decksModel) Init() tea.Cmd {
+	return func() tea.Msg {
+		return initDeckMsg{}
+	}
+}
 
 // nolint:cyclop,gocyclo
 func (m decksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
