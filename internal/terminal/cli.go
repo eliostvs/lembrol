@@ -36,12 +36,13 @@ func CLI(args []string, version string, output io.Writer) int {
 	}
 
 	if os.Getenv("LEMBROL_DEBUG") != "" {
-		if f, err := tea.LogToFile("debug.log", "lembrol"); err != nil {
+		f, err := tea.LogToFile("debug.log", "lembrol")
+		if err != nil {
 			fmt.Println("Couldn't open a file for logging:", err)
 			os.Exit(1)
-		} else {
-			defer f.Close()
 		}
+
+		defer f.Close()
 	}
 
 	program := tea.NewProgram(NewModel(*decksLocation), tea.WithAltScreen())
