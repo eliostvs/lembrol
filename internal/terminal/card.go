@@ -2,6 +2,7 @@ package terminal
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -97,10 +98,12 @@ type cardKeys struct {
 	stats   key.Binding
 }
 
-func newCardsModel(msg setCardsPageMsg, clock clock.Clock, repository *flashcard.Repository, v viewport) cardsModel {
+func newCardsModel(msg setCardsPageMsg, c clock.Clock, repo *flashcard.Repository, width, height int) cardsModel {
 	keys := newCardKeys()
 	delegate := list.NewDefaultDelegate()
-	listModel := list.New(newCardItems(msg.deck.List(), clock), &delegate, v.Width, v.Height)
+	listModel := list.New(newCardItems(msg.deck.List(), c), &delegate, width, height)
+	// force initial help width
+	listModel.Help.Width = width
 	listModel.Select(msg.cardIndex)
 	listModel.Title = msg.deck.Name
 	listModel.Styles.Title = titleStyle
@@ -124,12 +127,13 @@ func newCardsModel(msg setCardsPageMsg, clock clock.Clock, repository *flashcard
 
 	return cardsModel{
 		list:       listModel,
-		clock:      clock,
+		clock:      c,
 		deck:       msg.deck,
-		repository: repository,
+		repository: repo,
 		keys:       keys,
 		delegate:   &delegate,
-		viewport:   v,
+		width:      width,
+		height:     height,
 	}
 }
 
@@ -142,7 +146,8 @@ type cardsModel struct {
 	repository *flashcard.Repository
 	status     cardStatus
 	delegate   *list.DefaultDelegate
-	viewport   viewport
+	width      int
+	height     int
 }
 
 // MESSAGE
@@ -178,9 +183,6 @@ func (m cardsModel) Init() tea.Cmd {
 func (m cardsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	m.list.SetWidth(m.viewport.Width)
-	m.list.SetHeight(m.viewport.Height)
-
 	currentCard := toCard(m.list)
 	hasCards := len(m.list.Items()) != 0
 
@@ -209,10 +211,11 @@ func (m cardsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
-	case viewportMsg:
-		m.viewport = msg.viewport
-		m.list.SetHeight(m.viewport.Height)
-		m.list.SetWidth(m.viewport.Width)
+	case innerWindowSizeMsg:
+		log.Printf("card.update.innerWindowsSizeMsg width=%d, height=%d\n", m.width, m.height)
+		m.width, m.height = msg.Width, msg.Height
+		m.list.SetWidth(msg.Width)
+		m.list.SetHeight(msg.Height)
 		return m, nil
 
 	case initCardMsg, canceledFormMsg:
@@ -259,12 +262,12 @@ func (m cardsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case m.status == cardBrowsing && key.Matches(msg, m.keys.add):
 			m.status = cardCreating
-			m.form, cmd = createCardForm("", "", m.viewport.Width)
+			m.form, cmd = createCardForm("", "", m.width)
 			return m, cmd
 
 		case m.status == cardBrowsing && key.Matches(msg, m.keys.edit) && hasCards:
 			m.status = cardEditing
-			m.form, cmd = createCardForm(currentCard.Question, currentCard.Answer, m.viewport.Width)
+			m.form, cmd = createCardForm(currentCard.Question, currentCard.Answer, m.width)
 			return m, cmd
 
 		case m.status == cardBrowsing && key.Matches(msg, m.keys.study) && m.deck.HasDueCards():
@@ -369,7 +372,7 @@ func createCard(question, answer string, deck flashcard.Deck, repository *flashc
 		deck, card := deck.Add(question, answer)
 
 		if err := repository.Deck.Save(deck); err != nil {
-			return failed(err)
+			return fail(err)
 		}
 
 		return createdCardMsg{index: 0, item: cardItem{Card: card, clock: clock}}
@@ -379,7 +382,7 @@ func createCard(question, answer string, deck flashcard.Deck, repository *flashc
 func updateCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.Repository, clock clock.Clock) tea.Cmd {
 	return func() tea.Msg {
 		if err := repository.Deck.Save(deck.Change(card)); err != nil {
-			return failed(err)
+			return fail(err)
 		}
 
 		return editedCardMsg{index: index, deck: deck, item: cardItem{Card: card, clock: clock}}
@@ -389,11 +392,11 @@ func updateCard(index int, card flashcard.Card, deck flashcard.Deck, repository 
 func deleteCard(index int, card flashcard.Card, deck flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		if _, err := deck.Remove(card); err != nil {
-			return failed(err)
+			return fail(err)
 		}
 
 		if err := repository.Deck.Save(deck); err != nil {
-			return failed(err)
+			return fail(err)
 		}
 
 		return deletedCardMsg{index}

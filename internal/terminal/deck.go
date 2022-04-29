@@ -85,10 +85,10 @@ type deckKeys struct {
 	delete  key.Binding
 }
 
-func newDecksModel(repository *flashcard.Repository, v viewport) decksModel {
+func newDecksModel(repository *flashcard.Repository, width, height int) decksModel {
 	keys := newDeckKeys()
 	delegate := list.NewDefaultDelegate()
-	listModel := list.New(newDeckItems(repository.Deck.List()), &delegate, v.Width, v.Height)
+	listModel := list.New(newDeckItems(repository.Deck.List()), &delegate, width, height)
 	listModel.Title = "Decks"
 	listModel.Styles.Title = titleStyle
 	listModel.AdditionalShortHelpKeys = func() []key.Binding {
@@ -112,7 +112,8 @@ func newDecksModel(repository *flashcard.Repository, v viewport) decksModel {
 		keys:       keys,
 		list:       listModel,
 		repository: repository,
-		viewport:   v,
+		width:      width,
+		height:     height,
 	}
 }
 
@@ -123,7 +124,8 @@ type decksModel struct {
 	repository *flashcard.Repository
 	status     deckStatus
 	delegate   *list.DefaultDelegate
-	viewport   viewport
+	width      int
+	height     int
 }
 
 // MESSAGE
@@ -185,10 +187,10 @@ func (m decksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
-	case viewportMsg:
-		m.viewport = msg.viewport
-		m.list.SetHeight(m.viewport.Height)
-		m.list.SetWidth(m.viewport.Width)
+	case innerWindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+		m.list.SetWidth(msg.Width)
+		m.list.SetHeight(msg.Height)
 		return m, nil
 
 	case initDeckMsg, canceledFormMsg:
@@ -249,12 +251,12 @@ func (m decksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.status = deckDeleting
 			m.delegate.Styles.SelectedTitle = deletedTitle
 			m.delegate.Styles.SelectedDesc = deletedDesc
-			m.list.NewStatusMessage(Red.Render("Delete this deck?"))
 			m.keys.confirm.SetHelp("enter", "confirm")
 			m.keys.add.SetEnabled(false)
 			m.keys.delete.SetEnabled(false)
 			m.keys.edit.SetEnabled(false)
 			m.keys.study.SetEnabled(false)
+			m.list.NewStatusMessage(Red.Render("Delete this deck?"))
 			m.list.KeyMap.CloseFullHelp.SetEnabled(false)
 			m.list.KeyMap.CursorDown.SetEnabled(false)
 			m.list.KeyMap.CursorUp.SetEnabled(false)
@@ -267,7 +269,7 @@ func (m decksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case m.status == deckBrowsing && key.Matches(msg, m.list.KeyMap.Quit) && m.list.FilterState() != list.FilterApplied:
-			return m, exitCmd
+			return m, quit
 
 		case m.status == deckBrowsing && key.Matches(msg, m.keys.confirm) && hasDeck:
 			return m, showCards(currentDeck, firstCard)
@@ -318,7 +320,7 @@ func createDeck(name string, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		deck, err := repository.Deck.Create(name)
 		if err != nil {
-			return failed(err)
+			return fail(err)
 		}
 		return createdDeckMsg{index: 0, item: deckItem{deck}}
 	}
@@ -327,7 +329,7 @@ func createDeck(name string, repository *flashcard.Repository) tea.Cmd {
 func editDeck(index int, deck flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		if err := repository.Deck.Save(deck); err != nil {
-			return failed(err)
+			return fail(err)
 		}
 		return editDeckMsg{index: index, item: deckItem{deck}}
 	}
@@ -336,7 +338,7 @@ func editDeck(index int, deck flashcard.Deck, repository *flashcard.Repository) 
 func deleteDeck(index int, deck flashcard.Deck, repository *flashcard.Repository) tea.Cmd {
 	return func() tea.Msg {
 		if err := repository.Deck.Remove(deck); err != nil {
-			return failed(err)
+			return fail(err)
 		}
 		return deletedDeckMsg{index: index}
 	}

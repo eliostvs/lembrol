@@ -32,23 +32,15 @@ func WithClock(clock clock.Clock) ModelOption {
 	}
 }
 
-func newViewport(style lipgloss.Style, msg tea.WindowSizeMsg) viewport {
+func calcInnerWindowSize(style lipgloss.Style, msg tea.WindowSizeMsg) (int, int) {
 	topGap, rightGap, bottomGap, leftGap := style.GetPadding()
-	return viewport{
-		Width:  msg.Width - leftGap - rightGap - 2,
-		Height: msg.Height - topGap - bottomGap,
-	}
-}
-
-// viewport is the size of terminal minus the edges paddings.
-type viewport struct {
-	Width, Height int
+	return msg.Width - leftGap - rightGap - 2, msg.Height - topGap - bottomGap
 }
 
 func createRepository(location string, clock clock.Clock) tea.Msg {
 	repo, err := flashcard.NewRepository(location, clock)
 	if err != nil {
-		return failed(err)
+		return fail(err)
 	}
 	return createdRepositoryMsg{repo}
 }
@@ -78,23 +70,24 @@ type Model struct {
 	initialDelay time.Duration
 	location     string
 	repository   *flashcard.Repository
-	viewport     viewport
 	page         tea.Model
+	width        int
+	height       int
 }
 
 // MESSAGES
 
-func viewportChanged(v viewport) tea.Cmd {
+func changeInnerWindowSize(width, height int) tea.Cmd {
 	return func() tea.Msg {
-		return viewportMsg{v}
+		return innerWindowSizeMsg{Width: width, Height: height}
 	}
 }
 
-type viewportMsg struct {
-	viewport viewport
+type innerWindowSizeMsg struct {
+	Width, Height int
 }
 
-func failed(err error) tea.Msg {
+func fail(err error) tea.Msg {
 	return setErrorPageMsg{err}
 }
 
@@ -143,7 +136,7 @@ type setReviewPageMsg struct {
 
 type setQuitPageMsg struct{}
 
-func exitCmd() tea.Msg {
+func quit() tea.Msg {
 	return setQuitPageMsg{}
 }
 
@@ -166,28 +159,28 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.viewport = newViewport(largePaddingStyle, msg)
-		return m, viewportChanged(m.viewport)
+		m.width, m.height = calcInnerWindowSize(largePaddingStyle, msg)
+		return m, changeInnerWindowSize(m.width, m.height)
 
 	case createdRepositoryMsg:
 		m.repository = msg.Repository
-		m.page = newDecksModel(m.repository, m.viewport)
+		m.page = newDecksModel(m.repository, m.width, m.height)
 		return m, m.page.Init()
 
 	case setDecksPageMsg:
-		m.page = newDecksModel(m.repository, m.viewport)
+		m.page = newDecksModel(m.repository, m.width, m.height)
 		return m, m.page.Init()
 
 	case setCardsPageMsg:
-		m.page = newCardsModel(msg, m.clock, m.repository, m.viewport)
+		m.page = newCardsModel(msg, m.clock, m.repository, m.width, m.height)
 		return m, m.page.Init()
 
 	case setStatsPageMsg:
-		m.page = newStatsModel(msg, m.repository, m.viewport)
+		m.page = newStatsModel(msg, m.repository, m.width, m.height)
 		return m, m.page.Init()
 
 	case setReviewPageMsg:
-		m.page = newReviewModel(flashcard.NewReview(msg.Deck, m.clock), m.repository, m.viewport)
+		m.page = newReviewModel(flashcard.NewReview(msg.Deck, m.clock), m.repository, m.width, m.height)
 		return m, m.page.Init()
 
 	case setErrorPageMsg:

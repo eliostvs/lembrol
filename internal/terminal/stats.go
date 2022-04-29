@@ -40,12 +40,12 @@ const (
 	statsLoaded
 )
 
-func newStatsModel(msg setStatsPageMsg, repo *flashcard.Repository, viewport viewport) statsModel {
+func newStatsModel(msg setStatsPageMsg, repo *flashcard.Repository, width, height int) statsModel {
 	spin := spinner.New()
 	spin.Spinner = spinner.Dot
 
 	helpModel := help.New()
-	helpModel.Width = viewport.Width
+	helpModel.Width = width
 
 	return statsModel{
 		card:       msg.card,
@@ -60,9 +60,10 @@ func newStatsModel(msg setStatsPageMsg, repo *flashcard.Repository, viewport vie
 				key.WithHelp("q", "quit"),
 			),
 		},
-		viewport: viewport,
-		totals:   make(map[flashcard.ReviewScore]int),
-		help:     helpModel,
+		width:  width,
+		height: height,
+		totals: make(map[flashcard.ReviewScore]int),
+		help:   helpModel,
 	}
 }
 
@@ -88,8 +89,9 @@ type statsModel struct {
 	state      statsState
 	totals     map[flashcard.ReviewScore]int
 	sparkline  []sparklineItem
-	viewport   viewport
 	help       help.Model
+	width      int
+	height     int
 }
 
 // MESSAGES
@@ -117,9 +119,9 @@ func (m statsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case viewportMsg:
-		m.viewport = msg.viewport
-		m.help.Width = m.viewport.Width
+	case innerWindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+		m.help.Width = msg.Width
 		return m, nil
 
 	case spinner.TickMsg:
@@ -169,7 +171,7 @@ func createSparkline(stats []flashcard.Stats) []sparklineItem {
 func loadStats(repo *flashcard.Repository, deck flashcard.Deck, card flashcard.Card) tea.Msg {
 	stats, err := repo.Stats.Find(deck, card)
 	if err != nil {
-		return failed(err)
+		return fail(err)
 	}
 
 	return statsLoadedMsg{stats: stats}
@@ -211,7 +213,7 @@ func notStatsView(m statsModel) string {
 
 func cardStatsView(m statsModel) string {
 	sections := 5
-	width := min(m.viewport.Width/sections, 15)
+	width := min(m.width/sections, 15)
 	firstSession := m.sparkline[0].timestamp
 	lastSession := m.sparkline[len(m.sparkline)-1].timestamp
 

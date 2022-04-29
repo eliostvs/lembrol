@@ -117,16 +117,17 @@ func (k *reviewKeys) FullHelp() [][]key.Binding {
 	}
 }
 
-func newReviewModel(review flashcard.Review, repository *flashcard.Repository, v viewport) reviewModel {
+func newReviewModel(review flashcard.Review, repository *flashcard.Repository, width, height int) reviewModel {
 	helpModel := help.New()
-	helpModel.Width = v.Width
+	helpModel.Width = width
 
 	return reviewModel{
 		review:     review,
 		repository: repository,
 		keys:       newReviewKeys(),
 		help:       helpModel,
-		viewport:   v,
+		width:      width,
+		height:     height,
 	}
 }
 
@@ -136,7 +137,8 @@ type reviewModel struct {
 	repository *flashcard.Repository
 	status     reviewStatus
 	keys       *reviewKeys
-	viewport   viewport
+	width      int
+	height     int
 }
 
 // MESSAGES
@@ -162,9 +164,9 @@ func (m reviewModel) Init() tea.Cmd {
 // nolint:cyclop
 func (m reviewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case viewportMsg:
-		m.viewport = msg.viewport
-		m.help.Width = m.viewport.Width
+	case innerWindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+		m.help.Width = msg.Width
 		return m, nil
 
 	case reviewQuestionMsg:
@@ -235,7 +237,7 @@ func skipCard(review flashcard.Review) tea.Cmd {
 	return func() tea.Msg {
 		review, err := review.Skip()
 		if err != nil {
-			return failed(err)
+			return fail(err)
 		}
 		return reviewQuestionMsg{review}
 	}
@@ -245,21 +247,21 @@ func scoreCard(input string, review flashcard.Review, repository *flashcard.Repo
 	return func() tea.Msg {
 		score, err := flashcard.NewReviewScore(input)
 		if err != nil {
-			return failed(err)
+			return fail(err)
 		}
 
 		stats, review, err := review.Rate(score)
 		if err != nil {
-			return failed(err)
+			return fail(err)
 		}
 
 		if err = repository.Deck.Save(review.Deck()); err != nil {
-			return failed(err)
+			return fail(err)
 		}
 
 		if stats != nil {
 			if err := repository.Stats.Save(review.Deck(), stats); err != nil {
-				return failed(err)
+				return fail(err)
 			}
 		}
 
@@ -299,7 +301,7 @@ func reviewQuestionView(m reviewModel) string {
 		return errorView(err.Error())
 	}
 
-	markdown, err := RenderMarkdown(card.Question, m.viewport.Width)
+	markdown, err := RenderMarkdown(card.Question, m.width)
 	if err != nil {
 		return errorView(err.Error())
 	}
@@ -320,7 +322,7 @@ func reviewAnswerView(m reviewModel) string {
 		return errorView(err.Error())
 	}
 
-	markdown, err := RenderMarkdown(card.Answer, m.viewport.Width)
+	markdown, err := RenderMarkdown(card.Answer, m.width)
 	if err != nil {
 		return errorView(err.Error())
 	}
