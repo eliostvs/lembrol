@@ -44,7 +44,7 @@ func (r StatsRepository) Save(deck Deck, stats *Stats) error {
 
 	file, err := os.OpenFile(r.path(deck.Name), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		return fmt.Errorf("open stats file: %w", err)
+		return fmt.Errorf("open stats %s: %w", r.path(deck.Name), err)
 	}
 
 	_, err = file.Write(append(data, '\n'))
@@ -53,7 +53,7 @@ func (r StatsRepository) Save(deck Deck, stats *Stats) error {
 	}
 
 	if err != nil {
-		return fmt.Errorf("write stats: %w", err)
+		return fmt.Errorf("save stats: %w", err)
 	}
 
 	return nil
@@ -66,7 +66,7 @@ func (r StatsRepository) Find(deck Deck, card Card) ([]Stats, error) {
 		if os.IsNotExist(err) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("open stats file: %w", err)
+		return nil, fmt.Errorf("open stats %s : %w", r.path(deck.Name), err)
 	}
 
 	found := make([]Stats, 0, 0)
