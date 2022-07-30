@@ -230,7 +230,7 @@ func (r *DeckRepository) path(name string) string {
 }
 
 // Open returns a deck given a name.
-func (r DeckRepository) Open(name string) (Deck, error) {
+func (r *DeckRepository) Open(name string) (Deck, error) {
 	for _, deck := range r.decks {
 		if deck.Name == name {
 			return deck, nil
