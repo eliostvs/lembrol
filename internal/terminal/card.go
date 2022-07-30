@@ -39,6 +39,7 @@ func (c cardItem) Title() string {
 
 func (c cardItem) Description() string {
 	var due string
+
 	if c.IsDue(c.clock.Now()) {
 		due += " • due"
 	}
@@ -101,6 +102,7 @@ type cardKeys struct {
 func newCardsModel(msg setCardsPageMsg, c clock.Clock, repo *flashcard.Repository, width, height int) cardsModel {
 	keys := newCardKeys()
 	delegate := list.NewDefaultDelegate()
+
 	listModel := list.New(newCardItems(msg.deck.List(), c), &delegate, width, height)
 	// force initial help width
 	listModel.Help.Width = width
