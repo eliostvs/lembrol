@@ -46,7 +46,6 @@ func TestCardStats(t *testing.T) {
 				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(statsKey).
-				Print().
 				Get()
 
 			view := m.View()
@@ -59,6 +58,39 @@ func TestCardStats(t *testing.T) {
 			assert.Contains(t, view, "21             5              6              5              5")
 			assert.Contains(t, view, "▃▅▃▅▁█▅▅▁▃▁▁▅█▁█▃▃██▃")
 			assert.Contains(t, view, "q quit")
+		},
+	)
+
+	t.Run(
+		"goes back to card page", func(t *testing.T) {
+			tests := []struct {
+				name string
+				key  string
+			}{
+				{
+					name: "when esc key is pressed",
+					key:  tea.KeyEsc.String(),
+				},
+				{
+					name: "when quit key is pressed",
+					key:  quitKey,
+				},
+			}
+			for _, tt := range tests {
+				t.Run(
+					tt.name, func(t *testing.T) {
+						m, _ := newTestModel(fewDecks).
+							Init().
+							SendMsg(windowSizeMsg).
+							SendKeyType(tea.KeyEnter).
+							SendKeyRune(statsKey).
+							SendKeyRune(tt.key).
+							Get()
+
+						assert.NotContains(t, m.View(), "▃▅▃▅▁█▅▅▁▃▁▁▅█▁█▃▃██▃")
+					},
+				)
+			}
 		},
 	)
 }

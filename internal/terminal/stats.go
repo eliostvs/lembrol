@@ -56,7 +56,7 @@ func newStatsModel(msg setStatsPageMsg, repo *flashcard.Repository, width, heigh
 		state:      statsLoading,
 		keys: statsKeys{
 			key.NewBinding(
-				key.WithKeys("q"),
+				key.WithKeys("q", tea.KeyEsc.String()),
 				key.WithHelp("q", "quit"),
 			),
 		},
