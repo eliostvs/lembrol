@@ -232,7 +232,7 @@ func cardStatsView(m statsModel) string {
 
 	var totalStyle = White.Copy().Width(width).Align(lipgloss.Left)
 	totals := []flashcard.ReviewScore{
-		flashcard.ReviewScore(0),
+		flashcard.ReviewScoreAgain,
 		flashcard.ReviewScoreHard,
 		flashcard.ReviewScoreNormal,
 		flashcard.ReviewScoreEasy,
