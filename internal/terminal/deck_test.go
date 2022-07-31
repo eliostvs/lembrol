@@ -27,6 +27,7 @@ func TestDecksList(t *testing.T) {
 			assert.NotContains(t, view, "↓/j down")
 			assert.NotContains(t, view, "/ filter")
 			assert.NotContains(t, view, "enter open")
+			assert.Contains(t, view, "No items found.")
 			assert.Contains(t, view, "a add • q quit • ? more")
 		},
 	)

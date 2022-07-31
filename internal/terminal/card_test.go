@@ -27,7 +27,7 @@ func TestCardsList(t *testing.T) {
 			view := m.View()
 
 			assert.Contains(t, view, "Empty")
-			assert.Contains(t, view, "No items")
+			assert.Contains(t, view, "No items found.")
 			assert.Contains(t, view, "a add • q quit • ? more ")
 		},
 	)

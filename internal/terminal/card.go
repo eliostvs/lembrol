@@ -199,6 +199,7 @@ func (m cardsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.keys.confirm.SetEnabled(m.status == cardDeleting)
 		m.list.NewStatusMessage("")
 		m.list.SetFilteringEnabled(hasCards)
+		m.list.SetShowStatusBar(hasCards)
 		m.list.KeyMap.CursorDown.SetEnabled(hasCards)
 		m.list.KeyMap.CursorDown.SetEnabled(hasCards)
 		m.list.KeyMap.CursorUp.SetEnabled(hasCards)

@@ -174,6 +174,7 @@ func (m decksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.keys.study.SetEnabled(hasDeck)
 		m.list.NewStatusMessage("")
 		m.list.SetFilteringEnabled(hasDeck)
+		m.list.SetShowStatusBar(hasDeck)
 		m.list.KeyMap.CloseFullHelp.SetEnabled(true)
 		m.list.KeyMap.CursorDown.SetEnabled(hasDeck)
 		m.list.KeyMap.CursorDown.SetEnabled(hasDeck)
