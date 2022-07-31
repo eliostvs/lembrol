@@ -20,6 +20,17 @@ const (
 
 type ModelOption func(*Model)
 
+func WithWindowSize(width, height int) ModelOption {
+	return func(m *Model) {
+		m.width, m.height = calcInnerWindowSize(
+			largePaddingStyle, tea.WindowSizeMsg{
+				Width:  width,
+				Height: height,
+			},
+		)
+	}
+}
+
 func WithInitialDelay(delay time.Duration) ModelOption {
 	return func(m *Model) {
 		m.initialDelay = delay

@@ -216,8 +216,7 @@ func (m cardsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case innerWindowSizeMsg:
 		log.Printf("card.update.innerWindowsSizeMsg width=%d, height=%d\n", m.width, m.height)
 		m.width, m.height = msg.Width, msg.Height
-		m.list.SetWidth(msg.Width)
-		m.list.SetHeight(msg.Height)
+		m.list.SetSize(msg.Width, msg.Height)
 		return m, nil
 
 	case initCardMsg, canceledFormMsg:

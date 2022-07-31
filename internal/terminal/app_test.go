@@ -33,6 +33,8 @@ var breakLineMsg = tea.KeyMsg{Type: tea.KeyEnter, Alt: true}
 var windowSizeMsg = tea.WindowSizeMsg{Width: 100, Height: 20}
 
 const (
+	testWidth      = 100
+	testHeight     = 20
 	manyDecks      = "./testdata/many"
 	fewDecks       = "./testdata/few"
 	singleCardDeck = "./testdata/single"
@@ -104,8 +106,12 @@ func (q msgQueue) Empty() bool {
 }
 
 func newTestModel(location string, opts ...terminal.ModelOption) *testModel {
+	defaultOpts := []terminal.ModelOption{
+		terminal.WithInitialDelay(0),
+		terminal.WithWindowSize(testWidth, testHeight),
+	}
 	return &testModel{
-		m: terminal.NewModel(location, append(opts, terminal.WithInitialDelay(0))...),
+		m: terminal.NewModel(location, append(defaultOpts, opts...)...),
 		q: newMsgQueue(),
 	}
 }

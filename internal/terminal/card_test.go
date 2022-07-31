@@ -36,7 +36,6 @@ func TestCardsList(t *testing.T) {
 		"shows full help with card page without cards", func(t *testing.T) {
 			m, _ := newTestModel(emptyDeck).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(helpKey).
 				Get()
@@ -52,7 +51,6 @@ func TestCardsList(t *testing.T) {
 		"shows deck with many cards", func(t *testing.T) {
 			m, _ := newTestModel(fewDecks, terminal.WithClock(clock.Clock{Time: oldestCard.ReviewedAt.Add(24 * time.Hour)})).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				Get()
 
@@ -75,7 +73,6 @@ func TestCardsList(t *testing.T) {
 		"shows full help when there are many cards", func(t *testing.T) {
 			m, _ := newTestModel(manyDecks).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(helpKey).
 				Get()
@@ -96,7 +93,6 @@ func TestCardsList(t *testing.T) {
 		"truncates very long question text", func(t *testing.T) {
 			m, _ := newTestModel(longNamesDeck).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				Get()
 
@@ -157,7 +153,6 @@ func TestCardsList(t *testing.T) {
 
 						m, _ := newTestModel(manyDecks).
 							Init().
-							SendMsg(windowSizeMsg).
 							SendKeyType(tea.KeyEnter).
 							SendBatch(batch).
 							Get()
@@ -185,7 +180,6 @@ func TestCardsList(t *testing.T) {
 		"filters cards", func(t *testing.T) {
 			m, _ := newTestModel(manyDecks).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(filterKey).
 				SendKeyRune("Question A").
@@ -419,7 +413,6 @@ func TestCardDelete(t *testing.T) {
 		"confirms card deletion", func(t *testing.T) {
 			m, _ := newTestModel(fewDecks).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(deleteKey).
 				Get()
@@ -436,7 +429,6 @@ func TestCardDelete(t *testing.T) {
 		"shows deck when the card deletion is canceled", func(t *testing.T) {
 			m, _ := newTestModel(manyDecks).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(deleteKey).
 				SendKeyType(tea.KeyEsc).
@@ -555,7 +547,6 @@ func TestCardDelete(t *testing.T) {
 		"shows deck when card is deleted", func(t *testing.T) {
 			m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(deleteKey).
 				SendKeyType(tea.KeyEnter).

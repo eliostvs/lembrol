@@ -89,6 +89,7 @@ func newDecksModel(repository *flashcard.Repository, width, height int) decksMod
 	keys := newDeckKeys()
 	delegate := list.NewDefaultDelegate()
 	listModel := list.New(newDeckItems(repository.Deck.List()), &delegate, width, height)
+	listModel.SetSize(width, height)
 	listModel.Title = "Decks"
 	listModel.Styles.Title = titleStyle
 	listModel.AdditionalShortHelpKeys = func() []key.Binding {
@@ -189,8 +190,7 @@ func (m decksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case innerWindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
-		m.list.SetWidth(msg.Width)
-		m.list.SetHeight(msg.Height)
+		m.list.SetSize(msg.Width, msg.Width)
 		return m, nil
 
 	case initDeckMsg, canceledFormMsg:

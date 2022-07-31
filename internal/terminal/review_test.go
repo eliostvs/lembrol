@@ -21,7 +21,6 @@ func TestQuestion(t *testing.T) {
 		"show full options help", func(t *testing.T) {
 			m, _ := newTestModel(fewDecks).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyRune(studyKey).
 				SendKeyRune("?").
 				Get()
@@ -132,7 +131,6 @@ func TestQuestion(t *testing.T) {
 		"do not shows skip in the last question", func(t *testing.T) {
 			m, _ := newTestModel(test.TempDirCopy(t, fewDecks)).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyDown).
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
@@ -172,7 +170,6 @@ func TestAnswer(t *testing.T) {
 		"show full options help", func(t *testing.T) {
 			m, _ := newTestModel(singleCardDeck).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune("?").
@@ -340,7 +337,6 @@ func TestReview(t *testing.T) {
 		"show full options help", func(t *testing.T) {
 			m, _ := newTestModel(test.TempDirCopy(t, singleCardDeck)).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(flashcard.ReviewScoreNormal.String()).

@@ -14,7 +14,6 @@ func TestCardStats(t *testing.T) {
 		"shows card with no stats", func(t *testing.T) {
 			m, _ := newTestModel(singleCardDeck).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(statsKey).
 				Get()
@@ -30,7 +29,6 @@ func TestCardStats(t *testing.T) {
 		"shows error when find stats fail", func(t *testing.T) {
 			m, _ := newTestModel(invalidStats).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(statsKey).
 				Get()
@@ -43,7 +41,6 @@ func TestCardStats(t *testing.T) {
 		"shows card with stats", func(t *testing.T) {
 			m, _ := newTestModel(fewDecks).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(statsKey).
 				Get()
@@ -81,7 +78,6 @@ func TestCardStats(t *testing.T) {
 					tt.name, func(t *testing.T) {
 						m, _ := newTestModel(fewDecks).
 							Init().
-							SendMsg(windowSizeMsg).
 							SendKeyType(tea.KeyEnter).
 							SendKeyRune(statsKey).
 							SendKeyRune(tt.key).

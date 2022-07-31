@@ -35,7 +35,6 @@ func TestDecksList(t *testing.T) {
 		"shows fulls help when there are no decks", func(t *testing.T) {
 			m, _ := newTestModel(t.TempDir()).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyRune(helpKey).
 				Get()
 
@@ -50,7 +49,6 @@ func TestDecksList(t *testing.T) {
 		"shows homepage with many decks", func(t *testing.T) {
 			m, _ := newTestModel(manyDecks, terminal.WithClock(clock.New(oldestCard.ReviewedAt.Add(24*time.Hour*4)))).
 				Init().
-				SendMsg(windowSizeMsg).
 				Get()
 
 			view := m.View()
@@ -71,7 +69,6 @@ func TestDecksList(t *testing.T) {
 		"shows full help when there are many decks", func(t *testing.T) {
 			m, _ := newTestModel(manyDecks).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyRune(helpKey).
 				Get()
 
@@ -124,7 +121,6 @@ func TestDecksList(t *testing.T) {
 
 						m, _ := newTestModel(manyDecks).
 							Init().
-							SendMsg(windowSizeMsg).
 							SendBatch(batch).
 							Get()
 
@@ -230,7 +226,6 @@ func TestDecksList(t *testing.T) {
 		"filters decks", func(t *testing.T) {
 			m, _ := newTestModel(manyDecks).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyRune(filterKey).
 				SendKeyRune("Golang A").
 				SendKeyType(tea.KeyEnter).
@@ -341,7 +336,6 @@ func TestDeckEdit(t *testing.T) {
 		"shows edit form", func(t *testing.T) {
 			m, _ := newTestModel(fewDecks).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyRune(editKey).
 				Get()
 
@@ -356,7 +350,6 @@ func TestDeckEdit(t *testing.T) {
 		"shows homepage when deck is edited", func(t *testing.T) {
 			m, _ := newTestModel(test.TempDirCopy(t, manyDecks)).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyRune(editKey).
 				SendKeyType(tea.KeyBackspace).
 				SendKeyRune("Q").
@@ -395,7 +388,6 @@ func TestDeckDelete(t *testing.T) {
 		"confirms the deletion", func(t *testing.T) {
 			m, _ := newTestModel(test.TempDirCopy(t, fewDecks)).
 				Init().
-				SendMsg(windowSizeMsg).
 				SendKeyRune(deleteKey).
 				Get()
 
