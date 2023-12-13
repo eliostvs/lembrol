@@ -1,0 +1,36 @@
+{
+  "name": "Small",
+  "id": "small",
+  "cards": [
+    {
+      "id": "1",
+      "answer": "import \"os\"\n\nos.Remove(path) error",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "How do you delete a file?",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-02T15:00:00Z",
+      "stats": []
+    },
+    {
+      "id": "2",
+      "answer": "if _, ok := map[key]; ok {}",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "How do you check if a map has a certain key?",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-04T15:00:00Z",
+      "stats": []
+    },
+    {
+      "id": "3",
+      "answer": "import \"os\"\n\nos.Mkdir(folder, 0755)",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "How do you create a directory?",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-04T15:00:00Z",
+      "stats": []
+    }
+  ]
+}

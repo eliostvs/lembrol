@@ -1,0 +1,156 @@
+{
+  "name": "Large",
+  "id": "large",
+  "cards": [
+    {
+      "id": "1",
+      "answer": "import \"os\"\n\nos.Remove(path) error",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "How do you delete a file?",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-02T15:00:00Z",
+      "stats": [
+        {
+          "algorithm": "sm2",
+          "timestamp": "2022-02-03T17:00:00Z",
+          "score": 2,
+          "last_review": "2021-01-02T15:00:00Z",
+          "repetitions": 0,
+          "interval": 0.00,
+          "easiness_factor": 2.50
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "answer": "if _, ok := map[key]; ok {}",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "How do you check if a map has a certain key?",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-04T15:00:00Z",
+      "stats": [
+        {
+          "algorithm": "sm2",
+          "card_id": "2",
+          "timestamp": "2022-02-03T17:00:00Z",
+          "score": 2,
+          "last_review": "2021-01-02T15:00:00Z",
+          "repetitions": 0,
+          "interval": 0.00,
+          "easiness_factor": 2.50
+        },
+        {
+          "algorithm": "sm2",
+          "timestamp": "2022-02-03T17:00:00Z",
+          "score": 1,
+          "last_review": "2021-01-02T15:00:00Z",
+          "repetitions": 0,
+          "interval": 0.00,
+          "easiness_factor": 2.50
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "answer": "import \"os\"\n\nos.Mkdir(folder, 0755)",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "How do you create a directory?",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-04T15:00:00Z",
+      "stats": [
+        {
+          "algorithm": "sm2",
+          "timestamp": "2022-02-03T17:00:00Z",
+          "score": 4,
+          "last_review": "2021-01-02T15:00:00Z",
+          "repetitions": 0,
+          "interval": 0.00,
+          "easiness_factor": 2.50
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "answer": "import \"os\"\n\n content, error := os.ReadFile(path)",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "How do you read a whole file?",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-06T15:00:00Z",
+      "stats": [
+        {
+          "algorithm": "sm2",
+          "timestamp": "2022-02-03T17:00:00Z",
+          "score": 3,
+          "last_review": "2021-01-02T15:00:00Z",
+          "repetitions": 0,
+          "interval": 0.00,
+          "easiness_factor": 2.50
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "answer": "import \"time\"n\ntime.Sleep(time.Duration(3) * time.Second)",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "How do you sleep for x seconds?",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-06T15:00:00Z",
+      "stats": [
+        {
+          "algorithm": "sm2",
+          "timestamp": "2022-02-03T17:00:00Z",
+          "score": 3,
+          "last_review": "2021-01-02T15:00:00Z",
+          "repetitions": 0,
+          "interval": 0.00,
+          "easiness_factor": 2.50
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "answer": "import \"sort\"\n\nsort.Ints(array)",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "How do you sort an array of ints?",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-08T15:00:00Z",
+      "stats": [
+        {
+          "algorithm": "sm2",
+          "timestamp": "2022-02-03T17:00:00Z",
+          "score": 1,
+          "last_review": "2021-01-02T15:00:00Z",
+          "repetitions": 0,
+          "interval": 0.00,
+          "easiness_factor": 2.50
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "answer": "import \"os\"\n\nos.WriteFile(path, []byte(\"string\"), 0644)",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "How do you write a string to a file?",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-08T15:00:00Z",
+      "stats": [
+        {
+          "algorithm": "sm2",
+          "timestamp": "2022-02-03T17:00:00Z",
+          "score": 1,
+          "last_review": "2021-01-02T15:00:00Z",
+          "repetitions": 1,
+          "interval": 0.0,
+          "easiness_factor": 1.75
+        }
+      ]
+    }
+  ]
+}

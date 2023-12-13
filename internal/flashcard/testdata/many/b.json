@@ -1,0 +1,36 @@
+{
+  "name": "Golang B",
+  "id": "golang-b",
+  "cards": [
+    {
+      "id": "1",
+      "answer": "Answer A",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "Question A",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-08T15:04:05Z",
+      "stats": []
+    },
+    {
+      "id": "2",
+      "answer": "Answer B",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "Question B",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-08T15:04:05Z",
+      "stats": []
+    },
+    {
+      "id": "3",
+      "answer": "Answer C",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "Question C",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-08T15:04:05Z",
+      "stats": []
+    }
+  ]
+}

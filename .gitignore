@@ -1,0 +1,8 @@
+coverage*
+.tool-versions
+.idea
+.env
+./remember
+*.log
+.__dev
+dist/
