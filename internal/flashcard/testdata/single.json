@@ -1,0 +1,15 @@
+{
+  "name": "Single",
+  "id": "single",
+  "cards": [
+    {
+      "id": "1",
+      "answer": "if _, ok := map[key]; ok {}",
+      "easiness_factor": 2.5,
+      "interval": 0.0,
+      "question": "How do you check if a map has a certain key?",
+      "repetitions": 0,
+      "reviewed_at": "2021-01-02T15:04:05Z"
+    }
+  ]
+}

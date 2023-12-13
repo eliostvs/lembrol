@@ -1,0 +1,25 @@
+linters:
+  disable:
+    - scopelint
+    - exhaustive
+    - funlen
+    - contextcheck
+    - wastedassign
+    - gci
+  presets:
+    - bugs
+    - comment
+    - complexity
+    - error
+    - format
+    - import
+    - metalinter
+    - module
+    - performance
+    - test
+    - unused
+  fast: true
+linters-settings:
+  gosec:
+    config:
+      G306: "0644"

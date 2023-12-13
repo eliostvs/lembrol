@@ -1,0 +1,25 @@
+repos:
+  - repo: local
+    hooks:
+      - id: format
+        name: Formating files
+        language: system
+        entry: make format
+        stages: [commit]
+        types: [go]
+      - id: lint
+        always_run: true
+        entry: make test/lint
+        language: system
+        name: Running golang-ci
+        require_serial: true
+        stages: [push]
+        types: [go]
+      - id: test
+        always_run: true
+        entry: make test
+        language: system
+        name: Running tests
+        require_serial: true
+        stages: [push]
+        types: [go]
