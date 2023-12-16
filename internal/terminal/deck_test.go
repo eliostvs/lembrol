@@ -390,7 +390,7 @@ func TestDeckEdit(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "Edit Deck")
+			assert.Contains(t, view, "Edit")
 			assert.Contains(t, view, "ctrl+s confirm • esc cancel")
 		},
 	)
@@ -407,7 +407,7 @@ func TestDeckEdit(t *testing.T) {
 
 			assert.Contains(t, view, "Decks")
 			assert.Contains(t, view, activePrompt+"Golang B")
-			assert.NotContains(t, view, "Edit Deck")
+			assert.NotContains(t, view, "Edit")
 		},
 	)
 

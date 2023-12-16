@@ -7,6 +7,7 @@ import (
 )
 
 type errorModel struct {
+	Shared
 	err error
 }
 
@@ -19,12 +20,19 @@ func (m errorModel) Update(tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m errorModel) View() string {
-	return errorView(m.err.Error())
+	return errorView(m.styles, m.err.Error())
 }
 
-func errorView(err string) string {
+func errorView(styles *Styles, err string) string {
 	var content strings.Builder
-	content.WriteString(titleStyle.Render("Error"))
-	content.WriteString(Red.Render(err))
-	return largePaddingStyle.Render(content.String())
+	content.WriteString(styles.Title.Render("Error"))
+	content.WriteString(styles.DeletedStatus.Render(err))
+	return styles.Pagination.Render(content.String())
+}
+
+func newErrorModel(s Shared, err error) errorModel {
+	return errorModel{
+		Shared: s,
+		err:    err,
+	}
 }

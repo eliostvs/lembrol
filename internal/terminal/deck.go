@@ -74,14 +74,14 @@ func showDeleteDeck(model list.Model) tea.Cmd {
 	}
 }
 
-func createDeck(name string, common deckCommon) tea.Cmd {
+func createDeck(name string, shared deckShared) tea.Cmd {
 	return func() tea.Msg {
-		deck, err := common.repository.Create(name, nil)
+		deck, err := shared.repository.Create(name, nil)
 		if err != nil {
 			return fail(err)
 		}
 
-		return deckCreatedMsg{list: common.list, deck: deck}
+		return deckCreatedMsg{list: shared.list, deck: deck}
 	}
 }
 
@@ -178,12 +178,12 @@ func (k deckBrowseKeyMap) FullHelp() []key.Binding {
 	}
 }
 
-func newDeckBrowsePage(common deckCommon) deckBrowsePage {
-	common.list.SetSize(common.width, common.height)
-	common.delegate.Styles.SelectedTitle = selectedTitleStyle
-	common.delegate.Styles.SelectedDesc = selectedDescStyle
+func newDeckBrowsePage(shared deckShared) deckBrowsePage {
+	shared.list.SetSize(shared.width, shared.height)
+	shared.delegate.Styles.SelectedTitle = shared.styles.SelectedTitle
+	shared.delegate.Styles.SelectedDesc = shared.styles.SelectedDesc
 	return deckBrowsePage{
-		deckCommon: common,
+		deckShared: shared,
 		keyMap: deckBrowseKeyMap{
 			add: key.NewBinding(
 				key.WithKeys("a"),
@@ -210,7 +210,7 @@ func newDeckBrowsePage(common deckCommon) deckBrowsePage {
 }
 
 type deckBrowsePage struct {
-	deckCommon
+	deckShared
 	keyMap deckBrowseKeyMap
 }
 
@@ -285,7 +285,7 @@ func (m deckBrowsePage) checkKeyMap() deckBrowsePage {
 }
 
 func (m deckBrowsePage) View() string {
-	return midPaddingStyle.Render(m.list.View())
+	return m.styles.ListMargin.Render(m.list.View())
 }
 
 // Form Deck
@@ -306,7 +306,7 @@ func (k deckFormKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{}}
 }
 
-func newDeckForm(name string, common appCommon) (deckForm, tea.Cmd) {
+func newDeckForm(name string, shared Shared) (deckForm, tea.Cmd) {
 	input := textinput.New()
 	input.CharLimit = 30
 	input.SetValue(name)
@@ -323,11 +323,11 @@ func newDeckForm(name string, common appCommon) (deckForm, tea.Cmd) {
 		),
 	}
 
-	return deckForm{input: input, keyMap: keyMap, appCommon: common}, input.Focus()
+	return deckForm{input: input, keyMap: keyMap, Shared: shared}, input.Focus()
 }
 
 type deckForm struct {
-	appCommon
+	Shared
 	input  textinput.Model
 	keyMap deckFormKeyMap
 }
@@ -369,9 +369,9 @@ func (m deckForm) View() string {
 
 func (m deckForm) color() lipgloss.Style {
 	if m.isValid() {
-		return White
+		return lipgloss.NewStyle().Foreground(white)
 	}
-	return Red
+	return lipgloss.NewStyle().Foreground(red)
 }
 
 func (m deckForm) Value() string {
@@ -384,13 +384,13 @@ func (m deckForm) isValid() bool {
 
 // Add Deck
 
-func newDeckAddPage(common deckCommon) (deckAddPage, tea.Cmd) {
-	form, cmd := newDeckForm("", common.appCommon)
-	return deckAddPage{form: form, deckCommon: common}, cmd
+func newDeckAddPage(shared deckShared) (deckAddPage, tea.Cmd) {
+	form, cmd := newDeckForm("", shared.Shared)
+	return deckAddPage{form: form, deckShared: shared}, cmd
 }
 
 type deckAddPage struct {
-	deckCommon
+	deckShared
 	form deckForm
 }
 
@@ -405,7 +405,7 @@ func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case submittedFormMsg[textinput.Model]:
 		return m, tea.Batch(
 			showLoading("Deck", "Creating deck..."),
-			createDeck(msg.data.Value(), m.deckCommon),
+			createDeck(msg.data.Value(), m.deckShared),
 		)
 
 	case canceledFormMsg:
@@ -418,20 +418,20 @@ func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m deckAddPage) View() string {
 	var content strings.Builder
-	content.WriteString(titleStyle.Render("New Deck"))
+	content.WriteString(m.styles.Title.Render("New Deck"))
 	content.WriteString(m.form.View())
-	return largePaddingStyle.Render(content.String())
+	return m.styles.ListMargin.Render(content.String())
 }
 
 // Edit Deck
 
-func newEditDeckPage(deck flashcard.Deck, common deckCommon) (deckEditPage, tea.Cmd) {
-	form, cmd := newDeckForm(deck.Name, common.appCommon)
-	return deckEditPage{deck: deck, form: form, deckCommon: common}, cmd
+func newEditDeckPage(deck flashcard.Deck, shared deckShared) (deckEditPage, tea.Cmd) {
+	form, cmd := newDeckForm(deck.Name, shared.Shared)
+	return deckEditPage{deck: deck, form: form, deckShared: shared}, cmd
 }
 
 type deckEditPage struct {
-	deckCommon
+	deckShared
 	deck flashcard.Deck
 	form deckForm
 }
@@ -461,9 +461,9 @@ func (m deckEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m deckEditPage) View() string {
 	var content strings.Builder
-	content.WriteString(titleStyle.Render("Edit Deck"))
+	content.WriteString(m.styles.Title.Render("Edit"))
 	content.WriteString(m.form.View())
-	return largePaddingStyle.Render(content.String())
+	return m.styles.Margin.Render(content.String())
 }
 
 // Delete Deck
@@ -487,7 +487,7 @@ func (k deckDeleteKeyMap) FullHelp() []key.Binding {
 	}
 }
 
-func newDeleteDeckPage(common deckCommon) deckDeletePage {
+func newDeleteDeckPage(shared deckShared) deckDeletePage {
 	keyMap := deckDeleteKeyMap{
 		cancel: key.NewBinding(
 			key.WithKeys(tea.KeyEsc.String()),
@@ -499,32 +499,32 @@ func newDeleteDeckPage(common deckCommon) deckDeletePage {
 		),
 	}
 
-	common.list.SetSize(common.width, common.height)
-	common.delegate.Styles.SelectedTitle = deletedTitleStyle
-	common.delegate.Styles.SelectedDesc = deletedDescStyle
+	shared.list.SetSize(shared.width, shared.height)
+	shared.delegate.Styles.SelectedTitle = shared.styles.DeletedTitle
+	shared.delegate.Styles.SelectedDesc = shared.styles.DeletedDesc
 
-	common.list.AdditionalShortHelpKeys = keyMap.ShortHelp
-	common.list.AdditionalFullHelpKeys = keyMap.FullHelp
-	common.list.KeyMap.CloseFullHelp.SetEnabled(false)
-	common.list.KeyMap.CursorDown.SetEnabled(false)
-	common.list.KeyMap.CursorUp.SetEnabled(false)
-	common.list.KeyMap.Filter.SetEnabled(false)
-	common.list.KeyMap.GoToEnd.SetEnabled(false)
-	common.list.KeyMap.GoToStart.SetEnabled(false)
-	common.list.KeyMap.NextPage.SetEnabled(false)
-	common.list.KeyMap.PrevPage.SetEnabled(false)
-	common.list.KeyMap.ShowFullHelp.SetEnabled(false)
-	common.list.KeyMap.Quit.SetEnabled(false)
-	common.list.NewStatusMessage(Red.Render("Delete this deck?"))
+	shared.list.AdditionalShortHelpKeys = keyMap.ShortHelp
+	shared.list.AdditionalFullHelpKeys = keyMap.FullHelp
+	shared.list.KeyMap.CloseFullHelp.SetEnabled(false)
+	shared.list.KeyMap.CursorDown.SetEnabled(false)
+	shared.list.KeyMap.CursorUp.SetEnabled(false)
+	shared.list.KeyMap.Filter.SetEnabled(false)
+	shared.list.KeyMap.GoToEnd.SetEnabled(false)
+	shared.list.KeyMap.GoToStart.SetEnabled(false)
+	shared.list.KeyMap.NextPage.SetEnabled(false)
+	shared.list.KeyMap.PrevPage.SetEnabled(false)
+	shared.list.KeyMap.ShowFullHelp.SetEnabled(false)
+	shared.list.KeyMap.Quit.SetEnabled(false)
+	shared.list.NewStatusMessage(shared.styles.DeletedStatus.Render("Delete this deck?"))
 
 	return deckDeletePage{
-		deckCommon: common,
+		deckShared: shared,
 		keyMap:     keyMap,
 	}
 }
 
 type deckDeletePage struct {
-	deckCommon
+	deckShared
 	keyMap deckDeleteKeyMap
 }
 
@@ -558,37 +558,37 @@ func (m deckDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckDeletePage) View() string {
-	return midPaddingStyle.Render(m.list.View())
+	return m.styles.ListMargin.Render(m.list.View())
 }
 
 // Deck Page
 
-type deckCommon struct {
-	appCommon
+type deckShared struct {
+	Shared
 	list     list.Model
 	delegate *list.DefaultDelegate
 }
 
-func newDeckPage(index int, parent appCommon) deckPage {
+func newDeckPage(parent Shared, index int) deckPage {
 	delegate := list.NewDefaultDelegate()
-	common := deckCommon{
-		appCommon: parent,
-		delegate:  &delegate,
-		list:      list.New(newDeckItems(parent.repository.List()), &delegate, parent.width, parent.height),
+	shared := deckShared{
+		Shared:   parent,
+		delegate: &delegate,
+		list:     list.New(newDeckItems(parent.repository.List()), &delegate, parent.width, parent.height),
 	}
-	common.list.SetSize(parent.width, parent.height)
-	common.list.Select(index)
-	common.list.Title = "Decks"
-	common.list.Styles.NoItems = common.list.Styles.NoItems.Copy().Margin(0, 2)
+	shared.list.SetSize(parent.width, parent.height)
+	shared.list.Select(index)
+	shared.list.Title = "Decks"
+	shared.list.Styles.NoItems = shared.list.Styles.NoItems.Copy().Margin(0, 2)
 
 	return deckPage{
-		deckCommon: common,
-		page:       newDeckBrowsePage(common),
+		deckShared: shared,
+		page:       newDeckBrowsePage(shared),
 	}
 }
 
 type deckPage struct {
-	deckCommon
+	deckShared
 	page tea.Model
 }
 
@@ -601,34 +601,34 @@ func (m deckPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case showLoadingMsg:
-		m.page = newLoadingPage(msg.title, msg.description, m.appCommon)
+		m.page = newLoadingPage(m.Shared, msg.title, msg.description)
 		return m, m.page.Init()
 
 	case showBrowseDeckMsg:
 		m.list = msg.list
-		m.page = newDeckBrowsePage(m.deckCommon)
+		m.page = newDeckBrowsePage(m.deckShared)
 		return m, nil
 
 	case showAddDeckMsg:
 		m.list = msg.list
-		m.page, cmd = newDeckAddPage(m.deckCommon)
+		m.page, cmd = newDeckAddPage(m.deckShared)
 		return m, cmd
 
 	case showEditDeckMsg:
 		m.list = msg.list
-		m.page, cmd = newEditDeckPage(msg.deck, m.deckCommon)
+		m.page, cmd = newEditDeckPage(msg.deck, m.deckShared)
 		return m, cmd
 
 	case showDeleteDeckMsg:
 		m.list = msg.list
-		m.page = newDeleteDeckPage(m.deckCommon)
+		m.page = newDeleteDeckPage(m.deckShared)
 		return m, cmd
 
 	case deckCreatedMsg:
 		m.list = msg.list
 		m.list.InsertItem(m.list.Index(), deckItem{msg.deck})
 		m.list.ResetFilter()
-		m.page = newDeckBrowsePage(m.deckCommon)
+		m.page = newDeckBrowsePage(m.deckShared)
 		return m, nil
 
 	case deckChangedMsg:
@@ -636,14 +636,14 @@ func (m deckPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.RemoveItem(m.list.Index())
 		m.list.InsertItem(m.list.Index()-1, deckItem{msg.deck})
 		m.list.ResetFilter()
-		m.page = newDeckBrowsePage(m.deckCommon)
+		m.page = newDeckBrowsePage(m.deckShared)
 		return m, nil
 
 	case deckDeletedMsg:
 		m.list = msg.list
 		m.list.RemoveItem(m.list.Index())
 		m.list.ResetFilter()
-		m.page = newDeckBrowsePage(m.deckCommon)
+		m.page = newDeckBrowsePage(m.deckShared)
 		return m, nil
 	}
 

@@ -76,30 +76,30 @@ func showDeleteCard(model list.Model) tea.Cmd {
 	}
 }
 
-func createCard(question, answer string, common cardCommon) tea.Cmd {
+func createCard(question, answer string, shared cardShared) tea.Cmd {
 	return func() tea.Msg {
-		deck, card := common.deck.Add(question, answer)
-		if err := common.repository.Save(deck); err != nil {
+		deck, card := shared.deck.Add(question, answer)
+		if err := shared.repository.Save(deck); err != nil {
 			return fail(err)
 		}
-		return cardCreatedMsg{list: common.list, card: card, deck: deck}
+		return cardCreatedMsg{list: shared.list, card: card, deck: deck}
 	}
 }
 
-func updateCard(card flashcard.Card, common cardCommon) tea.Cmd {
+func updateCard(card flashcard.Card, shared cardShared) tea.Cmd {
 	return func() tea.Msg {
-		deck := common.deck.Change(card)
-		if err := common.repository.Save(deck); err != nil {
+		deck := shared.deck.Change(card)
+		if err := shared.repository.Save(deck); err != nil {
 			return fail(err)
 		}
-		return cardChangedMsg{list: common.list, deck: deck, card: card}
+		return cardChangedMsg{list: shared.list, deck: deck, card: card}
 	}
 }
 
-func deleteCard(model list.Model, card flashcard.Card, common cardCommon) tea.Cmd {
+func deleteCard(model list.Model, card flashcard.Card, shared cardShared) tea.Cmd {
 	return func() tea.Msg {
-		deck := common.deck.Remove(card)
-		if err := common.repository.Save(deck); err != nil {
+		deck := shared.deck.Remove(card)
+		if err := shared.repository.Save(deck); err != nil {
 			return fail(err)
 		}
 
@@ -182,13 +182,13 @@ func (k cardBrowseKeyMap) FullHelp() []key.Binding {
 	}
 }
 
-func newCardBrowsePage(common cardCommon) cardBrowsePage {
-	common.list.SetSize(common.width, common.height)
-	common.delegate.Styles.SelectedTitle = selectedTitleStyle
-	common.delegate.Styles.SelectedDesc = selectedDescStyle
+func newCardBrowsePage(shared cardShared) cardBrowsePage {
+	shared.list.SetSize(shared.width, shared.height)
+	shared.delegate.Styles.SelectedTitle = shared.styles.SelectedTitle
+	shared.delegate.Styles.SelectedDesc = shared.styles.SelectedDesc
 
 	return cardBrowsePage{
-		cardCommon: common,
+		cardShared: shared,
 		keyMap: cardBrowseKeyMap{
 			add: key.NewBinding(
 				key.WithKeys("a"),
@@ -215,7 +215,7 @@ func newCardBrowsePage(common cardCommon) cardBrowsePage {
 }
 
 type cardBrowsePage struct {
-	cardCommon
+	cardShared
 	keyMap cardBrowseKeyMap
 }
 
@@ -264,7 +264,7 @@ func (m cardBrowsePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m cardBrowsePage) View() string {
-	return midPaddingStyle.Render(m.list.View())
+	return m.styles.ListMargin.Render(m.list.View())
 }
 
 func (m cardBrowsePage) checkKeyMap() cardBrowsePage {
@@ -334,10 +334,10 @@ func (f field) Update(msg tea.Msg) (field, tea.Cmd) {
 }
 
 func (f field) View() string {
-	return White.Copy().Padding(1, 0).Render(f.Model.View())
+	return fieldStyle.Render(f.Model.View())
 }
 
-func newCardForm(question, answer string, common appCommon) (cardForm, tea.Cmd) {
+func newCardForm(question, answer string, shared Shared) (cardForm, tea.Cmd) {
 	var cmd tea.Cmd
 	keyMap := cardFormKeyMap{
 		submit: key.NewBinding(
@@ -359,7 +359,7 @@ func newCardForm(question, answer string, common appCommon) (cardForm, tea.Cmd) 
 	}
 
 	questionInput := textarea.New()
-	questionInput.SetWidth(common.width)
+	questionInput.SetWidth(shared.width)
 	questionInput.SetValue(breakLines(question))
 	questionInput.Placeholder = "Enter a question"
 	questionInput.ShowLineNumbers = false
@@ -367,7 +367,7 @@ func newCardForm(question, answer string, common appCommon) (cardForm, tea.Cmd) 
 	cmd = questionInput.Focus()
 
 	answerInput := textarea.New()
-	answerInput.SetWidth(common.width)
+	answerInput.SetWidth(shared.width)
 	answerInput.SetValue(breakLines(answer))
 	answerInput.Placeholder = "Enter an answer"
 	answerInput.ShowLineNumbers = false
@@ -375,8 +375,8 @@ func newCardForm(question, answer string, common appCommon) (cardForm, tea.Cmd) 
 	answerInput.Blur()
 
 	model := cardForm{
-		appCommon: common,
-		cursor:    newCursor(1),
+		Shared: shared,
+		cursor: newCursor(1),
 		fields: []field{
 			{Model: questionInput, name: "question"},
 			{Model: answerInput, name: "answer"},
@@ -388,7 +388,7 @@ func newCardForm(question, answer string, common appCommon) (cardForm, tea.Cmd) 
 }
 
 type cardForm struct {
-	appCommon
+	Shared
 	cursor cursor
 	fields []field
 	keyMap cardFormKeyMap
@@ -500,13 +500,13 @@ func (m cardForm) fieldsView() string {
 
 // Add Card
 
-func newCardAddPage(common cardCommon) (cardAddPage, tea.Cmd) {
-	form, cmd := newCardForm("", "", common.appCommon)
-	return cardAddPage{form: form, cardCommon: common}, cmd
+func newCardAddPage(shared cardShared) (cardAddPage, tea.Cmd) {
+	form, cmd := newCardForm("", "", shared.Shared)
+	return cardAddPage{form: form, cardShared: shared}, cmd
 }
 
 type cardAddPage struct {
-	cardCommon
+	cardShared
 	form cardForm
 }
 
@@ -521,7 +521,7 @@ func (m cardAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case submittedFormMsg[cardForm]:
 		return m, tea.Batch(
 			showLoading(m.deck.Name, "Creating card..."),
-			createCard(msg.data.Value("question"), m.form.Value("answer"), m.cardCommon),
+			createCard(msg.data.Value("question"), m.form.Value("answer"), m.cardShared),
 		)
 
 	case canceledFormMsg:
@@ -534,20 +534,20 @@ func (m cardAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m cardAddPage) View() string {
 	var content strings.Builder
-	content.WriteString(titleStyle.Render(m.deck.Name))
+	content.WriteString(m.styles.Title.Render(m.deck.Name))
 	content.WriteString(m.form.View())
-	return largePaddingStyle.Render(content.String())
+	return m.styles.Margin.Render(content.String())
 }
 
 // Edit Card
 
-func newCardEditPage(card flashcard.Card, common cardCommon) (cardEditPage, tea.Cmd) {
-	form, cmd := newCardForm(card.Question, card.Answer, common.appCommon)
-	return cardEditPage{card: card, form: form, cardCommon: common}, cmd
+func newCardEditPage(card flashcard.Card, shared cardShared) (cardEditPage, tea.Cmd) {
+	form, cmd := newCardForm(card.Question, card.Answer, shared.Shared)
+	return cardEditPage{card: card, form: form, cardShared: shared}, cmd
 }
 
 type cardEditPage struct {
-	cardCommon
+	cardShared
 	card flashcard.Card
 	form cardForm
 }
@@ -566,7 +566,7 @@ func (m cardEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, tea.Batch(
 			showLoading(m.deck.Name, "Updating card..."),
-			updateCard(m.card, m.cardCommon),
+			updateCard(m.card, m.cardShared),
 		)
 
 	case canceledFormMsg:
@@ -579,9 +579,9 @@ func (m cardEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m cardEditPage) View() string {
 	var content strings.Builder
-	content.WriteString(titleStyle.Render(m.deck.Name))
+	content.WriteString(m.styles.Title.Render("Edit"))
 	content.WriteString(m.form.View())
-	return largePaddingStyle.Render(content.String())
+	return m.styles.Margin.Render(content.String())
 }
 
 // Delete Card
@@ -605,7 +605,7 @@ func (k cardDeleteKeyMap) FullHelp() []key.Binding {
 	}
 }
 
-func newDeleteCardPage(common cardCommon) cardDeletePage {
+func newDeleteCardPage(shared cardShared) cardDeletePage {
 	keyMap := cardDeleteKeyMap{
 		cancel: key.NewBinding(
 			key.WithKeys(tea.KeyEsc.String()),
@@ -616,32 +616,32 @@ func newDeleteCardPage(common cardCommon) cardDeletePage {
 			key.WithHelp("enter", "confirm"),
 		),
 	}
-	common.delegate.Styles.SelectedTitle = deletedTitleStyle
-	common.delegate.Styles.SelectedDesc = deletedDescStyle
+	shared.delegate.Styles.SelectedTitle = shared.styles.DeletedTitle
+	shared.delegate.Styles.SelectedDesc = shared.styles.DeletedDesc
 
-	common.list.SetSize(common.width, common.height)
-	common.list.AdditionalShortHelpKeys = keyMap.ShortHelp
-	common.list.AdditionalFullHelpKeys = keyMap.FullHelp
-	common.list.KeyMap.CloseFullHelp.SetEnabled(false)
-	common.list.KeyMap.CursorDown.SetEnabled(false)
-	common.list.KeyMap.CursorUp.SetEnabled(false)
-	common.list.KeyMap.Filter.SetEnabled(false)
-	common.list.KeyMap.GoToEnd.SetEnabled(false)
-	common.list.KeyMap.GoToStart.SetEnabled(false)
-	common.list.KeyMap.NextPage.SetEnabled(false)
-	common.list.KeyMap.PrevPage.SetEnabled(false)
-	common.list.KeyMap.ShowFullHelp.SetEnabled(false)
-	common.list.KeyMap.Quit.SetEnabled(false)
-	common.list.NewStatusMessage(Red.Render("Delete this card?"))
+	shared.list.SetSize(shared.width, shared.height)
+	shared.list.AdditionalShortHelpKeys = keyMap.ShortHelp
+	shared.list.AdditionalFullHelpKeys = keyMap.FullHelp
+	shared.list.KeyMap.CloseFullHelp.SetEnabled(false)
+	shared.list.KeyMap.CursorDown.SetEnabled(false)
+	shared.list.KeyMap.CursorUp.SetEnabled(false)
+	shared.list.KeyMap.Filter.SetEnabled(false)
+	shared.list.KeyMap.GoToEnd.SetEnabled(false)
+	shared.list.KeyMap.GoToStart.SetEnabled(false)
+	shared.list.KeyMap.NextPage.SetEnabled(false)
+	shared.list.KeyMap.PrevPage.SetEnabled(false)
+	shared.list.KeyMap.ShowFullHelp.SetEnabled(false)
+	shared.list.KeyMap.Quit.SetEnabled(false)
+	shared.list.NewStatusMessage(shared.styles.DeletedStatus.Render("Delete this card?"))
 
 	return cardDeletePage{
-		cardCommon: common,
+		cardShared: shared,
 		keyMap:     keyMap,
 	}
 }
 
 type cardDeletePage struct {
-	cardCommon
+	cardShared
 	keyMap cardDeleteKeyMap
 }
 
@@ -662,7 +662,7 @@ func (m cardDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keyMap.confirm):
 			return m, tea.Batch(
 				showLoading("Cards", "Deleting card..."),
-				deleteCard(m.list, currentCard(m.list), m.cardCommon),
+				deleteCard(m.list, currentCard(m.list), m.cardShared),
 			)
 
 		case key.Matches(msg, m.keyMap.cancel):
@@ -675,38 +675,38 @@ func (m cardDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m cardDeletePage) View() string {
-	return midPaddingStyle.Render(m.list.View())
+	return m.styles.ListMargin.Render(m.list.View())
 }
 
 // Card Page
 
-func newCardPage(deck flashcard.Deck, parent appCommon) cardPage {
+func newCardPage(parent Shared, deck flashcard.Deck) cardPage {
 	delegate := list.NewDefaultDelegate()
-	common := cardCommon{
-		appCommon: parent,
-		delegate:  &delegate,
-		list:      list.New(newCardItems(deck.List(), parent.clock), &delegate, parent.width, parent.height),
-		deck:      deck,
+	shared := cardShared{
+		Shared:   parent,
+		delegate: &delegate,
+		list:     list.New(newCardItems(deck.List(), parent.clock), &delegate, parent.width, parent.height),
+		deck:     deck,
 	}
-	common.list.SetSize(common.width, common.height)
-	common.list.Title = deck.Name
-	common.list.Styles.NoItems = common.list.Styles.NoItems.Copy().Margin(0, 2)
+	shared.list.SetSize(shared.width, shared.height)
+	shared.list.Title = deck.Name
+	shared.list.Styles.NoItems = shared.list.Styles.NoItems.Copy().Margin(0, 2)
 
 	return cardPage{
-		cardCommon: common,
-		page:       newCardBrowsePage(common),
+		cardShared: shared,
+		page:       newCardBrowsePage(shared),
 	}
 }
 
-type cardCommon struct {
-	appCommon
+type cardShared struct {
+	Shared
 	deck     flashcard.Deck
 	delegate *list.DefaultDelegate
 	list     list.Model
 }
 
 type cardPage struct {
-	cardCommon
+	cardShared
 	page tea.Model
 }
 
@@ -719,27 +719,27 @@ func (m cardPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case showLoadingMsg:
-		m.page = newLoadingPage(msg.title, msg.description, m.appCommon)
+		m.page = newLoadingPage(m.Shared, msg.title, msg.description)
 		return m, m.page.Init()
 
 	case showBrowseCardMsg:
 		m.list = msg.list
-		m.page = newCardBrowsePage(m.cardCommon)
+		m.page = newCardBrowsePage(m.cardShared)
 		return m, nil
 
 	case showAddCardMsg:
 		m.list = msg.list
-		m.page, cmd = newCardAddPage(m.cardCommon)
+		m.page, cmd = newCardAddPage(m.cardShared)
 		return m, cmd
 
 	case showEditCardMsg:
 		m.list = msg.list
-		m.page, cmd = newCardEditPage(msg.card, m.cardCommon)
+		m.page, cmd = newCardEditPage(msg.card, m.cardShared)
 		return m, cmd
 
 	case showDeleteCardMsg:
 		m.list = msg.list
-		m.page = newDeleteCardPage(m.cardCommon)
+		m.page = newDeleteCardPage(m.cardShared)
 		return m, cmd
 
 	case cardCreatedMsg:
@@ -747,7 +747,7 @@ func (m cardPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.deck = msg.deck
 		m.list.InsertItem(m.list.Index(), cardItem{Card: msg.card, clock: m.clock})
 		m.list.ResetFilter()
-		m.page = newCardBrowsePage(m.cardCommon)
+		m.page = newCardBrowsePage(m.cardShared)
 		return m, nil
 
 	case cardChangedMsg:
@@ -756,7 +756,7 @@ func (m cardPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.RemoveItem(m.list.Index())
 		m.list.InsertItem(m.list.Index()-1, cardItem{Card: msg.card, clock: m.clock})
 		m.list.ResetFilter()
-		m.page = newCardBrowsePage(m.cardCommon)
+		m.page = newCardBrowsePage(m.cardShared)
 		return m, nil
 
 	case cardDeletedMsg:
@@ -764,7 +764,7 @@ func (m cardPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.deck = msg.deck
 		m.list.RemoveItem(m.list.Index())
 		m.list.ResetFilter()
-		m.page = newCardBrowsePage(m.cardCommon)
+		m.page = newCardBrowsePage(m.cardShared)
 		return m, nil
 	}
 

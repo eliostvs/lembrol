@@ -39,13 +39,13 @@ const (
 	statsLoaded
 )
 
-func newStatsModel(msg setStatsPageMsg, common appCommon) statsModel {
+func newStatsModel(shared Shared, msg setStatsPageMsg) statsModel {
 	return statsModel{
-		appCommon: common,
+		Shared:    shared,
 		card:      msg.card,
 		cardIndex: msg.cardIndex,
 		deck:      msg.deck,
-		loading:   newLoadingPage("Stats", "Loading...", common),
+		loading:   newLoadingPage(shared, "Stats", "Loading..."),
 		state:     statsLoading,
 		keyMap: statsKeyMap{
 			key.NewBinding(
@@ -70,7 +70,7 @@ type sparklineItem struct {
 }
 
 type statsModel struct {
-	appCommon
+	Shared
 	card      flashcard.Card
 	cardIndex int
 	deck      flashcard.Deck
@@ -182,13 +182,13 @@ func (m statsModel) View() string {
 func notStatsView(m statsModel) string {
 	var content strings.Builder
 
-	content.WriteString(titleStyle.Render("Stats"))
-	content.WriteString(Fuchsia.Copy().Margin(2, 0, 1).Render(m.card.Question))
+	content.WriteString(m.styles.Title.Render("Stats"))
+	content.WriteString(m.styles.SubTitle.Render(m.card.Question))
 	content.WriteString("\n")
-	content.WriteString(White.Render("No stats"))
+	content.WriteString(m.styles.Text.Render("No stats"))
 	content.WriteString("\n")
 	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
-	return largePaddingStyle.Render(content.String())
+	return m.styles.Margin.Render(content.String())
 }
 
 func cardStatsView(m statsModel) string {
@@ -198,20 +198,20 @@ func cardStatsView(m statsModel) string {
 	lastSession := m.sparkline[len(m.sparkline)-1].timestamp
 
 	var content strings.Builder
-	content.WriteString(titleStyle.Render("Stats"))
-	content.WriteString(Fuchsia.Copy().Margin(2, 0, 1).Render(m.card.Question))
+	content.WriteString(m.styles.Title.Render("Stats"))
+	content.WriteString(m.styles.SubTitle.Render(m.card.Question))
 	content.WriteString("\n")
-	content.WriteString(White.Copy().Align(lipgloss.Left).Render(firstSession.Format("02/01/2006")))
-	content.WriteString(White.Copy().Width(width * (sections - 1)).Align(lipgloss.Right).Render(lastSession.Format("02/01/2006")))
-	content.WriteString("\n\n")
+	content.WriteString(m.styles.Text.Copy().Align(lipgloss.Left).Render(firstSession.Format("02/01/2006")))
+	content.WriteString(m.styles.Text.Copy().Width(width * (sections - 1)).Align(lipgloss.Right).Render(lastSession.Format("02/01/2006")))
+	content.WriteString("\n")
 
-	headerStyle := DarkFuchsia.Copy().Width(width).Align(lipgloss.Left)
+	headerStyle := lipgloss.NewStyle().Foreground(darkFuchsia).Width(width).Align(lipgloss.Left)
 	for _, header := range []string{"TOTAL", "HARD", "NORMAL", "EASY", "VERY EASY"} {
 		content.WriteString(headerStyle.Render(header))
 	}
 	content.WriteString("\n")
 
-	totalStyle := White.Copy().Width(width).Align(lipgloss.Left)
+	totalStyle := m.styles.Text.Copy().Width(width).Align(lipgloss.Left)
 	totals := []flashcard.ReviewScore{
 		flashcard.ReviewScoreAgain,
 		flashcard.ReviewScoreHard,
@@ -230,12 +230,5 @@ func cardStatsView(m statsModel) string {
 	content.WriteString("\n")
 
 	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
-	return largePaddingStyle.Render(content.String())
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+	return m.styles.Margin.Render(content.String())
 }
