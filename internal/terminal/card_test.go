@@ -14,14 +14,13 @@ import (
 )
 
 func TestCardsList(t *testing.T) {
-	// t.Parallel()
+	t.Parallel()
 
 	t.Run(
 		"shows deck with no cards", func(t *testing.T) {
 			view := newTestModel(t, emptyDeck).
 				Init().
 				SendKeyType(tea.KeyEnter).
-				Print().
 				Get().
 				View()
 
@@ -400,7 +399,7 @@ func TestCardEdit(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "Golang One")
+			assert.Contains(t, view, "Edit")
 			assert.Contains(t, view, "┃ "+latestCard.Question)
 			assert.Contains(t, view, "┃ "+latestCard.Answer)
 			assert.Contains(t, view, "↓ down • ↑ up • ctrl+s confirm • esc cancel")
