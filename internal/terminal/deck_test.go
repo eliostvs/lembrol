@@ -88,22 +88,22 @@ func TestDecksList(t *testing.T) {
 				want string
 			}{
 				{
-					name: "move down using arrows keys",
+					name: "using arrow keys 1",
 					keys: []string{tea.KeyDown.String()},
 					want: activePrompt + "Golang B",
 				},
 				{
-					name: "move down, down, down using vim keys",
+					name: "using vim keys 1",
 					keys: []string{keyDown, keyDown, keyDown},
 					want: activePrompt + "Golang D",
 				},
 				{
-					name: "move down, up, up using arrow keys",
+					name: "using arrow keys 2",
 					keys: []string{tea.KeyDown.String(), tea.KeyUp.String(), tea.KeyUp.String()},
 					want: activePrompt + "Golang A",
 				},
 				{
-					name: "move down, up, up using vim key",
+					name: "using vim keys 2",
 					keys: []string{keyDown, keyUp, keyUp},
 					want: activePrompt + "Golang A",
 				},
