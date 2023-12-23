@@ -95,7 +95,7 @@ func TestCardsList(t *testing.T) {
 			assert.Contains(
 				t,
 				view,
-				"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididu…",
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt…",
 			)
 		},
 	)

@@ -306,11 +306,12 @@ func (k deckFormKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{}}
 }
 
-func newDeckForm(name string, shared Shared) (deckForm, tea.Cmd) {
+func newDeckForm(name string, shared Shared) deckForm {
 	input := textinput.New()
 	input.CharLimit = 30
 	input.SetValue(name)
 	input.CursorEnd()
+	input.Focus()
 	input.Prompt = "┃ "
 	keyMap := deckFormKeyMap{
 		confirm: key.NewBinding(
@@ -323,7 +324,7 @@ func newDeckForm(name string, shared Shared) (deckForm, tea.Cmd) {
 		),
 	}
 
-	return deckForm{input: input, keyMap: keyMap, Shared: shared}, input.Focus()
+	return deckForm{input: input, keyMap: keyMap, Shared: shared}
 }
 
 type deckForm struct {
@@ -333,7 +334,7 @@ type deckForm struct {
 }
 
 func (m deckForm) Init() tea.Cmd {
-	return nil
+	return m.input.Focus()
 }
 
 func (m deckForm) Update(msg tea.Msg) (deckForm, tea.Cmd) {
@@ -384,9 +385,8 @@ func (m deckForm) isValid() bool {
 
 // Add Deck
 
-func newDeckAddPage(shared deckShared) (deckAddPage, tea.Cmd) {
-	form, cmd := newDeckForm("", shared.Shared)
-	return deckAddPage{form: form, deckShared: shared}, cmd
+func newDeckAddPage(shared deckShared) deckAddPage {
+	return deckAddPage{form: newDeckForm("", shared.Shared), deckShared: shared}
 }
 
 type deckAddPage struct {
@@ -395,7 +395,7 @@ type deckAddPage struct {
 }
 
 func (m deckAddPage) Init() tea.Cmd {
-	return nil
+	return m.form.Init()
 }
 
 func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -425,9 +425,8 @@ func (m deckAddPage) View() string {
 
 // Edit Deck
 
-func newEditDeckPage(deck flashcard.Deck, shared deckShared) (deckEditPage, tea.Cmd) {
-	form, cmd := newDeckForm(deck.Name, shared.Shared)
-	return deckEditPage{deck: deck, form: form, deckShared: shared}, cmd
+func newEditDeckPage(deck flashcard.Deck, shared deckShared) deckEditPage {
+	return deckEditPage{deck: deck, form: newDeckForm(deck.Name, shared.Shared), deckShared: shared}
 }
 
 type deckEditPage struct {
@@ -437,7 +436,7 @@ type deckEditPage struct {
 }
 
 func (m deckEditPage) Init() tea.Cmd {
-	return nil
+	return m.form.Init()
 }
 
 func (m deckEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -611,13 +610,13 @@ func (m deckPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case showAddDeckMsg:
 		m.list = msg.list
-		m.page, cmd = newDeckAddPage(m.deckShared)
-		return m, cmd
+		m.page = newDeckAddPage(m.deckShared)
+		return m, m.page.Init()
 
 	case showEditDeckMsg:
 		m.list = msg.list
-		m.page, cmd = newEditDeckPage(msg.deck, m.deckShared)
-		return m, cmd
+		m.page = newEditDeckPage(msg.deck, m.deckShared)
+		return m, m.page.Init()
 
 	case showDeleteDeckMsg:
 		m.list = msg.list
