@@ -37,8 +37,7 @@ func WithWindowSize(width, height int) ModelOption {
 }
 
 func calcInnerWindowSize(style lipgloss.Style, msg tea.WindowSizeMsg) (int, int) {
-	topGap, rightGap, bottomGap, leftGap := style.GetPadding()
-	return msg.Width - leftGap - rightGap - 2, msg.Height - topGap - bottomGap
+	return msg.Width - style.GetHorizontalFrameSize(), msg.Height - style.GetVerticalFrameSize()
 }
 
 // Repository wraps the file system operation
