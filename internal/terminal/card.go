@@ -337,8 +337,7 @@ func (f field) View() string {
 	return fieldStyle.Render(f.Model.View())
 }
 
-func newCardForm(question, answer string, shared Shared) (cardForm, tea.Cmd) {
-	var cmd tea.Cmd
+func newCardForm(question, answer string, shared Shared) cardForm {
 	keyMap := cardFormKeyMap{
 		submit: key.NewBinding(
 			key.WithKeys("ctrl+s"),
@@ -364,7 +363,7 @@ func newCardForm(question, answer string, shared Shared) (cardForm, tea.Cmd) {
 	questionInput.Placeholder = "Enter a question"
 	questionInput.ShowLineNumbers = false
 	questionInput.CursorEnd()
-	cmd = questionInput.Focus()
+	questionInput.Focus()
 
 	answerInput := textarea.New()
 	answerInput.SetWidth(shared.width)
@@ -384,7 +383,7 @@ func newCardForm(question, answer string, shared Shared) (cardForm, tea.Cmd) {
 		keyMap: keyMap,
 	}
 
-	return model, cmd
+	return model
 }
 
 type cardForm struct {
@@ -395,7 +394,7 @@ type cardForm struct {
 }
 
 func (m cardForm) Init() tea.Cmd {
-	return nil
+	return m.fields[0].Focus()
 }
 
 func (m cardForm) focus(index int) (cardForm, tea.Cmd) {
@@ -500,9 +499,8 @@ func (m cardForm) fieldsView() string {
 
 // Add Card
 
-func newCardAddPage(shared cardShared) (cardAddPage, tea.Cmd) {
-	form, cmd := newCardForm("", "", shared.Shared)
-	return cardAddPage{form: form, cardShared: shared}, cmd
+func newCardAddPage(shared cardShared) cardAddPage {
+	return cardAddPage{form: newCardForm("", "", shared.Shared), cardShared: shared}
 }
 
 type cardAddPage struct {
@@ -511,7 +509,7 @@ type cardAddPage struct {
 }
 
 func (m cardAddPage) Init() tea.Cmd {
-	return nil
+	return m.form.Init()
 }
 
 func (m cardAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -541,9 +539,8 @@ func (m cardAddPage) View() string {
 
 // Edit Card
 
-func newCardEditPage(card flashcard.Card, shared cardShared) (cardEditPage, tea.Cmd) {
-	form, cmd := newCardForm(card.Question, card.Answer, shared.Shared)
-	return cardEditPage{card: card, form: form, cardShared: shared}, cmd
+func newCardEditPage(card flashcard.Card, shared cardShared) cardEditPage {
+	return cardEditPage{card: card, form: newCardForm(card.Question, card.Answer, shared.Shared), cardShared: shared}
 }
 
 type cardEditPage struct {
@@ -729,12 +726,12 @@ func (m cardPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case showAddCardMsg:
 		m.list = msg.list
-		m.page, cmd = newCardAddPage(m.cardShared)
+		m.page = newCardAddPage(m.cardShared)
 		return m, cmd
 
 	case showEditCardMsg:
 		m.list = msg.list
-		m.page, cmd = newCardEditPage(msg.card, m.cardShared)
+		m.page = newCardEditPage(msg.card, m.cardShared)
 		return m, cmd
 
 	case showDeleteCardMsg:
