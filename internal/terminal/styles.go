@@ -26,45 +26,61 @@ const (
 )
 
 var (
-	Fuchsia     = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#EE6FF8", Light: "#EE6FF8"})
-	DarkFuchsia = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#AD58B4", Light: "#F793FF"})
-	Red         = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#ED567A", Light: "#FF4672"})
-	DarkRed     = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#C74665", Light: "#FF6F91"})
-	White       = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "#DDDDDD", Light: "#1A1A1A"})
-
-	midPaddingStyle   = lipgloss.NewStyle().Padding(1, 2)
-	largePaddingStyle = lipgloss.NewStyle().Padding(1, 4)
-
-	titleStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.AdaptiveColor{Dark: "#FFFDF5", Light: "#FFFDF5"}).
-			Background(lipgloss.Color("#5A56E0")).
-			Padding(0, 1)
-
-	subTitleStyle = Fuchsia.
-			Copy().
-			Padding(2, 0, 1)
-
-	paginationStyle = DarkFuchsia.
-			Copy().
-			Margin(1, 0)
-
-	normalTextStyle = list.NewDefaultItemStyles().
-			NormalTitle.
-			Copy().
-			Padding(2, 0)
-
-	selectedTitleStyle = list.NewDefaultItemStyles().SelectedTitle
-
-	selectedDescStyle = list.NewDefaultItemStyles().SelectedDesc
-
-	deletedDescStyle = deletedTitleStyle.Copy().
-				Foreground(DarkRed.GetForeground())
-
-	deletedTitleStyle = Red.Copy().
-				Border(lipgloss.NormalBorder(), false, false, false, true).
-				Padding(0, 0, 0, 1).
-				BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"})
+	fuchsia     = lipgloss.AdaptiveColor{Dark: "#EE6FF8", Light: "#EE6FF8"}
+	darkFuchsia = lipgloss.AdaptiveColor{Dark: "#AD58B4", Light: "#F793FF"}
+	red         = lipgloss.AdaptiveColor{Dark: "#ED567A", Light: "#FF4672"}
+	darkRed     = lipgloss.AdaptiveColor{Dark: "#C74665", Light: "#FF6F91"}
+	white       = lipgloss.AdaptiveColor{Dark: "#DDDDDD", Light: "#1A1A1A"}
+	largeSpace  = lipgloss.NewStyle().Padding(1, 4)
+	fieldStyle  = lipgloss.NewStyle().Foreground(white).Padding(1, 0)
 )
+
+type Styles struct {
+	ListMargin,
+	Margin,
+	Title,
+	NormalTitle,
+	SubTitle,
+	Pagination,
+	Text,
+	SelectedTitle,
+	SelectedDesc,
+	DeletedTitle,
+	DeletedDesc,
+	DeletedStatus,
+	Help lipgloss.Style
+}
+
+func NewStyles(lg *lipgloss.Renderer) *Styles {
+	s := Styles{}
+	s.ListMargin = lg.NewStyle().Padding(1, 2)
+	s.Margin = lg.NewStyle().Padding(1, 4)
+	s.Title = lg.NewStyle().
+		Foreground(lipgloss.AdaptiveColor{Dark: "#FFFDF5", Light: "#FFFDF5"}).
+		Background(lipgloss.Color("#5A56E0")).
+		Padding(0, 1)
+	s.SubTitle = lg.NewStyle().
+		Foreground(fuchsia).
+		Padding(2, 0, 1)
+	s.Text = lg.NewStyle().Foreground(white)
+	s.Pagination = lg.NewStyle().
+		Foreground(darkRed).
+		Margin(1, 0)
+	s.NormalTitle = list.NewDefaultItemStyles().
+		NormalTitle.
+		Copy().
+		Padding(2, 0)
+	s.SelectedTitle = list.NewDefaultItemStyles().SelectedTitle
+	s.SelectedDesc = list.NewDefaultItemStyles().SelectedDesc
+	s.DeletedTitle = lg.NewStyle().
+		Foreground(red).
+		Border(lipgloss.NormalBorder(), false, false, false, true).
+		BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
+		Padding(0, 0, 0, 1)
+	s.DeletedDesc = s.DeletedTitle.Copy().Foreground(darkRed)
+	s.DeletedStatus = lg.NewStyle().Foreground(red)
+	return &s
+}
 
 func naturalTime(t time.Time) string {
 	if time.Now().Sub(t) < time.Minute {

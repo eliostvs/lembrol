@@ -4,11 +4,12 @@ import (
 	"container/list"
 	"errors"
 	"fmt"
-	"github.com/eliostvs/lembrol/internal/test"
 	"os"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/eliostvs/lembrol/internal/test"
 
 	tea "github.com/charmbracelet/bubbletea"
 

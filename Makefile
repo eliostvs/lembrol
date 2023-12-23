@@ -14,7 +14,7 @@ SHELL          = bash
 BINARY         = lembrol
 BINARY_DIR     = ./cmd/$(BINARY)
 DEV_MARKER     = .__dev
-LINTER         = v1.48.0
+LINTER         = v1.55.2
 OSFLAG         ?=
 PROFILE_COV    = coverage.cov
 REPORT_COV     = coverage.html
@@ -46,9 +46,9 @@ $(DEV_MARKER):
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOBIN) $(LINTER)
 	touch $(DEV_MARKER)
 
-## init: prepare development environment
-init: $(DEV_MARKER)
-.PHONY: init
+## dev: prepare development environment
+dev: $(DEV_MARKER)
+.PHONY: dev
 
 ## deps-outdated: list outdated dependencies
 deps-outdated:
@@ -67,28 +67,28 @@ deps-upgrade: deps-tidy
 .PHONY: deps-upgrade
 
 ## build: create snapshot release
-build: init
+build: dev
 	go run github.com/goreleaser/goreleaser@latest build --clean --snapshot --single-target
 .PHONY: build
 
 ## run [args]: run app in development mode
-run: init
+run: dev
 	go run $(BINARY_DIR) --log $(args)
 .PHONY: run
 
 ## format: format files
-format: init
+format: dev
 	go run golang.org/x/tools/cmd/goimports@latest -l -w .
 	go run mvdan.cc/gofumpt@latest -l -w .
 .PHONY: format
 
 ## lint: run lint
-lint: init
+lint: dev
 	golangci-lint run
 .PHONY: lint
 
 ## test [args] [pkg]: run unit tests
-test: init
+test: dev
 	go test $(args) -race -shuffle=on -cover -coverprofile=${PROFILE_COV} $(pkg)
 .PHONY: test
 

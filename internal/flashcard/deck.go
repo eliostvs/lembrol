@@ -2,8 +2,9 @@ package flashcard
 
 import (
 	"errors"
-	"github.com/avelino/slugify"
 	"sort"
+
+	"github.com/avelino/slugify"
 
 	"github.com/eliostvs/lembrol/internal/clock"
 )

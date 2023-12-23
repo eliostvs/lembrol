@@ -98,9 +98,9 @@ func (k questionKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-func newQuestionPage(common reviewCommon) questionPage {
+func newQuestionPage(shared reviewShared) questionPage {
 	return questionPage{
-		reviewCommon: common,
+		reviewShared: shared,
 		keyMap: questionKeyMap{
 			answer: key.NewBinding(
 				key.WithKeys("enter"),
@@ -119,7 +119,7 @@ func newQuestionPage(common reviewCommon) questionPage {
 }
 
 type questionPage struct {
-	reviewCommon
+	reviewShared
 	keyMap questionKeyMap
 }
 
@@ -158,24 +158,24 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m questionPage) View() string {
 	var content strings.Builder
 
-	content.WriteString(titleStyle.Render("Question"))
-	content.WriteString(subTitleStyle.Render(m.review.Deck.Name))
-	content.WriteString(paginationStyle.Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total())))
+	content.WriteString(m.styles.Title.Render("Question"))
+	content.WriteString(m.styles.SubTitle.Render(m.review.Deck.Name))
+	content.WriteString(m.styles.Margin.Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total())))
 
 	card, err := m.review.Card()
 	if err != nil {
-		return errorView(err.Error())
+		return errorView(m.styles, err.Error())
 	}
 
 	markdown, err := RenderMarkdown(card.Question, m.width)
 	if err != nil {
-		return errorView(err.Error())
+		return errorView(m.styles, err.Error())
 	}
 
 	content.WriteString(markdown)
 	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
 
-	return largePaddingStyle.Render(content.String())
+	return m.styles.Margin.Render(content.String())
 }
 
 // Answer Page
@@ -206,9 +206,9 @@ func (k answerKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-func newAnswerPage(common reviewCommon) answerPage {
+func newAnswerPage(shared reviewShared) answerPage {
 	return answerPage{
-		reviewCommon: common,
+		reviewShared: shared,
 		keyMap: answerKeyMap{
 			score: key.NewBinding(
 				key.WithKeys("0", "1", "2", "3", "4"),
@@ -251,7 +251,7 @@ func newAnswerPage(common reviewCommon) answerPage {
 }
 
 type answerPage struct {
-	reviewCommon
+	reviewShared
 	keyMap   answerKeyMap
 	fullHelp bool
 }
@@ -295,23 +295,23 @@ func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m answerPage) View() string {
 	var content strings.Builder
 
-	content.WriteString(titleStyle.Render("Answer"))
-	content.WriteString(subTitleStyle.Render(m.review.Deck.Name))
-	content.WriteString(paginationStyle.Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total())))
+	content.WriteString(m.styles.Title.Render("Answer"))
+	content.WriteString(m.styles.SubTitle.Render(m.review.Deck.Name))
+	content.WriteString(m.styles.Margin.Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total())))
 
 	card, err := m.review.Card()
 	if err != nil {
-		return errorView(err.Error())
+		return errorView(m.styles, err.Error())
 	}
 
 	markdown, err := RenderMarkdown(card.Answer, m.width)
 	if err != nil {
-		return errorView(err.Error())
+		return errorView(m.styles, err.Error())
 	}
 
 	content.WriteString(markdown)
 	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), m.fullHelp))
-	return largePaddingStyle.Render(content.String())
+	return m.styles.Margin.Render(content.String())
 }
 
 // Review Summary Page
@@ -328,9 +328,9 @@ func (k reviewSummaryKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.quit}}
 }
 
-func newReviewSummaryPage(common reviewCommon) reviewSummaryPage {
+func newReviewSummaryPage(shared reviewShared) reviewSummaryPage {
 	return reviewSummaryPage{
-		reviewCommon: common,
+		reviewShared: shared,
 		keyMap: reviewSummaryKeyMap{
 			quit: key.NewBinding(
 				key.WithKeys("q", "esc"),
@@ -341,7 +341,7 @@ func newReviewSummaryPage(common reviewCommon) reviewSummaryPage {
 }
 
 type reviewSummaryPage struct {
-	reviewCommon
+	reviewShared
 	keyMap reviewSummaryKeyMap
 }
 
@@ -369,34 +369,34 @@ func (m reviewSummaryPage) View() string {
 	completed := m.review.Completed
 
 	var content strings.Builder
-	content.WriteString(titleStyle.Render("Congratulations!"))
-	content.WriteString(normalTextStyle.Render(fmt.Sprintf("%d card%s reviewed.", completed, pluralize(completed, "s"))))
+	content.WriteString(m.styles.Title.Render("Congratulations!"))
+	content.WriteString(m.styles.SubTitle.Render(fmt.Sprintf("%d card%s reviewed.", completed, pluralize(completed, "s"))))
 
 	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
-	return largePaddingStyle.Render(content.String())
+	return m.styles.Margin.Render(content.String())
 }
 
 // Review SubPage
 
-func newReviewPage(review flashcard.Review, parent appCommon) reviewPage {
-	common := reviewCommon{
-		appCommon: parent,
-		review:    review,
+func newReviewPage(shared Shared, review flashcard.Review) reviewPage {
+	rs := reviewShared{
+		Shared: shared,
+		review: review,
 	}
 
 	return reviewPage{
-		reviewCommon: common,
-		page:         newQuestionPage(common),
+		reviewShared: rs,
+		page:         newQuestionPage(rs),
 	}
 }
 
-type reviewCommon struct {
-	appCommon
+type reviewShared struct {
+	Shared
 	review flashcard.Review
 }
 
 type reviewPage struct {
-	reviewCommon
+	reviewShared
 	page tea.Model
 }
 
@@ -411,22 +411,22 @@ func (m reviewPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case showLoadingMsg:
-		m.page = newLoadingPage(msg.title, msg.description, m.appCommon)
+		m.page = newLoadingPage(m.Shared, msg.title, msg.description)
 		return m, m.page.Init()
 
 	case showAnswerMsg:
 		m.review = msg.Review
-		m.page = newAnswerPage(m.reviewCommon)
+		m.page = newAnswerPage(m.reviewShared)
 		return m, m.page.Init()
 
 	case showQuestionMsg:
 		m.review = msg.Review
-		m.page = newQuestionPage(m.reviewCommon)
+		m.page = newQuestionPage(m.reviewShared)
 		return m, m.page.Init()
 
 	case showReviewSummaryMsg:
 		m.review = msg.Review
-		m.page = newReviewSummaryPage(m.reviewCommon)
+		m.page = newReviewSummaryPage(m.reviewShared)
 		return m, m.page.Init()
 	}
 

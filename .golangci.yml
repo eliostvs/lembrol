@@ -6,6 +6,8 @@ linters:
     - contextcheck
     - wastedassign
     - gci
+    - depguard
+    - tagalign
   presets:
     - bugs
     - comment

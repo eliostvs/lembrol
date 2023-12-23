@@ -28,7 +28,7 @@ func WithClock(clock clock.Clock) ModelOption {
 func WithWindowSize(width, height int) ModelOption {
 	return func(m *Model) {
 		m.width, m.height = calcInnerWindowSize(
-			largePaddingStyle, tea.WindowSizeMsg{
+			largeSpace, tea.WindowSizeMsg{
 				Width:  width,
 				Height: height,
 			},
@@ -37,8 +37,7 @@ func WithWindowSize(width, height int) ModelOption {
 }
 
 func calcInnerWindowSize(style lipgloss.Style, msg tea.WindowSizeMsg) (int, int) {
-	topGap, rightGap, bottomGap, leftGap := style.GetPadding()
-	return msg.Width - leftGap - rightGap - 2, msg.Height - topGap - bottomGap
+	return msg.Width - style.GetHorizontalFrameSize(), msg.Height - style.GetVerticalFrameSize()
 }
 
 // Repository wraps the file system operation
@@ -63,14 +62,16 @@ type createdRepositoryMsg struct {
 
 // NewModel creates a new model instance given a decks location.
 func NewModel(path string, opts ...ModelOption) Model {
+	shared := Shared{
+		clock:  clock.New(),
+		styles: NewStyles(lipgloss.DefaultRenderer()),
+	}
 	m := Model{
-		page: newLoadingPage(appName, "Loading...", appCommon{}),
+		page: newLoadingPage(shared, appName, "Loading..."),
 		repositoryFactory: func(c clock.Clock) (Repository, error) {
 			return flashcard.NewRepository(path, c)
 		},
-		appCommon: appCommon{
-			clock: clock.New(),
-		},
+		Shared: shared,
 	}
 
 	for _, opt := range opts {
@@ -80,17 +81,18 @@ func NewModel(path string, opts ...ModelOption) Model {
 	return m
 }
 
-type appCommon struct {
+type Shared struct {
 	repository Repository
 	clock      clock.Clock
 	width      int
 	height     int
+	styles     *Styles
 }
 
 type Model struct {
 	repositoryFactory func(clock.Clock) (Repository, error)
 	page              tea.Model
-	appCommon
+	Shared
 }
 
 // MESSAGES
@@ -182,36 +184,36 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.width, m.height = calcInnerWindowSize(largePaddingStyle, msg)
+		m.width, m.height = calcInnerWindowSize(m.styles.Margin, msg)
 		return m, changeInnerWindowSize(m.width, m.height)
 
 	case createdRepositoryMsg:
 		m.repository = msg.repository
-		m.page = newDeckPage(0, m.appCommon)
+		m.page = newDeckPage(m.Shared, 0)
 		return m, m.page.Init()
 
 	case setDecksPageMsg:
-		m.page = newDeckPage(0, m.appCommon)
+		m.page = newDeckPage(m.Shared, 0)
 		return m, m.page.Init()
 
 	case setCardsPageMsg:
-		m.page = newCardPage(msg.deck, m.appCommon)
+		m.page = newCardPage(m.Shared, msg.deck)
 		return m, m.page.Init()
 
 	case setStatsPageMsg:
-		m.page = newStatsModel(msg, m.appCommon)
+		m.page = newStatsModel(m.Shared, msg)
 		return m, m.page.Init()
 
 	case setReviewPageMsg:
-		m.page = newReviewPage(flashcard.NewReview(msg.Deck, m.clock), m.appCommon)
+		m.page = newReviewPage(m.Shared, flashcard.NewReview(msg.Deck, m.clock))
 		return m, m.page.Init()
 
 	case setErrorPageMsg:
-		m.page = errorModel{msg.err}
+		m.page = newErrorModel(m.Shared, msg.err)
 		return m, tea.Quit
 
 	case setQuitPageMsg:
-		m.page = quitModel{m.repository}
+		m.page = newQuitModel(m.Shared, m.repository)
 		return m, m.page.Init()
 	}
 

@@ -33,12 +33,12 @@ func (k loadingKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.forceQuit}}
 }
 
-func newLoadingPage(title, description string, common appCommon) loadingPage {
+func newLoadingPage(shared Shared, title, description string) loadingPage {
 	return loadingPage{
 		spinner:     spinner.New(spinner.WithSpinner(spinner.Dot)),
 		title:       title,
 		description: description,
-		appCommon:   common,
+		Shared:      shared,
 		keyMap: loadingKeyMap{
 			forceQuit: key.NewBinding(
 				key.WithKeys("ctrl+c"),
@@ -49,7 +49,7 @@ func newLoadingPage(title, description string, common appCommon) loadingPage {
 }
 
 type loadingPage struct {
-	appCommon
+	Shared
 	title       string
 	description string
 	spinner     spinner.Model
@@ -81,8 +81,8 @@ func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m loadingPage) View() string {
 	var content strings.Builder
-	content.WriteString(titleStyle.Render(m.title))
-	content.WriteString(normalTextStyle.Render(fmt.Sprintf("%s %s", m.spinner.View(), m.description)))
+	content.WriteString(m.styles.Title.Render(m.title))
+	content.WriteString(m.styles.Text.Render(fmt.Sprintf("%s %s", m.spinner.View(), m.description)))
 	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
-	return largePaddingStyle.Render(content.String())
+	return m.styles.Margin.Render(content.String())
 }
