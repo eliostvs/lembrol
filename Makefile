@@ -64,6 +64,7 @@ deps-tidy:
 ## deps-upgrade [pkg]: upgrade dependencies
 deps-upgrade: deps-tidy
 	go get -u $(pkg)
+	go mod download
 .PHONY: deps-upgrade
 
 ## build: create snapshot release
