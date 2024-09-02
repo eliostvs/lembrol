@@ -82,6 +82,7 @@ func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m loadingPage) View() string {
 	var content strings.Builder
 	content.WriteString(m.styles.Title.Render(m.title))
+	content.WriteString("\n\n")
 	content.WriteString(m.styles.Text.Render(fmt.Sprintf("%s %s", m.spinner.View(), m.description)))
 	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
 	return m.styles.Margin.Render(content.String())
