@@ -213,7 +213,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 
 	case setQuitPageMsg:
-		m.page = newQuitModel(m.Shared, m.repository)
+		m.page = newQuitModel(m.Shared)
 		return m, m.page.Init()
 	}
 
