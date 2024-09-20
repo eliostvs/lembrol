@@ -2,8 +2,8 @@ package terminal
 
 import (
 	"fmt"
-	"strings"
 
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
@@ -64,7 +64,7 @@ func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case innerWindowSizeMsg:
+	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
@@ -80,10 +80,25 @@ func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m loadingPage) View() string {
-	var content strings.Builder
-	content.WriteString(m.styles.Title.Render(m.title))
-	content.WriteString("\n\n")
-	content.WriteString(m.styles.Text.Render(fmt.Sprintf("%s %s", m.spinner.View(), m.description)))
-	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
-	return m.styles.Margin.Render(content.String())
+	header := m.styles.Title.
+		Margin(1, 2).
+		Render(m.title)
+
+	v := help.New()
+	v.ShowAll = false
+	v.Width = m.width
+
+	footer := lipgloss.
+		NewStyle().
+		Width(m.width).
+		Margin(1, 2).
+		Render(v.View(m.keyMap))
+
+	content := m.styles.Text.
+		Width(m.width).
+		Margin(0, 2).
+		Height(m.height - lipgloss.Height(header) - lipgloss.Height(footer)).
+		Render(fmt.Sprintf("%s %s", m.spinner.View(), m.description))
+
+	return lipgloss.JoinVertical(lipgloss.Top, header, content, footer)
 }
