@@ -164,12 +164,12 @@ func (m questionPage) View() string {
 
 	card, err := m.review.Card()
 	if err != nil {
-		return errorView(m.styles, err.Error())
+		return errorView(m.Shared, err.Error())
 	}
 
 	markdown, err := RenderMarkdown(card.Question, m.width)
 	if err != nil {
-		return errorView(m.styles, err.Error())
+		return errorView(m.Shared, err.Error())
 	}
 
 	content.WriteString(markdown)
@@ -301,12 +301,12 @@ func (m answerPage) View() string {
 
 	card, err := m.review.Card()
 	if err != nil {
-		return errorView(m.styles, err.Error())
+		return errorView(m.Shared, err.Error())
 	}
 
 	markdown, err := RenderMarkdown(card.Answer, m.width)
 	if err != nil {
-		return errorView(m.styles, err.Error())
+		return errorView(m.Shared, err.Error())
 	}
 
 	content.WriteString(markdown)

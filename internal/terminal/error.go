@@ -1,9 +1,8 @@
 package terminal
 
 import (
-	"strings"
-
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type errorModel struct {
@@ -20,14 +19,21 @@ func (m errorModel) Update(tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m errorModel) View() string {
-	return errorView(m.styles, m.err.Error())
+	return errorView(m.Shared, m.err.Error())
 }
 
-func errorView(styles *Styles, err string) string {
-	var content strings.Builder
-	content.WriteString(styles.Title.Render("Error"))
-	content.WriteString(styles.DeletedStatus.Render(err))
-	return styles.Pagination.Render(content.String())
+func errorView(m Shared, err string) string {
+	header := m.styles.Title.
+		Margin(1, 2).
+		Render("Error")
+
+	content := m.styles.DeletedStatus.
+		Width(m.width).
+		Margin(0, 2).
+		Height(m.height - lipgloss.Height(header)).
+		Render(err)
+
+	return lipgloss.JoinVertical(lipgloss.Top, header, content)
 }
 
 func newErrorModel(s Shared, err error) errorModel {
