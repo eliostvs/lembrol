@@ -81,7 +81,7 @@ func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m loadingPage) View() string {
 	header := m.styles.Title.
-		Margin(1, 2).
+		Margin(1, 4).
 		Render(m.title)
 
 	v := help.New()
@@ -91,12 +91,12 @@ func (m loadingPage) View() string {
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
-		Margin(1, 2).
+		Margin(1, 4).
 		Render(v.View(m.keyMap))
 
 	content := m.styles.Text.
 		Width(m.width).
-		Margin(0, 2).
+		Margin(0, 4).
 		Height(m.height - lipgloss.Height(header) - lipgloss.Height(footer)).
 		Render(fmt.Sprintf("%s %s", m.spinner.View(), m.description))
 
