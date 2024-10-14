@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
@@ -180,15 +181,32 @@ func (m statsModel) View() string {
 }
 
 func notStatsView(m statsModel) string {
-	var content strings.Builder
+	header := m.styles.Title.
+		Margin(1, 4).
+		Render("Stats")
 
-	content.WriteString(m.styles.Title.Render("Stats"))
-	content.WriteString(m.styles.SubTitle.Render(m.card.Question))
-	content.WriteString("\n")
-	content.WriteString(m.styles.Text.Render("No stats"))
-	content.WriteString("\n")
-	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
-	return m.styles.Margin.Render(content.String())
+	subTitle := m.styles.SubTitle.
+		Padding(0).
+		Margin(0, 4, 1, 4).
+		Render(m.card.Question)
+
+	v := help.New()
+	v.ShowAll = false
+	v.Width = m.width
+
+	footer := lipgloss.
+		NewStyle().
+		Width(m.width).
+		Margin(1, 4).
+		Render(v.View(m.keyMap))
+
+	content := m.styles.Text.
+		Width(m.width).
+		Margin(0, 4).
+		Height(m.height - lipgloss.Height(header) - lipgloss.Height(subTitle) - lipgloss.Height(footer)).
+		Render("No Stats")
+
+	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, content, footer)
 }
 
 func cardStatsView(m statsModel) string {
