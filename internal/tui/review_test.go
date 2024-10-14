@@ -1,4 +1,4 @@
-package terminal_test
+package tui_test
 
 import (
 	"strings"
@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/eliostvs/lembrol/internal/flashcard"
-	"github.com/eliostvs/lembrol/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/tui"
 )
 
 func TestQuestion(t *testing.T) {
@@ -130,7 +130,7 @@ func TestQuestion(t *testing.T) {
 		"changes the layout when the window resize", func(t *testing.T) {
 			var before string
 
-			after := newTestModel(t, fewDecks, terminal.WithWindowSize(testWidth, testHeight*2)).
+			after := newTestModel(t, fewDecks, tui.WithWindowSize(testWidth, testHeight*2)).
 				Init().
 				SendKeyType(tea.KeyDown).
 				SendKeyRune(studyKey).
@@ -347,7 +347,7 @@ func TestAnswer(t *testing.T) {
 		"changes the layout when the window resize", func(t *testing.T) {
 			var before string
 
-			after := newTestModel(t, fewDecks, terminal.WithWindowSize(testWidth, testHeight*2)).
+			after := newTestModel(t, fewDecks, tui.WithWindowSize(testWidth, testHeight*2)).
 				Init().
 				SendKeyType(tea.KeyDown).
 				SendKeyRune(studyKey).
@@ -404,7 +404,7 @@ func TestReview(t *testing.T) {
 		"changes the layout when the window resize", func(t *testing.T) {
 			var before string
 
-			after := newTestModel(t, singleCardDeck, terminal.WithWindowSize(testWidth, testHeight*2)).
+			after := newTestModel(t, singleCardDeck, tui.WithWindowSize(testWidth, testHeight*2)).
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).

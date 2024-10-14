@@ -1,4 +1,4 @@
-package terminal_test
+package tui_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/eliostvs/lembrol/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/tui"
 )
 
 func TestLoading(t *testing.T) {
@@ -59,7 +59,7 @@ func TestLoading(t *testing.T) {
 		"changes the layout when the window resize", func(t *testing.T) {
 			var before string
 
-			after := newTestModel(t, emptyDeck, terminal.WithWindowSize(testWidth, testHeight*2)).
+			after := newTestModel(t, emptyDeck, tui.WithWindowSize(testWidth, testHeight*2)).
 				Peek(
 					func(m tea.Model) {
 						before = m.View()

@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/eliostvs/lembrol/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/tui"
 )
 
 func main() {
-	os.Exit(terminal.CLI(os.Args[:], os.Stdout, os.Stderr))
+	os.Exit(tui.CLI(os.Args[:], os.Stdout, os.Stderr))
 }

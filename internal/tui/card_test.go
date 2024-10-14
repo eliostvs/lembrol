@@ -1,4 +1,4 @@
-package terminal_test
+package tui_test
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	clock "github.com/eliostvs/lembrol/internal/clock/test"
-	"github.com/eliostvs/lembrol/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/tui"
 )
 
 func TestCardsList(t *testing.T) {
@@ -161,7 +161,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run(
 		"does not start review when it does not have due cards", func(t *testing.T) {
-			view := newTestModel(t, singleCardDeck, terminal.WithClock(clock.Clock{Time: latestCard.ReviewedAt})).
+			view := newTestModel(t, singleCardDeck, tui.WithClock(clock.Clock{Time: latestCard.ReviewedAt})).
 				Init().
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(studyKey).
@@ -213,7 +213,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run(
 		"re-renders when window resize", func(t *testing.T) {
-			view := newTestModel(t, manyDecks, terminal.WithWindowSize(0, 0)).
+			view := newTestModel(t, manyDecks, tui.WithWindowSize(0, 0)).
 				Init().
 				SendKeyType(tea.KeyEnter).
 				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight}).
@@ -366,7 +366,7 @@ func TestCardCreate(t *testing.T) {
 		"changes the layout when the window resize", func(t *testing.T) {
 			var before string
 
-			after := newTestModel(t, emptyDeck, terminal.WithWindowSize(testWidth, testHeight*2)).
+			after := newTestModel(t, emptyDeck, tui.WithWindowSize(testWidth, testHeight*2)).
 				Init().
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(createKey).

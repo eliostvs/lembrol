@@ -1,4 +1,4 @@
-package terminal_test
+package tui_test
 
 import (
 	"container/list"
@@ -15,7 +15,7 @@ import (
 
 	"github.com/eliostvs/lembrol/internal/clock"
 	"github.com/eliostvs/lembrol/internal/flashcard"
-	"github.com/eliostvs/lembrol/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/tui"
 )
 
 func TestMain(m *testing.M) {
@@ -143,19 +143,19 @@ func (r *repository) Delete(deck flashcard.Deck) error {
 	return r.Repository.Delete(deck)
 }
 
-func newTestModel(t *testing.T, path string, opts ...terminal.ModelOption) *testModel {
+func newTestModel(t *testing.T, path string, opts ...tui.ModelOption) *testModel {
 	t.Helper()
 
-	defaultOpts := []terminal.ModelOption{
-		terminal.WithWindowSize(testWidth, testHeight),
-		terminal.WithRepository(
-			func(clock clock.Clock) (terminal.Repository, error) {
+	defaultOpts := []tui.ModelOption{
+		tui.WithWindowSize(testWidth, testHeight),
+		tui.WithRepository(
+			func(clock clock.Clock) (tui.Repository, error) {
 				return newTestRepository(t, path, clock)
 			},
 		),
 	}
 	return &testModel{
-		model: terminal.NewModel(path, append(defaultOpts, opts...)...),
+		model: tui.NewModel(path, append(defaultOpts, opts...)...),
 		queue: newMsgQueue(),
 		ignoreMsg: map[string]struct{}{
 			"TickMsg":         {},
