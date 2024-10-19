@@ -177,6 +177,7 @@ func TestAnswer(t *testing.T) {
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(helpKey).
+				Print().
 				Get().
 				View()
 
