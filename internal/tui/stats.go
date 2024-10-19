@@ -193,7 +193,6 @@ func notStatsView(m statsModel) string {
 	v := help.New()
 	v.ShowAll = false
 	v.Width = m.width
-
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
