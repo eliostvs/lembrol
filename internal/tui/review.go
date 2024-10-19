@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -156,26 +157,46 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m questionPage) View() string {
-	var content strings.Builder
+	header := m.styles.Title.
+		Margin(1, 4).
+		Render("Question")
 
-	content.WriteString(m.styles.Title.Render("Question"))
-	content.WriteString(m.styles.SubTitle.Render(m.review.Deck.Name))
-	content.WriteString(m.styles.Margin.Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total())))
+	subTitle := m.styles.SubTitle.
+		Width(m.width).
+		Margin(0, 4).
+		Padding(0).
+		Render(m.review.Deck.Name)
+
+	position := m.styles.Text.
+		Width(m.width).
+		Margin(0, 4).
+		Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total()))
 
 	card, err := m.review.Card()
 	if err != nil {
 		return errorView(m.Shared, err.Error())
 	}
-
 	markdown, err := RenderMarkdown(card.Question, m.width)
 	if err != nil {
 		return errorView(m.Shared, err.Error())
 	}
 
-	content.WriteString(markdown)
-	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
+	v := help.New()
+	v.ShowAll = false
+	v.Width = m.width
+	footer := lipgloss.
+		NewStyle().
+		Width(m.width).
+		Margin(1, 4).
+		Render(v.View(m.keyMap))
 
-	return m.styles.Margin.Render(content.String())
+	content := m.styles.Text.
+		Width(m.width).
+		Height(m.height-lipgloss.Height(header)-lipgloss.Height(subTitle)-lipgloss.Height(position)-lipgloss.Height(footer)).
+		Margin(0, 4).
+		Render(markdown)
+
+	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, position, content, footer)
 }
 
 // Answer Page
