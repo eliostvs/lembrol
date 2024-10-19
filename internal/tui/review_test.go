@@ -15,7 +15,7 @@ func TestQuestion(t *testing.T) {
 	t.Parallel()
 
 	t.Run(
-		"shows question page without skip action", func(t *testing.T) {
+		"shows question", func(t *testing.T) {
 			view := newTestModel(t, singleCardDeck).
 				Init().
 				SendKeyRune(studyKey).
@@ -26,11 +26,25 @@ func TestQuestion(t *testing.T) {
 			assert.Contains(t, view, "Golang One")
 			assert.Contains(t, view, "1 of 1")
 			assert.Contains(t, view, "enter answer • q quit")
+			assert.NotContains(t, view, "s skip")
 		},
 	)
 
 	t.Run(
-		"shows question page with skip action", func(t *testing.T) {
+		"does not show skip in a single card deck", func(t *testing.T) {
+			view := newTestModel(t, singleCardDeck).
+				Init().
+				SendKeyRune(studyKey).
+				Get().
+				View()
+
+			assert.Contains(t, view, "enter answer • q quit")
+			assert.NotContains(t, view, "s skip")
+		},
+	)
+
+	t.Run(
+		"shows skip option in a multiple card deck", func(t *testing.T) {
 			view := newTestModel(t, fewDecks).
 				Init().
 				SendKeyRune(studyKey).
@@ -55,7 +69,7 @@ func TestQuestion(t *testing.T) {
 	)
 
 	t.Run(
-		"goes to answer page to answer the question", func(t *testing.T) {
+		"goes to answer page", func(t *testing.T) {
 			view := newTestModel(t, singleCardDeck).
 				Init().
 				SendKeyRune(studyKey).
@@ -111,7 +125,7 @@ func TestQuestion(t *testing.T) {
 	)
 
 	t.Run(
-		"does not show skip in the last question", func(t *testing.T) {
+		"does not show skip option in the last question", func(t *testing.T) {
 			view := newTestModel(t, fewDecks).
 				Init().
 				SendKeyType(tea.KeyDown).
@@ -171,13 +185,12 @@ func TestAnswer(t *testing.T) {
 	)
 
 	t.Run(
-		"shows full options help with many cards", func(t *testing.T) {
+		"shows full help with many cards", func(t *testing.T) {
 			view := newTestModel(t, manyDecks).
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(helpKey).
-				Print().
 				Get().
 				View()
 
@@ -189,7 +202,7 @@ func TestAnswer(t *testing.T) {
 	)
 
 	t.Run(
-		"shows full options help with single deck", func(t *testing.T) {
+		"shows full help with single deck", func(t *testing.T) {
 			view := newTestModel(t, singleCardDeck).
 				Init().
 				SendKeyRune(studyKey).
@@ -387,7 +400,7 @@ func TestReview(t *testing.T) {
 	)
 
 	t.Run(
-		"goes to home page when review is closed", func(t *testing.T) {
+		"goes to home page when review ends", func(t *testing.T) {
 			view := newTestModel(t, singleCardDeck).
 				Init().
 				SendKeyRune(studyKey).

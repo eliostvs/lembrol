@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/lipgloss"
@@ -136,7 +135,7 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.keyMap.skip.SetEnabled(m.review.Current() != m.review.Total())
 		return m, nil
 
-	case innerWindowSizeMsg:
+	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
@@ -289,7 +288,7 @@ func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.keyMap.again.SetEnabled(m.review.Total() > 1)
 		return m, nil
 
-	case innerWindowSizeMsg:
+	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
@@ -339,7 +338,7 @@ func (m answerPage) View() string {
 	}
 
 	v := help.New()
-	v.ShowAll = false
+	v.ShowAll = m.fullHelp
 	v.Width = m.width
 	footer := lipgloss.
 		NewStyle().
@@ -393,7 +392,7 @@ func (m reviewSummaryPage) Init() tea.Cmd {
 
 func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case innerWindowSizeMsg:
+	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
@@ -408,14 +407,28 @@ func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m reviewSummaryPage) View() string {
+	header := m.styles.Title.
+		Margin(1, 4).
+		Render("Congratulations!")
+
+	v := help.New()
+	v.ShowAll = false
+	v.Width = m.width
+	footer := lipgloss.
+		NewStyle().
+		Width(m.width).
+		Margin(1, 4).
+		Render(v.View(m.keyMap))
+
 	completed := m.review.Completed
+	subTitle := m.styles.SubTitle.
+		Width(m.width).
+		Height(m.height-lipgloss.Height(header)-lipgloss.Height(footer)).
+		Margin(0, 4).
+		Padding(0).
+		Render(fmt.Sprintf("%d card%s reviewed.", completed, pluralize(completed, "s")))
 
-	var content strings.Builder
-	content.WriteString(m.styles.Title.Render("Congratulations!"))
-	content.WriteString(m.styles.SubTitle.Render(fmt.Sprintf("%d card%s reviewed.", completed, pluralize(completed, "s"))))
-
-	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
-	return m.styles.Margin.Render(content.String())
+	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, footer)
 }
 
 // Review SubPage
