@@ -36,7 +36,7 @@ func TestLoading(t *testing.T) {
 	)
 
 	t.Run(
-		"shows loading page", func(t *testing.T) {
+		"shows loading text", func(t *testing.T) {
 			view := newTestModel(t, manyDecks).Get().View()
 
 			assert.Contains(t, view, "Loading...")
@@ -45,7 +45,7 @@ func TestLoading(t *testing.T) {
 	)
 
 	t.Run(
-		"quits apps", func(t *testing.T) {
+		"quits the app", func(t *testing.T) {
 			view := newTestModel(t, manyDecks).
 				SendKeyRune("ctrl+c").
 				Get().
@@ -76,7 +76,7 @@ func TestLoading(t *testing.T) {
 	)
 
 	t.Run(
-		"changes loading animation", func(t *testing.T) {
+		"shows loading animation", func(t *testing.T) {
 			var before string
 
 			after := newTestModel(t, manyDecks).
