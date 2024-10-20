@@ -238,6 +238,7 @@ func TestCardCreate(t *testing.T) {
 				View()
 
 			assert.Contains(t, view, "Golang One")
+			assert.Contains(t, view, "Add Card")
 			assert.Contains(t, view, "nter a question")
 			assert.Contains(t, view, "Enter an answer")
 			assert.Contains(t, view, "↓ down • ↑ up • ctrl+s confirm • esc cancel")
@@ -399,7 +400,8 @@ func TestCardEdit(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "Edit")
+			assert.Contains(t, view, "Golang One")
+			assert.Contains(t, view, "Edit Card")
 			assert.Contains(t, view, "┃ "+latestCard.Question)
 			assert.Contains(t, view, "┃ "+latestCard.Answer)
 			assert.Contains(t, view, "↓ down • ↑ up • ctrl+s confirm • esc cancel")

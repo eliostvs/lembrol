@@ -273,7 +273,7 @@ func TestDeckCreate(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "New Deck")
+			assert.Contains(t, view, "Add Deck")
 			assert.Contains(t, view, "ctrl+s confirm • esc cancel")
 		},
 	)
@@ -303,7 +303,7 @@ func TestDeckCreate(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "New Deck")
+			assert.Contains(t, view, "Add Deck")
 		},
 	)
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -443,7 +444,7 @@ func (m cardForm) next() (cardForm, tea.Cmd) {
 // Update the cardForm fields inner state.
 func (m cardForm) Update(msg tea.Msg) (cardForm, tea.Cmd) {
 	switch msg := msg.(type) {
-	case innerWindowSizeMsg:
+	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
@@ -481,20 +482,32 @@ func (m cardForm) updateFields(msg tea.Msg) (cardForm, tea.Cmd) {
 }
 
 func (m cardForm) View() string {
-	var content strings.Builder
-	content.WriteString(lipgloss.NewStyle().Padding(1, 0).Render(m.fieldsView()))
-	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
-	return content.String()
+	v := help.New()
+	v.ShowAll = false
+	v.Width = m.width
+	footer := lipgloss.
+		NewStyle().
+		Width(m.width).
+		Margin(1, 4).
+		Render(v.View(m.keyMap))
+
+	input := lipgloss.NewStyle().
+		Height(m.height-lipgloss.Height(footer)+2).
+		Width(m.width).
+		Padding(0, 2, 1).
+		Render(m.fieldsView())
+
+	return lipgloss.JoinVertical(lipgloss.Top, input, footer)
 }
 
 func (m cardForm) fieldsView() string {
-	var content strings.Builder
+	var content []string
 
 	for _, field := range m.fields {
-		content.WriteString(field.View())
+		content = append(content, field.View())
 	}
 
-	return content.String()
+	return lipgloss.JoinVertical(lipgloss.Top, content...)
 }
 
 // Add Card
@@ -531,10 +544,18 @@ func (m cardAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m cardAddPage) View() string {
-	var content strings.Builder
-	content.WriteString(m.styles.Title.Render(m.deck.Name))
-	content.WriteString(m.form.View())
-	return m.styles.Margin.Render(content.String())
+	header := m.styles.Title.
+		Margin(1, 4).
+		Render(m.deck.Name)
+
+	subTitle := m.styles.SubTitle.
+		Padding(0, 4).
+		Render("Add Card")
+
+	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
+	form := m.styles.Text.Render(m.form.View())
+
+	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form)
 }
 
 // Edit Card
@@ -575,10 +596,18 @@ func (m cardEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m cardEditPage) View() string {
-	var content strings.Builder
-	content.WriteString(m.styles.Title.Render("Edit"))
-	content.WriteString(m.form.View())
-	return m.styles.Margin.Render(content.String())
+	header := m.styles.Title.
+		Margin(1, 4).
+		Render(m.deck.Name)
+
+	subTitle := m.styles.SubTitle.
+		Padding(0, 4).
+		Render("Edit Card")
+
+	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
+	form := m.styles.Text.Render(m.form.View())
+
+	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form)
 }
 
 // Delete Card
@@ -650,7 +679,7 @@ func (m cardDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case innerWindowSizeMsg:
+	case tea.WindowSizeMsg:
 		m.list.SetSize(msg.Width, msg.Height)
 		return m, nil
 

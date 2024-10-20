@@ -97,16 +97,6 @@ type Model struct {
 
 // MESSAGES
 
-func changeInnerWindowSize(width, height int) tea.Cmd {
-	return func() tea.Msg {
-		return innerWindowSizeMsg{Width: width, Height: height}
-	}
-}
-
-type innerWindowSizeMsg struct {
-	Width, Height int
-}
-
 func fail(err error) tea.Msg {
 	return setErrorPageMsg{err}
 }
@@ -184,8 +174,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.width, m.height = calcInnerWindowSize(m.styles.Margin, msg)
-		return m, changeInnerWindowSize(m.width, m.height)
+		m.width, m.height = msg.Width, msg.Height
 
 	case createdRepositoryMsg:
 		m.repository = msg.repository

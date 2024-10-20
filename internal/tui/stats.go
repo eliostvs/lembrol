@@ -107,7 +107,7 @@ func (m statsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case innerWindowSizeMsg:
+	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
@@ -187,7 +187,7 @@ func notStatsView(m statsModel) string {
 
 	subTitle := m.styles.SubTitle.
 		Padding(0).
-		Margin(0, 4, 1, 4).
+		Margin(0, 4, 1).
 		Render(m.card.Question)
 
 	v := help.New()
@@ -201,9 +201,9 @@ func notStatsView(m statsModel) string {
 
 	content := m.styles.Text.
 		Width(m.width).
+		Height(m.height-lipgloss.Height(header)-lipgloss.Height(subTitle)-lipgloss.Height(footer)).
 		Margin(0, 4).
-		Height(m.height - lipgloss.Height(header) - lipgloss.Height(subTitle) - lipgloss.Height(footer)).
-		Render("No Stats")
+		Render("No stats")
 
 	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, content, footer)
 }

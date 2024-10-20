@@ -432,7 +432,7 @@ func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m deckAddPage) View() string {
 	header := m.styles.Title.
 		Margin(1, 4).
-		Render("New Deck")
+		Render("Add Deck")
 
 	m.form.height = m.height - lipgloss.Height(header)
 	form := m.styles.Text.Render(m.form.View())
@@ -478,7 +478,7 @@ func (m deckEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m deckEditPage) View() string {
 	header := m.styles.Title.
 		Margin(1, 4).
-		Render("Edit")
+		Render("Edit Deck")
 
 	m.form.height = m.height - lipgloss.Height(header)
 	form := m.styles.Text.Render(m.form.View())
@@ -556,7 +556,7 @@ func (m deckDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case innerWindowSizeMsg:
+	case tea.WindowSizeMsg:
 		m.list.SetSize(msg.Width, msg.Height)
 		return m, nil
 
