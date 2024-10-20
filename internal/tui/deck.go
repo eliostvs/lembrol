@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -341,7 +342,7 @@ func (m deckForm) Update(msg tea.Msg) (deckForm, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case innerWindowSizeMsg:
+	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
@@ -362,10 +363,22 @@ func (m deckForm) Update(msg tea.Msg) (deckForm, tea.Cmd) {
 }
 
 func (m deckForm) View() string {
-	var content strings.Builder
-	content.WriteString(m.color().Copy().Padding(2, 0).Render(m.input.View()))
-	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
-	return content.String()
+	v := help.New()
+	v.ShowAll = false
+	v.Width = m.width
+	footer := lipgloss.
+		NewStyle().
+		Width(m.width).
+		Padding(0, 4).
+		Render(v.View(m.keyMap))
+
+	input := m.color().
+		Height(m.height-lipgloss.Height(footer)).
+		Width(m.width).
+		Margin(0, 2, 1).
+		Render(m.input.View())
+
+	return lipgloss.JoinVertical(lipgloss.Top, input, footer)
 }
 
 func (m deckForm) color() lipgloss.Style {
@@ -417,10 +430,14 @@ func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckAddPage) View() string {
-	var content strings.Builder
-	content.WriteString(m.styles.Title.Render("New Deck"))
-	content.WriteString(m.form.View())
-	return m.styles.ListMargin.Render(content.String())
+	header := m.styles.Title.
+		Margin(1, 4).
+		Render("New Deck")
+
+	m.form.height = m.height - lipgloss.Height(header)
+	form := m.styles.Text.Render(m.form.View())
+
+	return lipgloss.JoinVertical(lipgloss.Top, header, form)
 }
 
 // Edit Deck
@@ -459,10 +476,14 @@ func (m deckEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckEditPage) View() string {
-	var content strings.Builder
-	content.WriteString(m.styles.Title.Render("Edit"))
-	content.WriteString(m.form.View())
-	return m.styles.Margin.Render(content.String())
+	header := m.styles.Title.
+		Margin(1, 4).
+		Render("Edit")
+
+	m.form.height = m.height - lipgloss.Height(header)
+	form := m.styles.Text.Render(m.form.View())
+
+	return lipgloss.JoinVertical(lipgloss.Top, header, form)
 }
 
 // Delete Deck
