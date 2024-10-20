@@ -223,7 +223,7 @@ func (m deckBrowsePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case innerWindowSizeMsg:
+	case tea.WindowSizeMsg:
 		m.list.SetSize(msg.Width, msg.Height)
 		return m, nil
 
