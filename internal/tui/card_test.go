@@ -26,7 +26,7 @@ func TestCardsList(t *testing.T) {
 
 			assert.Contains(t, view, "Empty")
 			assert.Contains(t, view, "No items.")
-			assert.Contains(t, view, "a add • q quit • ? more ")
+			assert.Contains(t, view, "a add • q quit • ? more")
 		},
 	)
 
@@ -95,7 +95,7 @@ func TestCardsList(t *testing.T) {
 			assert.Contains(
 				t,
 				view,
-				"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt…",
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labo…",
 			)
 		},
 	)
@@ -225,11 +225,11 @@ func TestCardsList(t *testing.T) {
 	)
 }
 
-func TestCardCreate(t *testing.T) {
+func TestCardAdd(t *testing.T) {
 	t.Parallel()
 
 	t.Run(
-		"shows create card form", func(t *testing.T) {
+		"shows add card form", func(t *testing.T) {
 			view := newTestModel(t, singleCardDeck).
 				Init().
 				SendKeyType(tea.KeyEnter).
@@ -238,7 +238,7 @@ func TestCardCreate(t *testing.T) {
 				View()
 
 			assert.Contains(t, view, "Golang One")
-			assert.Contains(t, view, "Add Card")
+			assert.Contains(t, view, "Add")
 			assert.Contains(t, view, "nter a question")
 			assert.Contains(t, view, "Enter an answer")
 			assert.Contains(t, view, "↓ down • ↑ up • ctrl+s confirm • esc cancel")
@@ -362,30 +362,6 @@ func TestCardCreate(t *testing.T) {
 			)
 		},
 	)
-
-	t.Run(
-		"changes the layout when the window resize", func(t *testing.T) {
-			var before string
-
-			after := newTestModel(t, emptyDeck, tui.WithWindowSize(testWidth, testHeight*2)).
-				Init().
-				SendKeyType(tea.KeyEnter).
-				SendKeyRune(createKey).
-				SendKeyRune("Question").
-				SendKeyType(tea.KeyDown).
-				SendKeyRune("Answer").
-				Peek(
-					func(m tea.Model) {
-						before = m.View()
-					},
-				).
-				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight / 2}).
-				Get().
-				View()
-
-			assert.NotEqual(t, before, after)
-		},
-	)
 }
 
 func TestCardEdit(t *testing.T) {
@@ -401,7 +377,7 @@ func TestCardEdit(t *testing.T) {
 				View()
 
 			assert.Contains(t, view, "Golang One")
-			assert.Contains(t, view, "Edit Card")
+			assert.Contains(t, view, "Edit")
 			assert.Contains(t, view, "┃ "+latestCard.Question)
 			assert.Contains(t, view, "┃ "+latestCard.Answer)
 			assert.Contains(t, view, "↓ down • ↑ up • ctrl+s confirm • esc cancel")

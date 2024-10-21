@@ -184,7 +184,7 @@ func (k cardBrowseKeyMap) FullHelp() []key.Binding {
 }
 
 func newCardBrowsePage(shared cardShared) cardBrowsePage {
-	shared.list.SetSize(shared.width, shared.height)
+	shared.list.SetSize(shared.width-shared.styles.ListMargin.GetHorizontalFrameSize(), shared.height-shared.styles.ListMargin.GetVerticalFrameSize())
 	shared.delegate.Styles.SelectedTitle = shared.styles.SelectedTitle
 	shared.delegate.Styles.SelectedDesc = shared.styles.SelectedDesc
 
@@ -485,16 +485,16 @@ func (m cardForm) View() string {
 	v := help.New()
 	v.ShowAll = false
 	v.Width = m.width
+
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
-		Margin(1, 4).
+		Margin(1, 2).
 		Render(v.View(m.keyMap))
 
 	input := lipgloss.NewStyle().
-		Height(m.height-lipgloss.Height(footer)+2).
+		Height(m.height - lipgloss.Height(footer)).
 		Width(m.width).
-		Padding(0, 2, 1).
 		Render(m.fieldsView())
 
 	return lipgloss.JoinVertical(lipgloss.Top, input, footer)
@@ -545,12 +545,12 @@ func (m cardAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m cardAddPage) View() string {
 	header := m.styles.Title.
-		Margin(1, 4).
+		Margin(1, 0, 0, 2).
 		Render(m.deck.Name)
 
-	subTitle := m.styles.SubTitle.
-		Padding(0, 4).
-		Render("Add Card")
+	subTitle := m.styles.DimmedTitle.
+		Margin(1, 0, 0, 2).
+		Render("Add")
 
 	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
 	form := m.styles.Text.Render(m.form.View())
@@ -597,12 +597,12 @@ func (m cardEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m cardEditPage) View() string {
 	header := m.styles.Title.
-		Margin(1, 4).
+		Margin(1, 0, 0, 2).
 		Render(m.deck.Name)
 
-	subTitle := m.styles.SubTitle.
-		Padding(0, 4).
-		Render("Edit Card")
+	subTitle := m.styles.DimmedTitle.
+		Margin(1, 0, 0, 2).
+		Render("Edit")
 
 	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
 	form := m.styles.Text.Render(m.form.View())
@@ -645,7 +645,7 @@ func newDeleteCardPage(shared cardShared) cardDeletePage {
 	shared.delegate.Styles.SelectedTitle = shared.styles.DeletedTitle
 	shared.delegate.Styles.SelectedDesc = shared.styles.DeletedDesc
 
-	shared.list.SetSize(shared.width, shared.height)
+	shared.list.SetSize(shared.width-shared.styles.ListMargin.GetHorizontalFrameSize(), shared.height-shared.styles.ListMargin.GetVerticalFrameSize())
 	shared.list.AdditionalShortHelpKeys = keyMap.ShortHelp
 	shared.list.AdditionalFullHelpKeys = keyMap.FullHelp
 	shared.list.KeyMap.CloseFullHelp.SetEnabled(false)
