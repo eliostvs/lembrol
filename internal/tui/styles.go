@@ -31,7 +31,7 @@ var (
 	red         = lipgloss.AdaptiveColor{Dark: "#ED567A", Light: "#FF4672"}
 	darkRed     = lipgloss.AdaptiveColor{Dark: "#C74665", Light: "#FF6F91"}
 	white       = lipgloss.AdaptiveColor{Dark: "#DDDDDD", Light: "#1A1A1A"}
-	fieldStyle  = lipgloss.NewStyle().Foreground(white).Padding(1, 0)
+	fieldStyle  = lipgloss.NewStyle().Foreground(white).Padding(1, 0, 0)
 )
 
 type Styles struct {
@@ -45,13 +45,16 @@ type Styles struct {
 	DeletedTitle,
 	DeletedDesc,
 	DeletedStatus,
+	DimmedTitle,
 	Help lipgloss.Style
 }
 
 func NewStyles(lg *lipgloss.Renderer) *Styles {
 	s := Styles{}
-	s.ListMargin = lg.NewStyle().Padding(1, 0)
-	s.Margin = lg.NewStyle().Padding(1, 4)
+	s.ListMargin = lg.NewStyle().
+		Padding(1, 0)
+	s.Margin = lg.NewStyle().
+		Padding(1, 4)
 	s.Title = lg.NewStyle().
 		Foreground(lipgloss.AdaptiveColor{Dark: "#FFFDF5", Light: "#FFFDF5"}).
 		Background(lipgloss.Color("#5A56E0")).
@@ -66,8 +69,17 @@ func NewStyles(lg *lipgloss.Renderer) *Styles {
 		Border(lipgloss.NormalBorder(), false, false, false, true).
 		BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
 		Padding(0, 0, 0, 1)
-	s.DeletedDesc = s.DeletedTitle.Copy().Foreground(darkRed)
-	s.DeletedStatus = lg.NewStyle().Foreground(red)
+	s.DeletedDesc = lg.NewStyle().
+		Foreground(red).
+		Border(lipgloss.NormalBorder(), false, false, false, true).
+		BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
+		Padding(0, 0, 0, 1).
+		Foreground(darkRed)
+	s.DeletedStatus = lg.NewStyle().
+		Foreground(red)
+	s.DimmedTitle = list.NewDefaultItemStyles().
+		DimmedTitle.
+		Padding(0)
 	return &s
 }
 
