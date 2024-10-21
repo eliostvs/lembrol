@@ -273,7 +273,7 @@ func TestDeckCreate(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "Add deck")
+			assert.Contains(t, view, "Add")
 			assert.Contains(t, view, "ctrl+s confirm • esc cancel")
 		},
 	)
@@ -290,7 +290,7 @@ func TestDeckCreate(t *testing.T) {
 
 			assert.Contains(t, view, "Decks")
 			assert.Contains(t, view, activePrompt+"Golang B")
-			assert.NotContains(t, view, "Add Deck")
+			assert.NotContains(t, view, "Add")
 		},
 	)
 
@@ -303,7 +303,7 @@ func TestDeckCreate(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "Add deck")
+			assert.Contains(t, view, "Add")
 		},
 	)
 

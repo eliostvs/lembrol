@@ -434,9 +434,9 @@ func (m deckAddPage) View() string {
 		Margin(2, 0, 0, 2).
 		Render("Decks")
 
-	subTitle := m.styles.SubTitle.
+	subTitle := m.styles.DimmedTitle.
 		Margin(1, 0, 1, 2).
-		Render("Add deck")
+		Render("Add")
 
 	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
 	form := m.styles.Text.Render(m.form.View())
@@ -484,9 +484,9 @@ func (m deckEditPage) View() string {
 		Margin(2, 0, 0, 2).
 		Render("Decks")
 
-	subTitle := m.styles.SubTitle.
+	subTitle := m.styles.DimmedTitle.
 		Margin(1, 0, 1, 2).
-		Render("Edit deck")
+		Render("Edit")
 
 	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
 	form := m.styles.Text.Render(m.form.View())
