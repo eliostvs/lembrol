@@ -27,17 +27,8 @@ func WithClock(clock clock.Clock) ModelOption {
 // WithWindowSize initializes the model with the given width and height.
 func WithWindowSize(width, height int) ModelOption {
 	return func(m *Model) {
-		m.width, m.height = calcInnerWindowSize(
-			largeSpace, tea.WindowSizeMsg{
-				Width:  width,
-				Height: height,
-			},
-		)
+		m.width, m.height = width, height
 	}
-}
-
-func calcInnerWindowSize(style lipgloss.Style, msg tea.WindowSizeMsg) (int, int) {
-	return msg.Width - style.GetHorizontalFrameSize(), msg.Height - style.GetVerticalFrameSize()
 }
 
 // Repository wraps the file system operation
