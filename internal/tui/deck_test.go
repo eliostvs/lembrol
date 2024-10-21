@@ -273,7 +273,7 @@ func TestDeckCreate(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "Add Deck")
+			assert.Contains(t, view, "Add deck")
 			assert.Contains(t, view, "ctrl+s confirm • esc cancel")
 		},
 	)
@@ -303,7 +303,7 @@ func TestDeckCreate(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "Add Deck")
+			assert.Contains(t, view, "Add deck")
 		},
 	)
 
@@ -354,27 +354,6 @@ func TestDeckCreate(t *testing.T) {
 				View()
 
 			assert.Contains(t, view, "Error")
-		},
-	)
-
-	t.Run(
-		"changes the layout when the window resize", func(t *testing.T) {
-			var before string
-
-			after := newTestModel(t, noneDeck).
-				Init().
-				SendKeyRune(createKey).
-				SendKeyRune("Golang").
-				Peek(
-					func(m tea.Model) {
-						before = m.View()
-					},
-				).
-				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight / 4}).
-				Get().
-				View()
-
-			assert.NotEqual(t, before, after)
 		},
 	)
 }

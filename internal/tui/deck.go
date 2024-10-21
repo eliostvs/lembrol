@@ -180,7 +180,7 @@ func (k deckBrowseKeyMap) FullHelp() []key.Binding {
 }
 
 func newDeckBrowsePage(shared deckShared) deckBrowsePage {
-	shared.list.SetSize(shared.width, shared.height)
+	shared.list.SetSize(shared.width-shared.styles.ListMargin.GetHorizontalFrameSize(), shared.height-shared.styles.ListMargin.GetVerticalFrameSize())
 	shared.delegate.Styles.SelectedTitle = shared.styles.SelectedTitle
 	shared.delegate.Styles.SelectedDesc = shared.styles.SelectedDesc
 	return deckBrowsePage{
@@ -369,13 +369,13 @@ func (m deckForm) View() string {
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
-		Padding(0, 4).
+		Padding(0, 2, 1).
 		Render(v.View(m.keyMap))
 
 	input := m.color().
 		Height(m.height-lipgloss.Height(footer)).
 		Width(m.width).
-		Margin(0, 2, 1).
+		Margin(0, 0, 1).
 		Render(m.input.View())
 
 	return lipgloss.JoinVertical(lipgloss.Top, input, footer)
@@ -431,13 +431,17 @@ func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m deckAddPage) View() string {
 	header := m.styles.Title.
-		Margin(1, 4).
-		Render("Add Deck")
+		Margin(2, 0, 0, 2).
+		Render("Decks")
 
-	m.form.height = m.height - lipgloss.Height(header)
+	subTitle := m.styles.SubTitle.
+		Margin(1, 0, 1, 2).
+		Render("Add deck")
+
+	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
 	form := m.styles.Text.Render(m.form.View())
 
-	return lipgloss.JoinVertical(lipgloss.Top, header, form)
+	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form)
 }
 
 // Edit Deck
@@ -477,13 +481,17 @@ func (m deckEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m deckEditPage) View() string {
 	header := m.styles.Title.
-		Margin(1, 4).
-		Render("Edit Deck")
+		Margin(2, 0, 0, 2).
+		Render("Decks")
 
-	m.form.height = m.height - lipgloss.Height(header)
+	subTitle := m.styles.SubTitle.
+		Margin(1, 0, 1, 2).
+		Render("Edit deck")
+
+	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
 	form := m.styles.Text.Render(m.form.View())
 
-	return lipgloss.JoinVertical(lipgloss.Top, header, form)
+	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form)
 }
 
 // Delete Deck
@@ -519,7 +527,7 @@ func newDeleteDeckPage(shared deckShared) deckDeletePage {
 		),
 	}
 
-	shared.list.SetSize(shared.width, shared.height)
+	shared.list.SetSize(shared.width-shared.styles.ListMargin.GetHorizontalFrameSize(), shared.height-shared.styles.ListMargin.GetVerticalFrameSize())
 	shared.delegate.Styles.SelectedTitle = shared.styles.DeletedTitle
 	shared.delegate.Styles.SelectedDesc = shared.styles.DeletedDesc
 
