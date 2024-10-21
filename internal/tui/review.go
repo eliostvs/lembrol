@@ -157,18 +157,17 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m questionPage) View() string {
 	header := m.styles.Title.
-		Margin(1, 4).
+		Margin(1, 2).
 		Render("Question")
 
 	subTitle := m.styles.SubTitle.
 		Width(m.width).
-		Margin(0, 4).
-		Padding(0).
+		Margin(0, 2).
 		Render(m.review.Deck.Name)
 
 	position := m.styles.Text.
 		Width(m.width).
-		Margin(1, 4, 0).
+		Margin(1, 2, 0).
 		Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total()))
 
 	card, err := m.review.Card()
@@ -186,13 +185,13 @@ func (m questionPage) View() string {
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
-		Margin(1, 4).
+		Margin(1, 2).
 		Render(v.View(m.keyMap))
 
 	content := m.styles.Text.
 		Width(m.width).
 		Height(m.height-lipgloss.Height(header)-lipgloss.Height(subTitle)-lipgloss.Height(position)-lipgloss.Height(footer)).
-		Margin(0, 4).
+		Margin(0, 2).
 		Render(markdown)
 
 	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, position, content, footer)
@@ -314,18 +313,17 @@ func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m answerPage) View() string {
 	header := m.styles.Title.
-		Margin(1, 4).
+		Margin(1, 2).
 		Render("Answer")
 
 	subTitle := m.styles.SubTitle.
 		Width(m.width).
-		Margin(0, 4).
-		Padding(0).
+		Margin(0, 2).
 		Render(m.review.Deck.Name)
 
 	position := m.styles.Text.
 		Width(m.width).
-		Margin(1, 4, 0).
+		Margin(1, 2, 0).
 		Render(fmt.Sprintf("%d of %d", m.review.Current(), m.review.Total()))
 
 	card, err := m.review.Card()
@@ -343,13 +341,13 @@ func (m answerPage) View() string {
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
-		Margin(1, 4).
+		Margin(1, 2).
 		Render(v.View(m.keyMap))
 
 	content := m.styles.Text.
 		Width(m.width).
 		Height(m.height-lipgloss.Height(header)-lipgloss.Height(subTitle)-lipgloss.Height(position)-lipgloss.Height(footer)).
-		Margin(0, 4).
+		Margin(0, 2).
 		Render(markdown)
 
 	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, position, content, footer)
@@ -408,7 +406,7 @@ func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m reviewSummaryPage) View() string {
 	header := m.styles.Title.
-		Margin(1, 4).
+		Margin(1, 2).
 		Render("Congratulations!")
 
 	v := help.New()
@@ -417,15 +415,14 @@ func (m reviewSummaryPage) View() string {
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
-		Margin(1, 4).
+		Margin(1, 2).
 		Render(v.View(m.keyMap))
 
 	completed := m.review.Completed
 	subTitle := m.styles.SubTitle.
 		Width(m.width).
 		Height(m.height-lipgloss.Height(header)-lipgloss.Height(footer)).
-		Margin(0, 4).
-		Padding(0).
+		Margin(0, 2).
 		Render(fmt.Sprintf("%d card%s reviewed.", completed, pluralize(completed, "s")))
 
 	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, footer)
