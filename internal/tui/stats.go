@@ -182,12 +182,12 @@ func (m statsModel) View() string {
 
 func notStatsView(m statsModel) string {
 	header := m.styles.Title.
-		Margin(1, 4).
+		Margin(1, 2).
 		Render("Stats")
 
 	subTitle := m.styles.SubTitle.
 		Padding(0).
-		Margin(0, 4, 1).
+		Margin(0, 2, 1).
 		Render(m.card.Question)
 
 	v := help.New()
@@ -196,13 +196,13 @@ func notStatsView(m statsModel) string {
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
-		Margin(1, 4).
+		Margin(1, 2).
 		Render(v.View(m.keyMap))
 
 	content := m.styles.Text.
 		Width(m.width).
 		Height(m.height-lipgloss.Height(header)-lipgloss.Height(subTitle)-lipgloss.Height(footer)).
-		Margin(0, 4).
+		Margin(0, 2).
 		Render("No stats")
 
 	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, content, footer)
