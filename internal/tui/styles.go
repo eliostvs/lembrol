@@ -1,4 +1,4 @@
-package terminal
+package tui
 
 import (
 	"strings"
@@ -31,45 +31,37 @@ var (
 	red         = lipgloss.AdaptiveColor{Dark: "#ED567A", Light: "#FF4672"}
 	darkRed     = lipgloss.AdaptiveColor{Dark: "#C74665", Light: "#FF6F91"}
 	white       = lipgloss.AdaptiveColor{Dark: "#DDDDDD", Light: "#1A1A1A"}
-	largeSpace  = lipgloss.NewStyle().Padding(1, 4)
-	fieldStyle  = lipgloss.NewStyle().Foreground(white).Padding(1, 0)
+	fieldStyle  = lipgloss.NewStyle().Foreground(white).Padding(1, 0, 0)
 )
 
 type Styles struct {
 	ListMargin,
 	Margin,
 	Title,
-	NormalTitle,
 	SubTitle,
-	Pagination,
 	Text,
 	SelectedTitle,
 	SelectedDesc,
 	DeletedTitle,
 	DeletedDesc,
 	DeletedStatus,
+	DimmedTitle,
 	Help lipgloss.Style
 }
 
 func NewStyles(lg *lipgloss.Renderer) *Styles {
 	s := Styles{}
-	s.ListMargin = lg.NewStyle().Padding(1, 2)
-	s.Margin = lg.NewStyle().Padding(1, 4)
+	s.ListMargin = lg.NewStyle().
+		Padding(1, 0)
+	s.Margin = lg.NewStyle().
+		Padding(1, 4)
 	s.Title = lg.NewStyle().
 		Foreground(lipgloss.AdaptiveColor{Dark: "#FFFDF5", Light: "#FFFDF5"}).
 		Background(lipgloss.Color("#5A56E0")).
 		Padding(0, 1)
 	s.SubTitle = lg.NewStyle().
-		Foreground(fuchsia).
-		Padding(2, 0, 1)
+		Foreground(fuchsia)
 	s.Text = lg.NewStyle().Foreground(white)
-	s.Pagination = lg.NewStyle().
-		Foreground(darkRed).
-		Margin(1, 0)
-	s.NormalTitle = list.NewDefaultItemStyles().
-		NormalTitle.
-		Copy().
-		Padding(2, 0)
 	s.SelectedTitle = list.NewDefaultItemStyles().SelectedTitle
 	s.SelectedDesc = list.NewDefaultItemStyles().SelectedDesc
 	s.DeletedTitle = lg.NewStyle().
@@ -77,8 +69,17 @@ func NewStyles(lg *lipgloss.Renderer) *Styles {
 		Border(lipgloss.NormalBorder(), false, false, false, true).
 		BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
 		Padding(0, 0, 0, 1)
-	s.DeletedDesc = s.DeletedTitle.Copy().Foreground(darkRed)
-	s.DeletedStatus = lg.NewStyle().Foreground(red)
+	s.DeletedDesc = lg.NewStyle().
+		Foreground(red).
+		Border(lipgloss.NormalBorder(), false, false, false, true).
+		BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
+		Padding(0, 0, 0, 1).
+		Foreground(darkRed)
+	s.DeletedStatus = lg.NewStyle().
+		Foreground(red)
+	s.DimmedTitle = list.NewDefaultItemStyles().
+		DimmedTitle.
+		Padding(0)
 	return &s
 }
 

@@ -1,4 +1,4 @@
-package terminal
+package tui
 
 import (
 	"sort"
@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
@@ -106,7 +106,7 @@ func (m statsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case innerWindowSizeMsg:
+	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
@@ -180,55 +180,104 @@ func (m statsModel) View() string {
 }
 
 func notStatsView(m statsModel) string {
-	var content strings.Builder
+	header := m.styles.Title.
+		Margin(1, 2).
+		Render("Stats")
 
-	content.WriteString(m.styles.Title.Render("Stats"))
-	content.WriteString(m.styles.SubTitle.Render(m.card.Question))
-	content.WriteString("\n")
-	content.WriteString(m.styles.Text.Render("No stats"))
-	content.WriteString("\n")
-	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
-	return m.styles.Margin.Render(content.String())
+	subTitle := m.styles.SubTitle.
+		Padding(0).
+		Margin(0, 2, 1).
+		Render(m.card.Question)
+
+	v := help.New()
+	v.ShowAll = false
+	v.Width = m.width
+	footer := lipgloss.
+		NewStyle().
+		Width(m.width).
+		Margin(1, 2).
+		Render(v.View(m.keyMap))
+
+	content := m.styles.Text.
+		Width(m.width).
+		Height(m.height-lipgloss.Height(header)-lipgloss.Height(subTitle)-lipgloss.Height(footer)).
+		Margin(0, 2).
+		Render("No stats")
+
+	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, content, footer)
 }
 
 func cardStatsView(m statsModel) string {
 	sections := 5
 	width := min(m.width/sections, 15)
-	firstSession := m.sparkline[0].timestamp
-	lastSession := m.sparkline[len(m.sparkline)-1].timestamp
 
-	var content strings.Builder
-	content.WriteString(m.styles.Title.Render("Stats"))
-	content.WriteString(m.styles.SubTitle.Render(m.card.Question))
-	content.WriteString("\n")
-	content.WriteString(m.styles.Text.Copy().Align(lipgloss.Left).Render(firstSession.Format("02/01/2006")))
-	content.WriteString(m.styles.Text.Copy().Width(width * (sections - 1)).Align(lipgloss.Right).Render(lastSession.Format("02/01/2006")))
-	content.WriteString("\n")
+	title := m.styles.Title.
+		Margin(1, 2).
+		Render("Stats")
 
-	headerStyle := lipgloss.NewStyle().Foreground(darkFuchsia).Width(width).Align(lipgloss.Left)
-	for _, header := range []string{"TOTAL", "HARD", "NORMAL", "EASY", "VERY EASY"} {
-		content.WriteString(headerStyle.Render(header))
+	question := m.styles.SubTitle.
+		Padding(0).
+		Margin(0, 2, 0).
+		Render(m.card.Question)
+
+	firstSession := m.styles.Text.
+		Margin(1, 2).
+		Align(lipgloss.Left).
+		Render(m.sparkline[0].timestamp.Format("02/01/2006"))
+	lastSession := m.styles.Text.
+		Width(width*(sections-1)).
+		Margin(1, 2).
+		Align(lipgloss.Right).
+		Render(m.sparkline[len(m.sparkline)-1].timestamp.Format("02/01/2006"))
+	dates := lipgloss.JoinHorizontal(lipgloss.Left, firstSession, lastSession)
+
+	headerStyle := lipgloss.NewStyle().
+		Width(width).
+		Margin(0, 2).
+		Foreground(darkFuchsia).
+		Align(lipgloss.Left)
+	scoreLabels := make([]string, sections)
+	for i, label := range []string{"TOTAL", "HARD", "NORMAL", "EASY", "VERY EASY"} {
+		scoreLabels[i] = headerStyle.Render(label)
 	}
-	content.WriteString("\n")
+	totalLabels := lipgloss.JoinHorizontal(lipgloss.Left, scoreLabels...)
 
-	totalStyle := m.styles.Text.Copy().Width(width).Align(lipgloss.Left)
-	totals := []flashcard.ReviewScore{
+	totalStyle := m.styles.Text.
+		Width(width).
+		Margin(0, 2).
+		Align(lipgloss.Left)
+	scores := []flashcard.ReviewScore{
 		flashcard.ReviewScoreAgain,
 		flashcard.ReviewScoreHard,
 		flashcard.ReviewScoreNormal,
 		flashcard.ReviewScoreEasy,
 		flashcard.ReviewScoreSuperEasy,
 	}
-	for _, total := range totals {
-		content.WriteString(totalStyle.Render(strconv.Itoa(m.totals[total])))
+	scoreTotals := make([]string, len(scores))
+	for i, score := range scores {
+		scoreTotals[i] = totalStyle.Render(strconv.Itoa(m.totals[score]))
 	}
-	content.WriteString("\n\n")
+	totals := lipgloss.JoinHorizontal(lipgloss.Left, scoreTotals...)
 
+	v := help.New()
+	v.ShowAll = false
+	v.Width = m.width
+	actions := lipgloss.
+		NewStyle().
+		Width(m.width).
+		Margin(1, 2, 0).
+		Render(v.View(m.keyMap))
+
+	var content strings.Builder
 	for _, item := range m.sparkline {
 		content.WriteString(item.level)
 	}
-	content.WriteString("\n")
+	sparkline := m.styles.Text.
+		Width(width).
+		Margin(1, 2).
+		Align(lipgloss.Left).
+		Height(m.height - lipgloss.Height(title) - lipgloss.Height(question) - lipgloss.Height(dates) - lipgloss.Height(totalLabels) - lipgloss.Height(dates) - lipgloss.Height(totals) - lipgloss.Height(actions)).
+		Render(content.String())
 
-	content.WriteString(renderHelp(m.keyMap, m.width, m.height-lipgloss.Height(content.String()), false))
-	return m.styles.Margin.Render(content.String())
+	return lipgloss.JoinVertical(lipgloss.Top, title, question, dates, totalLabels, totals, sparkline, actions)
 }

@@ -1,4 +1,4 @@
-package terminal_test
+package tui_test
 
 import (
 	"testing"

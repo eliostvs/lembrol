@@ -1,4 +1,4 @@
-package terminal_test
+package tui_test
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	clock "github.com/eliostvs/lembrol/internal/clock/test"
-	"github.com/eliostvs/lembrol/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/tui"
 )
 
 func TestCardsList(t *testing.T) {
@@ -26,7 +26,7 @@ func TestCardsList(t *testing.T) {
 
 			assert.Contains(t, view, "Empty")
 			assert.Contains(t, view, "No items.")
-			assert.Contains(t, view, "a add • q quit • ? more ")
+			assert.Contains(t, view, "a add • q quit • ? more")
 		},
 	)
 
@@ -95,7 +95,7 @@ func TestCardsList(t *testing.T) {
 			assert.Contains(
 				t,
 				view,
-				"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt…",
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labo…",
 			)
 		},
 	)
@@ -161,7 +161,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run(
 		"does not start review when it does not have due cards", func(t *testing.T) {
-			view := newTestModel(t, singleCardDeck, terminal.WithClock(clock.Clock{Time: latestCard.ReviewedAt})).
+			view := newTestModel(t, singleCardDeck, tui.WithClock(clock.Clock{Time: latestCard.ReviewedAt})).
 				Init().
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(studyKey).
@@ -213,7 +213,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run(
 		"re-renders when window resize", func(t *testing.T) {
-			view := newTestModel(t, manyDecks, terminal.WithWindowSize(0, 0)).
+			view := newTestModel(t, manyDecks, tui.WithWindowSize(0, 0)).
 				Init().
 				SendKeyType(tea.KeyEnter).
 				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight}).
@@ -225,11 +225,11 @@ func TestCardsList(t *testing.T) {
 	)
 }
 
-func TestCardCreate(t *testing.T) {
+func TestCardAdd(t *testing.T) {
 	t.Parallel()
 
 	t.Run(
-		"shows create card form", func(t *testing.T) {
+		"shows add card form", func(t *testing.T) {
 			view := newTestModel(t, singleCardDeck).
 				Init().
 				SendKeyType(tea.KeyEnter).
@@ -238,6 +238,7 @@ func TestCardCreate(t *testing.T) {
 				View()
 
 			assert.Contains(t, view, "Golang One")
+			assert.Contains(t, view, "Add")
 			assert.Contains(t, view, "nter a question")
 			assert.Contains(t, view, "Enter an answer")
 			assert.Contains(t, view, "↓ down • ↑ up • ctrl+s confirm • esc cancel")
@@ -361,30 +362,6 @@ func TestCardCreate(t *testing.T) {
 			)
 		},
 	)
-
-	t.Run(
-		"changes the layout when the window resize", func(t *testing.T) {
-			var before string
-
-			after := newTestModel(t, emptyDeck, terminal.WithWindowSize(testWidth, testHeight*2)).
-				Init().
-				SendKeyType(tea.KeyEnter).
-				SendKeyRune(createKey).
-				SendKeyRune("Question").
-				SendKeyType(tea.KeyDown).
-				SendKeyRune("Answer").
-				Peek(
-					func(m tea.Model) {
-						before = m.View()
-					},
-				).
-				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight / 2}).
-				Get().
-				View()
-
-			assert.NotEqual(t, before, after)
-		},
-	)
 }
 
 func TestCardEdit(t *testing.T) {
@@ -399,6 +376,7 @@ func TestCardEdit(t *testing.T) {
 				Get().
 				View()
 
+			assert.Contains(t, view, "Golang One")
 			assert.Contains(t, view, "Edit")
 			assert.Contains(t, view, "┃ "+latestCard.Question)
 			assert.Contains(t, view, "┃ "+latestCard.Answer)

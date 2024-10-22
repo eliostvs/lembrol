@@ -1,4 +1,4 @@
-package terminal
+package tui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,17 +27,8 @@ func WithClock(clock clock.Clock) ModelOption {
 // WithWindowSize initializes the model with the given width and height.
 func WithWindowSize(width, height int) ModelOption {
 	return func(m *Model) {
-		m.width, m.height = calcInnerWindowSize(
-			largeSpace, tea.WindowSizeMsg{
-				Width:  width,
-				Height: height,
-			},
-		)
+		m.width, m.height = width, height
 	}
-}
-
-func calcInnerWindowSize(style lipgloss.Style, msg tea.WindowSizeMsg) (int, int) {
-	return msg.Width - style.GetHorizontalFrameSize(), msg.Height - style.GetVerticalFrameSize()
 }
 
 // Repository wraps the file system operation
@@ -96,16 +87,6 @@ type Model struct {
 }
 
 // MESSAGES
-
-func changeInnerWindowSize(width, height int) tea.Cmd {
-	return func() tea.Msg {
-		return innerWindowSizeMsg{Width: width, Height: height}
-	}
-}
-
-type innerWindowSizeMsg struct {
-	Width, Height int
-}
 
 func fail(err error) tea.Msg {
 	return setErrorPageMsg{err}
@@ -184,8 +165,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.width, m.height = calcInnerWindowSize(m.styles.Margin, msg)
-		return m, changeInnerWindowSize(m.width, m.height)
+		m.width, m.height = msg.Width, msg.Height
 
 	case createdRepositoryMsg:
 		m.repository = msg.repository
@@ -213,7 +193,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 
 	case setQuitPageMsg:
-		m.page = newQuitModel(m.Shared, m.repository)
+		m.page = newQuitModel(m.Shared)
 		return m, m.page.Init()
 	}
 

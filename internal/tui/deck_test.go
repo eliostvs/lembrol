@@ -1,4 +1,4 @@
-package terminal_test
+package tui_test
 
 import (
 	"strings"
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	clock "github.com/eliostvs/lembrol/internal/clock/test"
-	"github.com/eliostvs/lembrol/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/tui"
 )
 
 func TestDecksList(t *testing.T) {
@@ -46,7 +46,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run(
 		"shows homepage with many decks", func(t *testing.T) {
-			m := newTestModel(t, manyDecks, terminal.WithClock(clock.New(oldestCard.ReviewedAt.Add(24*time.Hour*4)))).
+			m := newTestModel(t, manyDecks, tui.WithClock(clock.New(oldestCard.ReviewedAt.Add(24*time.Hour*4)))).
 				Init().
 				Get()
 
@@ -188,7 +188,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run(
 		"does not start review when it does not have due cards", func(t *testing.T) {
-			view := newTestModel(t, manyDecks, terminal.WithClock(clock.Clock{Time: oldestCard.ReviewedAt})).
+			view := newTestModel(t, manyDecks, tui.WithClock(clock.Clock{Time: oldestCard.ReviewedAt})).
 				Init().
 				SendKeyRune(studyKey).
 				Get().
@@ -251,7 +251,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run(
 		"re-renders when window resize", func(t *testing.T) {
-			view := newTestModel(t, manyDecks, terminal.WithWindowSize(0, 0)).
+			view := newTestModel(t, manyDecks, tui.WithWindowSize(0, 0)).
 				Init().
 				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight}).
 				Get().
@@ -273,7 +273,7 @@ func TestDeckCreate(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "New Deck")
+			assert.Contains(t, view, "Add")
 			assert.Contains(t, view, "ctrl+s confirm • esc cancel")
 		},
 	)
@@ -290,7 +290,7 @@ func TestDeckCreate(t *testing.T) {
 
 			assert.Contains(t, view, "Decks")
 			assert.Contains(t, view, activePrompt+"Golang B")
-			assert.NotContains(t, view, "Add Deck")
+			assert.NotContains(t, view, "Add")
 		},
 	)
 
@@ -303,7 +303,7 @@ func TestDeckCreate(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "New Deck")
+			assert.Contains(t, view, "Add")
 		},
 	)
 
@@ -354,27 +354,6 @@ func TestDeckCreate(t *testing.T) {
 				View()
 
 			assert.Contains(t, view, "Error")
-		},
-	)
-
-	t.Run(
-		"changes the layout when the window resize", func(t *testing.T) {
-			var before string
-
-			after := newTestModel(t, noneDeck).
-				Init().
-				SendKeyRune(createKey).
-				SendKeyRune("Golang").
-				Peek(
-					func(m tea.Model) {
-						before = m.View()
-					},
-				).
-				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight / 4}).
-				Get().
-				View()
-
-			assert.NotEqual(t, before, after)
 		},
 	)
 }

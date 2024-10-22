@@ -1,4 +1,4 @@
-package terminal_test
+package tui_test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/eliostvs/lembrol/internal/terminal"
+	"github.com/eliostvs/lembrol/internal/tui"
 )
 
 func TestCardStats(t *testing.T) {
@@ -81,7 +81,7 @@ func TestCardStats(t *testing.T) {
 
 	t.Run(
 		"re-renders when window resize", func(t *testing.T) {
-			view := newTestModel(t, fewDecks, terminal.WithWindowSize(0, 0)).
+			view := newTestModel(t, fewDecks, tui.WithWindowSize(0, 0)).
 				Init().
 				SendKeyType(tea.KeyEnter).
 				SendKeyType(tea.KeyEnter).

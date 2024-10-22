@@ -64,6 +64,7 @@ deps-tidy:
 ## deps-upgrade [pkg]: upgrade dependencies
 deps-upgrade: deps-tidy
 	go get -u $(pkg)
+	go mod download
 .PHONY: deps-upgrade
 
 ## build: create snapshot release
@@ -117,6 +118,6 @@ endif
 release-%:
 	git flow init -d
 	@grep -q '\[Unreleased\]' CHANGELOG.md || (echo 'Create the [Unreleased] section in the changelog first!' && exit)
-	bumpversion --verbose --commit $*
+	bumpversion --verbose --tag --commit $*
 	git flow release start $(VERSION)
-	GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/$(VERSION)" $(VERSION) -p
+	GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/$(VERSION)" -T $(VERSION) $(VERSION) -p
