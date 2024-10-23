@@ -501,7 +501,7 @@ func (m cardForm) View() string {
 }
 
 func (m cardForm) fieldsView() string {
-	var content []string
+	content := make([]string, len(m.fields))
 
 	for _, field := range m.fields {
 		content = append(content, field.View())
