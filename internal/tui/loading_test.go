@@ -57,8 +57,6 @@ func TestLoading(t *testing.T) {
 
 	t.Run(
 		"changes the layout when the window resize", func(t *testing.T) {
-			t.Skip("skip until stop calculating inner space in app.update")
-
 			var before string
 
 			after := newTestModel(t, emptyDeck, tui.WithWindowSize(testWidth, testHeight*2)).
