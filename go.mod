@@ -11,7 +11,7 @@ require (
 	github.com/charmbracelet/glamour v0.7.0
 	github.com/charmbracelet/lipgloss v0.11.0
 	github.com/dustin/go-humanize v1.0.1
-	github.com/go-playground/validator/v10 v10.20.0
+	github.com/go-playground/validator/v10 v10.22.1
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/stretchr/testify v1.9.0
 	github.com/urfave/cli/v2 v2.27.4
