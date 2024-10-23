@@ -250,7 +250,7 @@ func TestDecksList(t *testing.T) {
 	)
 
 	t.Run(
-		"re-renders when window resize", func(t *testing.T) {
+		"changes the layout when the window resize", func(t *testing.T) {
 			view := newTestModel(t, manyDecks, tui.WithWindowSize(0, 0)).
 				Init().
 				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight}).

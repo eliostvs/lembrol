@@ -49,6 +49,14 @@ const (
 	hoursPerDay       = 24
 )
 
+var Scores = [5]ReviewScore{
+	ReviewScoreAgain,
+	ReviewScoreHard,
+	ReviewScoreNormal,
+	ReviewScoreEasy,
+	ReviewScoreSuperEasy,
+}
+
 type cardOption func(Card) Card
 
 func withInterval(interval float64) cardOption {

@@ -185,7 +185,6 @@ func notStatsView(m statsModel) string {
 		Render("Stats")
 
 	subTitle := m.styles.SubTitle.
-		Padding(0).
 		Margin(0, 2, 1).
 		Render(m.card.Question)
 
@@ -208,26 +207,27 @@ func notStatsView(m statsModel) string {
 }
 
 func cardStatsView(m statsModel) string {
-	sections := 5
-	width := min(m.width/sections, 15)
+	sections := len(flashcard.Scores)
+	width := min(m.width/sections, 12)
 
 	title := m.styles.Title.
 		Margin(1, 2).
 		Render("Stats")
 
 	question := m.styles.SubTitle.
-		Padding(0).
 		Margin(0, 2, 0).
 		Render(m.card.Question)
 
+	margins := 4
 	firstSession := m.styles.Text.
+		Width(width*(sections-1)+margins*(sections-2)).
 		Margin(1, 2).
 		Align(lipgloss.Left).
 		Render(m.sparkline[0].timestamp.Format("02/01/2006"))
 	lastSession := m.styles.Text.
-		Width(width*(sections-1)).
+		Width(width).
 		Margin(1, 2).
-		Align(lipgloss.Right).
+		Align(lipgloss.Left).
 		Render(m.sparkline[len(m.sparkline)-1].timestamp.Format("02/01/2006"))
 	dates := lipgloss.JoinHorizontal(lipgloss.Left, firstSession, lastSession)
 
@@ -246,15 +246,8 @@ func cardStatsView(m statsModel) string {
 		Width(width).
 		Margin(0, 2).
 		Align(lipgloss.Left)
-	scores := []flashcard.ReviewScore{
-		flashcard.ReviewScoreAgain,
-		flashcard.ReviewScoreHard,
-		flashcard.ReviewScoreNormal,
-		flashcard.ReviewScoreEasy,
-		flashcard.ReviewScoreSuperEasy,
-	}
-	scoreTotals := make([]string, len(scores))
-	for i, score := range scores {
+	scoreTotals := make([]string, sections)
+	for i, score := range flashcard.Scores {
 		scoreTotals[i] = totalStyle.Render(strconv.Itoa(m.totals[score]))
 	}
 	totals := lipgloss.JoinHorizontal(lipgloss.Left, scoreTotals...)
@@ -273,7 +266,7 @@ func cardStatsView(m statsModel) string {
 		content.WriteString(item.level)
 	}
 	sparkline := m.styles.Text.
-		Width(width).
+		Width(m.width).
 		Margin(1, 2).
 		Align(lipgloss.Left).
 		Height(m.height - lipgloss.Height(title) - lipgloss.Height(question) - lipgloss.Height(dates) - lipgloss.Height(totalLabels) - lipgloss.Height(dates) - lipgloss.Height(totals) - lipgloss.Height(actions)).
