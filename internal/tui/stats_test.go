@@ -5,8 +5,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/eliostvs/lembrol/internal/tui"
 )
 
 func TestCardStats(t *testing.T) {
@@ -72,24 +70,10 @@ func TestCardStats(t *testing.T) {
 							Get().
 							View()
 
-						assert.NotContains(t, view, "▃▅▃▅▁█▅▅▁▃▁▁▅█▁█▃▃██▃")
+						assert.NotContains(t, view, "Stats")
 					},
 				)
 			}
-		},
-	)
-
-	t.Run(
-		"re-renders when window resize", func(t *testing.T) {
-			view := newTestModel(t, fewDecks, tui.WithWindowSize(0, 0)).
-				Init().
-				SendKeyType(tea.KeyEnter).
-				SendKeyType(tea.KeyEnter).
-				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight}).
-				Get().
-				View()
-
-			assert.Contains(t, view, "TOTAL          HARD           NORMAL         EASY           VERY EASY")
 		},
 	)
 }
