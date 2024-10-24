@@ -194,7 +194,7 @@ func TestAnswer(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "0 again    1 hard         q quit")
+			assert.Contains(t, view, "0 again1 hard         q quit")
 			assert.Contains(t, view, "2 normal       ? close help")
 			assert.Contains(t, view, "3 easy")
 			assert.Contains(t, view, "4 very easy")

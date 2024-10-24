@@ -6,7 +6,7 @@ toolchain go1.21.4
 
 require (
 	github.com/avelino/slugify v0.0.0-20180501145920-855f152bd774
-	github.com/charmbracelet/bubbles v0.18.0
+	github.com/charmbracelet/bubbles v0.20.0
 	github.com/charmbracelet/bubbletea v1.1.2
 	github.com/charmbracelet/glamour v0.7.0
 	github.com/charmbracelet/lipgloss v0.13.1
