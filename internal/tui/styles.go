@@ -5,9 +5,10 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/glamour"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/glamour"
+	"github.com/charmbracelet/glamour/styles"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dustin/go-humanize"
 )
@@ -15,7 +16,7 @@ import (
 func init() {
 	var margin uint
 
-	for _, style := range glamour.DefaultStyles {
+	for _, style := range styles.DefaultStyles {
 		style.Document.Margin = &margin
 		style.CodeBlock.Margin = &margin
 	}
