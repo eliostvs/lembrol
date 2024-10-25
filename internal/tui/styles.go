@@ -4,7 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/glamour"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -114,22 +113,4 @@ func pluralize(val int, suffix string) string {
 		return suffix
 	}
 	return ""
-}
-
-func renderHelp(keyMap help.KeyMap, width, height int, showAll bool) string {
-	m := help.New()
-	m.ShowAll = showAll
-	if width > 0 {
-		m.Width = width
-	}
-
-	helpText := m.View(keyMap)
-	minHeight := lipgloss.Height(helpText) - 1
-	var prefix string
-
-	if height > minHeight {
-		prefix += strings.Repeat("\n", height-minHeight)
-	}
-
-	return prefix + helpText
 }
