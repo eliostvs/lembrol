@@ -180,7 +180,7 @@ func (k deckBrowseKeyMap) FullHelp() []key.Binding {
 }
 
 func newDeckBrowsePage(shared deckShared) deckBrowsePage {
-	shared.list.SetSize(shared.width-shared.styles.ListMargin.GetHorizontalFrameSize(), shared.height-shared.styles.ListMargin.GetVerticalFrameSize())
+	shared.list.SetSize(shared.width-shared.styles.List.GetHorizontalFrameSize(), shared.height-shared.styles.List.GetVerticalFrameSize())
 	shared.delegate.Styles.SelectedTitle = shared.styles.SelectedTitle
 	shared.delegate.Styles.SelectedDesc = shared.styles.SelectedDesc
 	return deckBrowsePage{
@@ -286,7 +286,7 @@ func (m deckBrowsePage) checkKeyMap() deckBrowsePage {
 }
 
 func (m deckBrowsePage) View() string {
-	return m.styles.ListMargin.Render(m.list.View())
+	return m.styles.List.Render(m.list.View())
 }
 
 // Form Deck
@@ -527,7 +527,7 @@ func newDeleteDeckPage(shared deckShared) deckDeletePage {
 		),
 	}
 
-	shared.list.SetSize(shared.width-shared.styles.ListMargin.GetHorizontalFrameSize(), shared.height-shared.styles.ListMargin.GetVerticalFrameSize())
+	shared.list.SetSize(shared.width-shared.styles.List.GetHorizontalFrameSize(), shared.height-shared.styles.List.GetVerticalFrameSize())
 	shared.delegate.Styles.SelectedTitle = shared.styles.DeletedTitle
 	shared.delegate.Styles.SelectedDesc = shared.styles.DeletedDesc
 
@@ -586,7 +586,7 @@ func (m deckDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckDeletePage) View() string {
-	return m.styles.ListMargin.Render(m.list.View())
+	return m.styles.List.Render(m.list.View())
 }
 
 // Deck Page

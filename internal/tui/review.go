@@ -174,7 +174,7 @@ func (m questionPage) View() string {
 	if err != nil {
 		return errorView(m.Shared, err.Error())
 	}
-	markdown, err := RenderMarkdown(card.Question, m.width)
+	markdown, err := RenderMarkdown(card.Question, m.width-m.styles.Markdown.GetHorizontalFrameSize())
 	if err != nil {
 		return errorView(m.Shared, err.Error())
 	}
@@ -189,7 +189,6 @@ func (m questionPage) View() string {
 		Render(v.View(m.keyMap))
 
 	content := m.styles.Text.
-		Width(m.width).
 		Height(m.height-lipgloss.Height(header)-lipgloss.Height(subTitle)-lipgloss.Height(position)-lipgloss.Height(footer)).
 		Margin(0, 2).
 		Render(markdown)
@@ -330,7 +329,7 @@ func (m answerPage) View() string {
 	if err != nil {
 		return errorView(m.Shared, err.Error())
 	}
-	markdown, err := RenderMarkdown(card.Answer, m.width)
+	markdown, err := RenderMarkdown(card.Answer, m.width-m.styles.Markdown.GetHorizontalFrameSize())
 	if err != nil {
 		return errorView(m.Shared, err.Error())
 	}

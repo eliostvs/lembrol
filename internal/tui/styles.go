@@ -35,8 +35,8 @@ var (
 )
 
 type Styles struct {
-	ListMargin,
-	Margin,
+	List,
+	Markdown,
 	Title,
 	SubTitle,
 	Text,
@@ -45,16 +45,15 @@ type Styles struct {
 	DeletedTitle,
 	DeletedDesc,
 	DeletedStatus,
-	DimmedTitle,
-	Help lipgloss.Style
+	DimmedTitle lipgloss.Style
 }
 
 func NewStyles(lg *lipgloss.Renderer) *Styles {
 	s := Styles{}
-	s.ListMargin = lg.NewStyle().
+	s.List = lg.NewStyle().
 		Padding(1, 0)
-	s.Margin = lg.NewStyle().
-		Padding(1, 4)
+	s.Markdown = lg.NewStyle().
+		Margin(0, 2)
 	s.Title = lg.NewStyle().
 		Foreground(lipgloss.AdaptiveColor{Dark: "#FFFDF5", Light: "#FFFDF5"}).
 		Background(lipgloss.Color("#5A56E0")).

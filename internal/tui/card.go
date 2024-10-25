@@ -184,7 +184,7 @@ func (k cardBrowseKeyMap) FullHelp() []key.Binding {
 }
 
 func newCardBrowsePage(shared cardShared) cardBrowsePage {
-	shared.list.SetSize(shared.width-shared.styles.ListMargin.GetHorizontalFrameSize(), shared.height-shared.styles.ListMargin.GetVerticalFrameSize())
+	shared.list.SetSize(shared.width-shared.styles.List.GetHorizontalFrameSize(), shared.height-shared.styles.List.GetVerticalFrameSize())
 	shared.delegate.Styles.SelectedTitle = shared.styles.SelectedTitle
 	shared.delegate.Styles.SelectedDesc = shared.styles.SelectedDesc
 
@@ -265,7 +265,7 @@ func (m cardBrowsePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m cardBrowsePage) View() string {
-	return m.styles.ListMargin.Render(m.list.View())
+	return m.styles.List.Render(m.list.View())
 }
 
 func (m cardBrowsePage) checkKeyMap() cardBrowsePage {
@@ -645,7 +645,7 @@ func newDeleteCardPage(shared cardShared) cardDeletePage {
 	shared.delegate.Styles.SelectedTitle = shared.styles.DeletedTitle
 	shared.delegate.Styles.SelectedDesc = shared.styles.DeletedDesc
 
-	shared.list.SetSize(shared.width-shared.styles.ListMargin.GetHorizontalFrameSize(), shared.height-shared.styles.ListMargin.GetVerticalFrameSize())
+	shared.list.SetSize(shared.width-shared.styles.List.GetHorizontalFrameSize(), shared.height-shared.styles.List.GetVerticalFrameSize())
 	shared.list.AdditionalShortHelpKeys = keyMap.ShortHelp
 	shared.list.AdditionalFullHelpKeys = keyMap.FullHelp
 	shared.list.KeyMap.CloseFullHelp.SetEnabled(false)
@@ -701,7 +701,7 @@ func (m cardDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m cardDeletePage) View() string {
-	return m.styles.ListMargin.Render(m.list.View())
+	return m.styles.List.Render(m.list.View())
 }
 
 // Card Page
