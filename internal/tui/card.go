@@ -503,8 +503,8 @@ func (m cardForm) View() string {
 func (m cardForm) fieldsView() string {
 	content := make([]string, len(m.fields))
 
-	for _, field := range m.fields {
-		content = append(content, field.View())
+	for i, field := range m.fields {
+		content[i] = field.View()
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Top, content...)
