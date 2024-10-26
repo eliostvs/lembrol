@@ -195,7 +195,7 @@ func (m questionPage) View() string {
 // Answer Page
 
 type answerKeyMap struct {
-	quit, score, again, hard, normal, easy, veryEasy, showFullHelp, closeFullHelp key.Binding
+	quit, score, again, workaround, hard, normal, easy, veryEasy, showFullHelp, closeFullHelp key.Binding
 }
 
 func (k answerKeyMap) ShortHelp() []key.Binding {
@@ -206,6 +206,8 @@ func (k answerKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{
 			k.again,
+			// hack to address the issue of the again key from merging with the column below.
+			k.workaround,
 		},
 		{
 			k.hard,
@@ -231,6 +233,11 @@ func newAnswerPage(shared reviewShared) answerPage {
 			again: key.NewBinding(
 				key.WithKeys("0"),
 				key.WithHelp("0", "again"),
+			),
+			// hack to address the issue of the again key from merging with the score keys.
+			workaround: key.NewBinding(
+				key.WithKeys(""),
+				key.WithHelp("", ""),
 			),
 			hard: key.NewBinding(
 				key.WithKeys("1"),
