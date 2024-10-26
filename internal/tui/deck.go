@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -363,14 +362,11 @@ func (m deckForm) Update(msg tea.Msg) (deckForm, tea.Cmd) {
 }
 
 func (m deckForm) View() string {
-	v := help.New()
-	v.ShowAll = false
-	v.Width = m.width
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
 		Padding(0, 2, 1).
-		Render(v.View(m.keyMap))
+		Render(renderHelp(m.keyMap, m.width, false))
 
 	input := m.color().
 		Height(m.height-lipgloss.Height(footer)).
