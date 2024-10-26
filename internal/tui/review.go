@@ -3,7 +3,6 @@ package tui
 import (
 	"fmt"
 
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -179,14 +178,11 @@ func (m questionPage) View() string {
 		return errorView(m.Shared, err.Error())
 	}
 
-	v := help.New()
-	v.ShowAll = false
-	v.Width = m.width
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
 		Margin(1, 2).
-		Render(v.View(m.keyMap))
+		Render(renderHelp(m.keyMap, m.width, false))
 
 	content := m.styles.Text.
 		Height(m.height-lipgloss.Height(header)-lipgloss.Height(subTitle)-lipgloss.Height(position)-lipgloss.Height(footer)).
@@ -334,14 +330,11 @@ func (m answerPage) View() string {
 		return errorView(m.Shared, err.Error())
 	}
 
-	v := help.New()
-	v.ShowAll = m.fullHelp
-	v.Width = m.width
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
 		Margin(1, 2).
-		Render(v.View(m.keyMap))
+		Render(renderHelp(m.keyMap, m.width, m.fullHelp))
 
 	content := m.styles.Text.
 		Width(m.width).
@@ -408,14 +401,11 @@ func (m reviewSummaryPage) View() string {
 		Margin(1, 2).
 		Render("Congratulations!")
 
-	v := help.New()
-	v.ShowAll = false
-	v.Width = m.width
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
 		Margin(1, 2).
-		Render(v.View(m.keyMap))
+		Render(renderHelp(m.keyMap, m.width, false))
 
 	completed := m.review.Completed
 	subTitle := m.styles.SubTitle.

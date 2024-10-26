@@ -115,10 +115,10 @@ func pluralize(val int, suffix string) string {
 	return ""
 }
 
-func renderHelp(keyMap help.KeyMap, width int, showAll bool) string {
+func renderHelp(keyMap help.KeyMap, width int, fullHelp bool) string {
 	model := help.New()
-	model.ShowAll = false
 	model.Width = width
+	model.ShowAll = fullHelp
 
 	return model.View(keyMap)
 }
