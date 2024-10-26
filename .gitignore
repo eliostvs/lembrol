@@ -1,5 +1,5 @@
 coverage*
-.tool-versions
+.mise.toml
 .idea
 .env
 ./remember

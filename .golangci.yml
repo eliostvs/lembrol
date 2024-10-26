@@ -1,6 +1,5 @@
 linters:
   disable:
-    - scopelint
     - exhaustive
     - funlen
     - contextcheck

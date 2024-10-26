@@ -3,7 +3,6 @@ package tui
 import (
 	"fmt"
 
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -174,22 +173,18 @@ func (m questionPage) View() string {
 	if err != nil {
 		return errorView(m.Shared, err.Error())
 	}
-	markdown, err := RenderMarkdown(card.Question, m.width)
+	markdown, err := RenderMarkdown(card.Question, m.width-m.styles.Markdown.GetHorizontalFrameSize())
 	if err != nil {
 		return errorView(m.Shared, err.Error())
 	}
 
-	v := help.New()
-	v.ShowAll = false
-	v.Width = m.width
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
 		Margin(1, 2).
-		Render(v.View(m.keyMap))
+		Render(renderHelp(m.keyMap, m.width, false))
 
 	content := m.styles.Text.
-		Width(m.width).
 		Height(m.height-lipgloss.Height(header)-lipgloss.Height(subTitle)-lipgloss.Height(position)-lipgloss.Height(footer)).
 		Margin(0, 2).
 		Render(markdown)
@@ -200,7 +195,7 @@ func (m questionPage) View() string {
 // Answer Page
 
 type answerKeyMap struct {
-	quit, score, again, hard, normal, easy, veryEasy, showFullHelp, closeFullHelp key.Binding
+	quit, score, again, workaround, hard, normal, easy, veryEasy, showFullHelp, closeFullHelp key.Binding
 }
 
 func (k answerKeyMap) ShortHelp() []key.Binding {
@@ -211,6 +206,8 @@ func (k answerKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{
 			k.again,
+			// hack to address the issue of the again key from merging with the column below.
+			k.workaround,
 		},
 		{
 			k.hard,
@@ -236,6 +233,11 @@ func newAnswerPage(shared reviewShared) answerPage {
 			again: key.NewBinding(
 				key.WithKeys("0"),
 				key.WithHelp("0", "again"),
+			),
+			// hack to address the issue of the again key from merging with the score keys.
+			workaround: key.NewBinding(
+				key.WithKeys(""),
+				key.WithHelp("", ""),
 			),
 			hard: key.NewBinding(
 				key.WithKeys("1"),
@@ -330,19 +332,16 @@ func (m answerPage) View() string {
 	if err != nil {
 		return errorView(m.Shared, err.Error())
 	}
-	markdown, err := RenderMarkdown(card.Answer, m.width)
+	markdown, err := RenderMarkdown(card.Answer, m.width-m.styles.Markdown.GetHorizontalFrameSize())
 	if err != nil {
 		return errorView(m.Shared, err.Error())
 	}
 
-	v := help.New()
-	v.ShowAll = m.fullHelp
-	v.Width = m.width
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
 		Margin(1, 2).
-		Render(v.View(m.keyMap))
+		Render(renderHelp(m.keyMap, m.width, m.fullHelp))
 
 	content := m.styles.Text.
 		Width(m.width).
@@ -409,14 +408,11 @@ func (m reviewSummaryPage) View() string {
 		Margin(1, 2).
 		Render("Congratulations!")
 
-	v := help.New()
-	v.ShowAll = false
-	v.Width = m.width
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
 		Margin(1, 2).
-		Render(v.View(m.keyMap))
+		Render(renderHelp(m.keyMap, m.width, false))
 
 	completed := m.review.Completed
 	subTitle := m.styles.SubTitle.

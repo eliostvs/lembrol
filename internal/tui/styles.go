@@ -5,9 +5,10 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/glamour"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/glamour"
+	"github.com/charmbracelet/glamour/styles"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dustin/go-humanize"
 )
@@ -15,7 +16,7 @@ import (
 func init() {
 	var margin uint
 
-	for _, style := range glamour.DefaultStyles {
+	for _, style := range styles.DefaultStyles {
 		style.Document.Margin = &margin
 		style.CodeBlock.Margin = &margin
 	}
@@ -35,8 +36,8 @@ var (
 )
 
 type Styles struct {
-	ListMargin,
-	Margin,
+	List,
+	Markdown,
 	Title,
 	SubTitle,
 	Text,
@@ -45,16 +46,15 @@ type Styles struct {
 	DeletedTitle,
 	DeletedDesc,
 	DeletedStatus,
-	DimmedTitle,
-	Help lipgloss.Style
+	DimmedTitle lipgloss.Style
 }
 
 func NewStyles(lg *lipgloss.Renderer) *Styles {
 	s := Styles{}
-	s.ListMargin = lg.NewStyle().
+	s.List = lg.NewStyle().
 		Padding(1, 0)
-	s.Margin = lg.NewStyle().
-		Padding(1, 4)
+	s.Markdown = lg.NewStyle().
+		Margin(0, 2)
 	s.Title = lg.NewStyle().
 		Foreground(lipgloss.AdaptiveColor{Dark: "#FFFDF5", Light: "#FFFDF5"}).
 		Background(lipgloss.Color("#5A56E0")).
@@ -115,20 +115,10 @@ func pluralize(val int, suffix string) string {
 	return ""
 }
 
-func renderHelp(keyMap help.KeyMap, width, height int, showAll bool) string {
-	m := help.New()
-	m.ShowAll = showAll
-	if width > 0 {
-		m.Width = width
-	}
+func renderHelp(keyMap help.KeyMap, width int, fullHelp bool) string {
+	model := help.New()
+	model.Width = width
+	model.ShowAll = fullHelp
 
-	helpText := m.View(keyMap)
-	minHeight := lipgloss.Height(helpText) - 1
-	var prefix string
-
-	if height > minHeight {
-		prefix += strings.Repeat("\n", height-minHeight)
-	}
-
-	return prefix + helpText
+	return model.View(keyMap)
 }

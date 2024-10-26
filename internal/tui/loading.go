@@ -3,7 +3,6 @@ package tui
 import (
 	"fmt"
 
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
@@ -84,15 +83,11 @@ func (m loadingPage) View() string {
 		Margin(1, 2).
 		Render(m.title)
 
-	v := help.New()
-	v.ShowAll = false
-	v.Width = m.width
-
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
 		Margin(1, 2).
-		Render(v.View(m.keyMap))
+		Render(renderHelp(m.keyMap, m.width, false))
 
 	content := m.styles.Text.
 		Width(m.width).

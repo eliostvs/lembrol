@@ -252,14 +252,11 @@ func cardStatsView(m statsModel) string {
 	}
 	totals := lipgloss.JoinHorizontal(lipgloss.Left, scoreTotals...)
 
-	v := help.New()
-	v.ShowAll = false
-	v.Width = m.width
 	actions := lipgloss.
 		NewStyle().
 		Width(m.width).
 		Margin(1, 2, 0).
-		Render(v.View(m.keyMap))
+		Render(renderHelp(m.keyMap, m.width, false))
 
 	var content strings.Builder
 	for _, item := range m.sparkline {
