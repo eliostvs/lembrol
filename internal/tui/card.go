@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -482,15 +481,11 @@ func (m cardForm) updateFields(msg tea.Msg) (cardForm, tea.Cmd) {
 }
 
 func (m cardForm) View() string {
-	v := help.New()
-	v.ShowAll = false
-	v.Width = m.width
-
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).
 		Margin(1, 2).
-		Render(v.View(m.keyMap))
+		Render(renderHelp(m.keyMap, m.width, false))
 
 	input := lipgloss.NewStyle().
 		Height(m.height - lipgloss.Height(footer)).
