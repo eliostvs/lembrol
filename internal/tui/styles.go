@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/glamour"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -112,4 +113,12 @@ func pluralize(val int, suffix string) string {
 		return suffix
 	}
 	return ""
+}
+
+func renderHelp(keyMap help.KeyMap, width int, showAll bool) string {
+	model := help.New()
+	model.ShowAll = false
+	model.Width = width
+
+	return model.View(keyMap)
 }
