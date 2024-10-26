@@ -1,8 +1,6 @@
 module github.com/eliostvs/lembrol
 
-go 1.21
-
-toolchain go1.21.4
+go 1.23.2
 
 require (
 	github.com/avelino/slugify v0.0.0-20180501145920-855f152bd774
@@ -43,7 +41,6 @@ require (
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.3-0.20240618155329-98d742f6907a // indirect
-	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
