@@ -9,7 +9,7 @@ import (
 func TestQuit(t *testing.T) {
 	t.Parallel()
 
-	t.Run("show goodbye screen ", func(t *testing.T) {
+	t.Run("show goodbye screen", func(t *testing.T) {
 		view := newTestModel(t, manyDecks).
 			Init().
 			SendKeyRune(quitKey).
