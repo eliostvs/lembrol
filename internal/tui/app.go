@@ -189,8 +189,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.page.Init()
 
 	case setErrorPageMsg:
-		m.page = newErrorModel(m.Shared, msg.err)
-		return m, tea.Quit
+		m.page = newErrorPage(m.Shared, msg.err)
+		return m, m.page.Init()
 
 	case setQuitPageMsg:
 		m.page = newQuitModel(m.Shared)

@@ -171,11 +171,11 @@ func (m questionPage) View() string {
 
 	card, err := m.review.Card()
 	if err != nil {
-		return errorView(m.Shared, err.Error())
+		return errorView(m.Shared, newErrorKeyMap(), err.Error())
 	}
 	markdown, err := RenderMarkdown(card.Question, m.width-m.styles.Markdown.GetHorizontalFrameSize())
 	if err != nil {
-		return errorView(m.Shared, err.Error())
+		return errorView(m.Shared, newErrorKeyMap(), err.Error())
 	}
 
 	footer := lipgloss.
@@ -330,11 +330,11 @@ func (m answerPage) View() string {
 
 	card, err := m.review.Card()
 	if err != nil {
-		return errorView(m.Shared, err.Error())
+		return errorView(m.Shared, newErrorKeyMap(), err.Error())
 	}
 	markdown, err := RenderMarkdown(card.Answer, m.width-m.styles.Markdown.GetHorizontalFrameSize())
 	if err != nil {
-		return errorView(m.Shared, err.Error())
+		return errorView(m.Shared, newErrorKeyMap(), err.Error())
 	}
 
 	footer := lipgloss.

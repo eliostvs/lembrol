@@ -18,6 +18,18 @@ func TestError(t *testing.T) {
 
 			assert.Contains(t, view, "Error")
 			assert.Contains(t, view, "looking for beginning of object key string")
+			assert.Contains(t, view, "q quit")
 		},
 	)
+
+	t.Run("quits the app", func(t *testing.T) {
+		view := newTestModel(t, invalidDeck).
+			Init().
+			SendKeyRune(quitKey).
+			Get().
+			View()
+
+		assert.NotContains(t, view, "Error")
+		assert.Contains(t, view, "Bye")
+	})
 }
