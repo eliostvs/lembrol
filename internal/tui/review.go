@@ -389,10 +389,6 @@ func (m reviewSummaryPage) Init() tea.Cmd {
 
 func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.width, m.height = msg.Width, msg.Height
-		return m, nil
-
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.quit):

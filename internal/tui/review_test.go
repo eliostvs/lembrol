@@ -413,26 +413,4 @@ func TestReview(t *testing.T) {
 			assert.Contains(t, view, "Decks")
 		},
 	)
-
-	t.Run(
-		"changes the layout when the window resize", func(t *testing.T) {
-			var before string
-
-			after := newTestModel(t, singleCardDeck, tui.WithWindowSize(testWidth, testHeight*2)).
-				Init().
-				SendKeyRune(studyKey).
-				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
-				Peek(
-					func(m tea.Model) {
-						before = m.View()
-					},
-				).
-				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight / 2}).
-				Get().
-				View()
-
-			assert.NotEqual(t, before, after)
-		},
-	)
 }
