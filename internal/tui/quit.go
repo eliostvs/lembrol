@@ -25,8 +25,16 @@ func (m quitModel) Init() tea.Cmd {
 	}
 }
 
-func (m quitModel) Update(tea.Msg) (tea.Model, tea.Cmd) {
-	return m, nil
+func (m quitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+		return m, nil
+	}
+
+	return m, cmd
 }
 
 func (m quitModel) View() string {
