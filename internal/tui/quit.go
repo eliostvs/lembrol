@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -19,6 +20,7 @@ type quitModel struct {
 
 func (m quitModel) Init() tea.Cmd {
 	return func() tea.Msg {
+		m.clock.Sleep(time.Second)
 		return tea.Quit()
 	}
 }
