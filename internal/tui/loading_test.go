@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/eliostvs/lembrol/internal/tui"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -64,6 +65,24 @@ func TestLoading(t *testing.T) {
 					},
 				).
 				ForceUpdate(spinner.TickMsg{}).
+				Get().
+				View()
+
+			assert.NotEqual(t, before, after)
+		},
+	)
+
+	t.Run(
+		"changes the height when the window resize", func(t *testing.T) {
+			var before string
+
+			after := newTestModel(t, emptyDeck, tui.WithWindowSize(testWidth, testHeight*2)).
+				Peek(
+					func(m tea.Model) {
+						before = m.View()
+					},
+				).
+				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight / 2}).
 				Get().
 				View()
 

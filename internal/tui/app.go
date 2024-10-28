@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"time"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
@@ -60,6 +62,7 @@ func NewModel(path string, opts ...ModelOption) Model {
 	m := Model{
 		page: newLoadingPage(shared, appName, "Loading..."),
 		repositoryFactory: func(c clock.Clock) (Repository, error) {
+			c.Sleep(time.Second)
 			return flashcard.NewRepository(path, c)
 		},
 		Shared: shared,

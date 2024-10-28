@@ -415,7 +415,7 @@ func TestReview(t *testing.T) {
 	)
 
 	t.Run(
-		"changes the layout when the window resize", func(t *testing.T) {
+		"changes the height when the window resize", func(t *testing.T) {
 			var before string
 
 			after := newTestModel(t, singleCardDeck, tui.WithWindowSize(testWidth, testHeight*2)).

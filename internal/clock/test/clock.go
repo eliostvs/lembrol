@@ -10,6 +10,9 @@ type Clock struct {
 	time.Time
 }
 
+func (c Clock) Sleep(d time.Duration) {
+}
+
 func (c Clock) Now() time.Time {
 	return c.Time
 }
