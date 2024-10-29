@@ -37,7 +37,7 @@ func TestCardStats(t *testing.T) {
 			assert.Contains(t, view, "Question A")
 			assert.Contains(t, view, "01/02/2022")
 			assert.Contains(t, view, "28/02/2022")
-			assert.Contains(t, view, "TOTAL           HARD            NORMAL          EASY")
+			assert.Contains(t, view, "TOTAL           VERY EASY       EASY            NORMAL          HARD")
 			assert.Contains(t, view, "21              5               6               5")
 			assert.Contains(t, view, "▃▅▃▅▁█▅▅▁▃▁▁▅█▁█▃▃██▃")
 			assert.Contains(t, view, "q quit")

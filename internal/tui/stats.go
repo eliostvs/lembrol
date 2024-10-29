@@ -237,7 +237,7 @@ func cardStatsView(m statsModel) string {
 		Foreground(darkFuchsia).
 		Align(lipgloss.Left)
 	scoreLabels := make([]string, sections)
-	for i, label := range []string{"TOTAL", "HARD", "NORMAL", "EASY", "VERY EASY"} {
+	for i, label := range []string{"TOTAL", "VERY EASY", "EASY", "NORMAL", "HARD"} {
 		scoreLabels[i] = headerStyle.Render(label)
 	}
 	totalLabels := lipgloss.JoinHorizontal(lipgloss.Left, scoreLabels...)
