@@ -5,9 +5,9 @@ go 1.23.2
 require (
 	github.com/avelino/slugify v0.0.0-20180501145920-855f152bd774
 	github.com/charmbracelet/bubbles v0.20.0
-	github.com/charmbracelet/bubbletea v1.1.2
+	github.com/charmbracelet/bubbletea v1.2.1
 	github.com/charmbracelet/glamour v0.8.0
-	github.com/charmbracelet/lipgloss v0.13.1
+	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-playground/validator/v10 v10.22.1
 	github.com/matoous/go-nanoid/v2 v2.1.0
@@ -20,7 +20,7 @@ require (
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
-	github.com/charmbracelet/x/ansi v0.4.0 // indirect
+	github.com/charmbracelet/x/ansi v0.4.5 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
