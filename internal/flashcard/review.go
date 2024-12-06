@@ -3,7 +3,6 @@ package flashcard
 import (
 	"errors"
 	"math/rand"
-	"time"
 
 	"github.com/eliostvs/lembrol/internal/clock"
 )
@@ -20,7 +19,6 @@ func NewReview(deck Deck, clock clock.Clock) Review {
 }
 
 func shuffle(cards []Card) {
-	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(cards), func(i, j int) { cards[i], cards[j] = cards[j], cards[i] })
 }
 
