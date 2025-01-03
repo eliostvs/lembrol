@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -621,6 +622,8 @@ func (m deckPage) Init() tea.Cmd {
 }
 
 func (m deckPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	log.Printf("deck: %T\n", msg)
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {

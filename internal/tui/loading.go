@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -60,6 +61,8 @@ func (m loadingPage) Init() tea.Cmd {
 }
 
 func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	log.Printf("loading: %T\n", msg)
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
