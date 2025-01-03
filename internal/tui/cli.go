@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -8,7 +9,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/eliostvs/lembrol/internal/version"
 )
@@ -20,7 +21,7 @@ func CLI(args []string, stdout io.Writer, stderr io.Writer) int {
 		decksPath      = "decks"
 	)
 
-	app := &cli.App{
+	cmd := &cli.Command{
 		Name:      strings.ToLower(appName),
 		Usage:     "Learning things through spaced repetition.",
 		Writer:    stdout,
@@ -42,16 +43,16 @@ func CLI(args []string, stdout io.Writer, stderr io.Writer) int {
 				Usage: "path to directory contains decks",
 			},
 		},
-		Action: func(cCtx *cli.Context) error {
-			if cCtx.Bool(logEnabledFlag) {
-				file, err := tea.LogToFile(cCtx.String(logFileFlag), appName)
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			if cmd.Bool(logEnabledFlag) {
+				file, err := tea.LogToFile(cmd.String(logFileFlag), appName)
 				if err != nil {
 					return fmt.Errorf("failed to configure logging: %w", err)
 				}
 				defer file.Close()
 			}
 
-			program := tea.NewProgram(NewModel(cCtx.String(decksPath)), tea.WithAltScreen())
+			program := tea.NewProgram(NewModel(cmd.String(decksPath)), tea.WithAltScreen())
 			_, err := program.Run()
 			return err
 		},
@@ -60,7 +61,7 @@ func CLI(args []string, stdout io.Writer, stderr io.Writer) int {
 				Name:    "version",
 				Aliases: []string{"v"},
 				Usage:   "Show version",
-				Action: func(cCtx *cli.Context) error {
+				Action: func(ctx context.Context, cmd *cli.Command) error {
 					_, _ = fmt.Fprintf(stdout, "%s %s %s\n\n", appName, version.Version, version.Time)
 					return nil
 				},
@@ -68,7 +69,7 @@ func CLI(args []string, stdout io.Writer, stderr io.Writer) int {
 		},
 	}
 
-	if err := app.Run(args); err != nil {
+	if err := cmd.Run(context.Background(), args); err != nil {
 		_, _ = fmt.Fprintf(stderr, "failed: %v\n", err)
 		return -1
 	}

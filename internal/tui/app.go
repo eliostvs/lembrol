@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"log"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -164,6 +165,8 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	log.Printf("app: %T\n", msg)
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
