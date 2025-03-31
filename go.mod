@@ -1,6 +1,7 @@
 module github.com/eliostvs/lembrol
 
 go 1.23.2
+toolchain go1.24.1
 
 require (
 	github.com/avelino/slugify v0.0.0-20180501145920-855f152bd774
@@ -9,7 +10,7 @@ require (
 	github.com/charmbracelet/glamour v0.9.1
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/dustin/go-humanize v1.0.1
-	github.com/go-playground/validator/v10 v10.25.0
+	github.com/go-playground/validator/v10 v10.26.0
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v3 v3.0.0-beta1
