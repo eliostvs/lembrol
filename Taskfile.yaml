@@ -19,7 +19,7 @@ tasks:
     desc: "prepare development environment"
     cmds: 
       - go mod download
-      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $GOBIN v1.61.0
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $GOBIN v2.1.6
 
   deps-outdated:
     desc: "list outdated dependencies"
