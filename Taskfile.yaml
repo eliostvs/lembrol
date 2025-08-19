@@ -1,4 +1,4 @@
-version: "3.0"
+version: "3"
 
 silent: true
 
@@ -9,53 +9,33 @@ vars:
 
 tasks:
   clean:
-    desc: "delete binary and development environment"
+    desc: delete binary and development environment
     cmds:
       - rm coverage* 2> /dev/null || true
       - rm *.log 2> /dev/null || true
       - go clean -cache -testcache -modcache
 
   dev:
-    desc: "prepare development environment"
+    desc: prepare development environment
     cmds: 
       - go mod download
       - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $GOBIN v2.1.6
 
-  deps-outdated:
-    desc: "list outdated dependencies"
+  upgrade:
+    desc: list direct dependencies that have upgrades available
     cmds:
-      - go list -f "{{if and (not .Main) (not .Indirect)}} {{if .Update}} {{.Update}} {{end}} {{end}}" -m -u all 2> /dev/null | awk NF
-
-  deps-tidy:
-    desc: "remove unused and verify dependencies"
-    cmds:
+      - go run github.com/oligot/go-mod-upgrade@latest
       - go mod tidy
-      - go mod verify
-
-  deps-upgrade:
-    desc: "upgrade dependencies"
-    cmds:
-      - go get -u {{.PACKAGE}}
-      - go mod download
-
-  build:
-    desc: "create snapshot release"
-    cmds:
-      - go run github.com/goreleaser/goreleaser@latest build --clean --snapshot --single-target
-
-  run:
-    desc: "run app in development mode"
-    cmds:
-      - go run ./cmd/lembrol --log {{.CLI_ARGS}}
 
   format:
-    desc: "format files"
+    desc: format files
     cmds:
       - go run golang.org/x/tools/cmd/goimports@latest -l -w .
       - go run mvdan.cc/gofumpt@latest -l -w .
+      - go mod tidy -v
 
   lint:
-    desc: "run static checks"
+    desc: run static checks
     cmds:
       - golangci-lint run
 
@@ -65,20 +45,26 @@ tasks:
       - go test {{.CLI_ARGS} -race -shuffle=on -cover -coverprofile=/{{.DIST}}/coverage.out {{.PACKAGE}}
       - go tool cover -html=/{{.DIST}}/coverage.out
 
-  vulncheck:
-    desc: "run vulnerability checks"
+  audit:
+    desc: run quality control checks
     cmds:
-      - go run golang.org/x/vuln/cmd/govulncheck@latest {{.PACKAGE}}
+      - go mod verify
+      - go vet {{.PACKAGES}}
+      - go run honnef.co/go/tools/cmd/staticcheck@latest -checks=all,-ST1000,-U1000 {{.PACKAGES}}
+      - go run golang.org/x/vuln/cmd/govulncheck@latest {{.PACKAGES}}
 
-  test-all:
-    desc: "run lint and tests"
-    deps: 
-      - lint
-      - test
-      - vulncheck
+  run:
+    desc: run the application
+    cmds:
+      - go run ./cmd/lembrol --log {{.CLI_ARGS}}
+
+  build:
+    desc: create snapshot release
+    cmds:
+      - go run github.com/goreleaser/goreleaser@latest build --clean --snapshot --single-target
 
   release:
-    desc: "create a new release"
+    desc: create a new release
     cmds:
       - git flow init -d
       - |
