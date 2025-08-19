@@ -4,8 +4,8 @@ silent: true
 
 vars:
   NAME: "lembrol"
-  PACKAGE: "./..."
-  DIST: "dist"
+  PACKAGES: "./..."
+  GOLANGCI_LINT_VERSION: 2.3.1
 
 tasks:
   clean:
@@ -19,7 +19,8 @@ tasks:
     desc: prepare development environment
     cmds: 
       - go mod download
-      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $GOBIN v2.1.6
+      - mkdir -p dist
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b dist/ v{{.GOLANGCI_LINT_VERSION}}
 
   upgrade:
     desc: list direct dependencies that have upgrades available
@@ -37,13 +38,13 @@ tasks:
   lint:
     desc: run static checks
     cmds:
-      - golangci-lint run
+      - ./dist/golangci-lint run
 
   test:
-    desc: "run tests"
+    desc: run tests
     cmds:
-      - go test {{.CLI_ARGS} -race -shuffle=on -cover -coverprofile=/{{.DIST}}/coverage.out {{.PACKAGE}}
-      - go tool cover -html=/{{.DIST}}/coverage.out
+      - go test {{.CLI_ARGS}} -buildvcs -race -shuffle=on -cover -coverprofile=dist/coverage.out {{.PACKAGES}}
+      - go tool cover -html=dist/coverage.out
 
   audit:
     desc: run quality control checks
