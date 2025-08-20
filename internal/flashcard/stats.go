@@ -2,27 +2,36 @@ package flashcard
 
 import (
 	"time"
+
+	fsrs "github.com/open-spaced-repetition/go-fsrs/v3"
 )
 
 // Stats is the revised card statistics.
 type Stats struct {
-	Algorithm      string      `json:"algorithm" validate:"required"`
-	Timestamp      time.Time   `json:"timestamp" validate:"required"`
-	Score          ReviewScore `json:"score" validate:"required"`
-	LastReview     time.Time   `json:"last_review" validate:"required"`
-	Repetitions    int         `json:"repetitions" validate:"required"`
-	Interval       float64     `json:"interval" validate:"required"`
-	EasinessFactor float64     `json:"easiness_factor" validate:"required"`
+	Score       ReviewScore `json:"score" validate:"required"`
+	LastReview  time.Time   `json:"last_review" validate:"required"`
+	
+	// FSRS-specific fields 
+	Rating        fsrs.Rating `json:"rating"`
+	Stability     float64     `json:"stability"`
+	Difficulty    float64     `json:"difficulty"`
+	ElapsedDays   uint64      `json:"elapsed_days"`
+	ScheduledDays uint64      `json:"scheduled_days"`
+	State         fsrs.State  `json:"state"`
+	
 }
 
-func NewStats(ts time.Time, score ReviewScore, previous Card) Stats {
+
+// NewFSRSStats creates stats using FSRS data.
+func NewFSRSStats(ts time.Time, rating fsrs.Rating, previous, updated Card) Stats {
 	return Stats{
-		Algorithm:      "sm2",
-		Timestamp:      ts,
-		Score:          score,
-		LastReview:     previous.ReviewedAt,
-		Repetitions:    previous.Repetitions,
-		Interval:       previous.Interval,
-		EasinessFactor: previous.EasinessFactor,
+		Score:         FSRSRatingToReviewScore(rating),
+		Rating:        rating,
+		LastReview:    ts,
+		Stability:     updated.Stability,
+		Difficulty:    updated.Difficulty,
+		ElapsedDays:   updated.ElapsedDays,
+		ScheduledDays: updated.ScheduledDays,
+		State:         updated.State,
 	}
 }

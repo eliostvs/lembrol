@@ -240,7 +240,7 @@ func TestDeck_Add(t *testing.T) {
 	require.NotNil(t, card)
 	assert.Equal(t, card.Question, "Question")
 	assert.Equal(t, card.Answer, "Answer")
-	assert.Equal(t, card.ReviewedAt, now)
+	assert.Equal(t, card.LastReview, now)
 }
 
 func TestDeck_Update(t *testing.T) {

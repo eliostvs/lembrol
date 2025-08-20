@@ -128,11 +128,8 @@ func TestReview_Rate(t *testing.T) {
 						newReview, err := review.Rate(tt.args.score)
 
 						newCard := getCard(newReview.Deck, card.ID)
-						if tt.args.score == flashcard.ReviewScoreAgain {
-							assert.Equal(t, card.Stats, newCard.Stats)
-						} else {
-							assert.Greater(t, len(newCard.Stats), len(card.Stats))
-						}
+						// With FSRS, all reviews create stats entries, including "Again"
+						assert.Greater(t, len(newCard.Stats), len(card.Stats))
 
 						assert.NoError(t, err)
 						assert.Equal(t, tt.want.left, newReview.Left())

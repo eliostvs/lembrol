@@ -1,12 +1,14 @@
 package flashcard
 
 import (
+	"encoding/json"
 	"errors"
 	"math"
 	"strconv"
 	"time"
 
 	nanoid "github.com/matoous/go-nanoid/v2"
+	fsrs "github.com/open-spaced-repetition/go-fsrs/v3"
 )
 
 // ErrInvalidScore is returned by NewReviewScore
@@ -41,12 +43,6 @@ const (
 	ReviewScoreNormal
 	ReviewScoreEasy
 	ReviewScoreSuperEasy
-
-	// InitialEasinessFactor defines the initial easiness factor.
-	InitialEasinessFactor = 2.5
-	// MinEasinessFactor defines the minimal easiness factor possible.
-	MinEasinessFactor = 1.3
-	hoursPerDay       = 24
 )
 
 var Scores = [5]ReviewScore{
@@ -59,20 +55,6 @@ var Scores = [5]ReviewScore{
 
 type cardOption func(Card) Card
 
-func withInterval(interval float64) cardOption {
-	return func(card Card) Card {
-		card.Interval = interval
-		return card
-	}
-}
-
-func withRepetitions(repetitions int) cardOption {
-	return func(card Card) Card {
-		card.Repetitions = repetitions
-		return card
-	}
-}
-
 func withStats(stats []Stats) cardOption {
 	return func(card Card) Card {
 		card.Stats = stats
@@ -80,14 +62,26 @@ func withStats(stats []Stats) cardOption {
 	}
 }
 
-// NewCard create a new Card instance.
+// NewCard create a new Card instance using FSRS.
 func NewCard(question, answer string, today time.Time, options ...cardOption) Card {
+	// Create base FSRS card
+	fsrsCard := fsrs.NewCard()
+
 	card := Card{
-		ID:             nanoid.Must(),
-		Question:       question,
-		Answer:         answer,
-		ReviewedAt:     today,
-		EasinessFactor: InitialEasinessFactor,
+		ID:       nanoid.Must(),
+		Question: question,
+		Answer:   answer,
+
+		// Initialize with FSRS defaults
+		Due:           today,
+		Stability:     fsrsCard.Stability,
+		Difficulty:    fsrsCard.Difficulty,
+		ElapsedDays:   fsrsCard.ElapsedDays,
+		ScheduledDays: fsrsCard.ScheduledDays,
+		Reps:          fsrsCard.Reps,
+		Lapses:        fsrsCard.Lapses,
+		State:         fsrsCard.State,
+		LastReview:    today,
 	}
 
 	for _, fn := range options {
@@ -99,62 +93,122 @@ func NewCard(question, answer string, today time.Time, options ...cardOption) Ca
 
 // Card represents a single card in a Deck.
 type Card struct {
-	ID             string    `json:"id" validate:"required"`
-	Question       string    `json:"question" validate:"required"`
-	Answer         string    `json:"answer" validate:"required"`
-	ReviewedAt     time.Time `json:"reviewed_at" validate:"required"`
-	EasinessFactor float64   `json:"easiness_factor" validate:"required"`
-	Interval       float64   `json:"interval" validate:"required"`
-	Repetitions    int       `json:"repetitions" validate:"required"`
-	Stats          []Stats   `json:"stats"`
+	ID       string    `json:"id" validate:"required"`
+	Question string    `json:"question" validate:"required"`
+	Answer   string    `json:"answer" validate:"required"`
+	Stats    []Stats   `json:"stats"`
+
+	// FSRS-specific fields
+	Due           time.Time  `json:"due"`
+	Stability     float64    `json:"stability"`
+	Difficulty    float64    `json:"difficulty"`
+	ElapsedDays   uint64     `json:"elapsed_days"`
+	ScheduledDays uint64     `json:"scheduled_days"`
+	Reps          uint64     `json:"reps"`
+	Lapses        uint64     `json:"lapses"`
+	State         fsrs.State `json:"state"`
+	LastReview    time.Time  `json:"last_review,omitempty" validate:"required"`
 }
 
-// Advance advances supermemo state for a card.
+// Advance advances card state using FSRS algorithm.
 func (c Card) Advance(ts time.Time, score ReviewScore) Card {
-	previous := c
-	c.ReviewedAt = ts
-
-	if score < ReviewScoreNormal {
-		c.Repetitions = 0
-		c.Interval = 1
-		c.Stats = append(c.Stats, NewStats(ts, score, previous))
-		return c
-	}
-
-	switch c.Repetitions {
-	case 0:
-		c.Interval = 1
-	case 1:
-		c.Interval = 6
-	default:
-		c.Interval = c.nextInterval()
-	}
-	c.Repetitions++
-	c.EasinessFactor = c.nextEasinessFactor(score)
-	c.Stats = append(c.Stats, NewStats(ts, score, previous))
-
-	return c
+	return c.AdvanceWithScheduler(ts, score, DefaultScheduler())
 }
 
-func (c Card) nextInterval() float64 {
-	return math.Ceil(c.Interval * c.EasinessFactor)
-}
+// AdvanceWithScheduler advances card state using the provided FSRS scheduler.
+func (c Card) AdvanceWithScheduler(ts time.Time, score ReviewScore, scheduler *Scheduler) Card {
+	// Migrate card if it hasn't been migrated yet
+	if !IsMigrated(c) {
+		c = MigrateCard(c, ts)
+	}
 
-func (c Card) nextEasinessFactor(score ReviewScore) float64 {
-	newEasinessFactor := roundNearest(c.EasinessFactor + (0.1 - (5-float64(score))*(0.08+(5-float64(score))*0.02)))
-	return math.Max(MinEasinessFactor, newEasinessFactor)
+	// Convert ReviewScore to FSRS Rating
+	rating := ReviewScoreToFSRSRating(score)
+
+	// Use FSRS scheduler to get next state
+	updatedCard, stats := scheduler.ScheduleCard(c, ts, rating)
+
+	// Append stats to history
+	updatedCard.Stats = append(c.Stats, stats)
+
+	return updatedCard
 }
 
 // NextReviewAt returns next review timestamp for a card.
 func (c Card) NextReviewAt() time.Time {
-	return c.ReviewedAt.Add(time.Duration(hoursPerDay*c.Interval) * time.Hour)
+	// Use FSRS Due field
+	if !c.Due.IsZero() {
+		return c.Due
+	}
+
+	// Default to current time for new cards
+	return c.LastReview
 }
 
 // IsDue reports whether the card is due at the instant t.
 func (c Card) IsDue(t time.Time) bool {
-	return c.NextReviewAt().Before(t)
+	// Use FSRS Due field
+	if !c.Due.IsZero() {
+		return !c.Due.After(t)
+	}
+
+	// Default behavior for cards without due date
+	return c.NextReviewAt().Before(t) || c.NextReviewAt().Equal(t)
 }
 
 func roundNearest(x float64) float64 {
 	return math.Round(x*100) / 100
+}
+
+// UnmarshalJSON handles backward compatibility for the ReviewedAt field
+func (c *Card) UnmarshalJSON(data []byte) error {
+	// Create a temporary struct to unmarshal into
+	type TempCard struct {
+		ID         string    `json:"id"`
+		Question   string    `json:"question"`
+		Answer     string    `json:"answer"`
+		Stats      []Stats   `json:"stats"`
+
+		// FSRS-specific fields
+		Due           time.Time  `json:"due"`
+		Stability     float64    `json:"stability"`
+		Difficulty    float64    `json:"difficulty"`
+		ElapsedDays   uint64     `json:"elapsed_days"`
+		ScheduledDays uint64     `json:"scheduled_days"`
+		Reps          uint64     `json:"reps"`
+		Lapses        uint64     `json:"lapses"`
+		State         fsrs.State `json:"state"`
+		LastReview    time.Time  `json:"last_review"`
+		
+		// Legacy field for backward compatibility
+		ReviewedAt *time.Time `json:"reviewed_at"`
+	}
+
+	var temp TempCard
+	if err := json.Unmarshal(data, &temp); err != nil {
+		return err
+	}
+
+	// Copy all fields
+	c.ID = temp.ID
+	c.Question = temp.Question
+	c.Answer = temp.Answer
+	c.Stats = temp.Stats
+	c.Due = temp.Due
+	c.Stability = temp.Stability
+	c.Difficulty = temp.Difficulty
+	c.ElapsedDays = temp.ElapsedDays
+	c.ScheduledDays = temp.ScheduledDays
+	c.Reps = temp.Reps
+	c.Lapses = temp.Lapses
+	c.State = temp.State
+
+	// Handle backward compatibility for ReviewedAt -> LastReview
+	if !temp.LastReview.IsZero() {
+		c.LastReview = temp.LastReview
+	} else if temp.ReviewedAt != nil && !temp.ReviewedAt.IsZero() {
+		c.LastReview = *temp.ReviewedAt
+	}
+
+	return nil
 }

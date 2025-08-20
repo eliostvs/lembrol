@@ -148,7 +148,7 @@ func createSparkline(stats []flashcard.Stats) []sparklineItem {
 	sparkline := make([]sparklineItem, 0, len(stats))
 
 	for _, stat := range stats {
-		sparkline = append(sparkline, newSparklineItem(stat.Score, stat.Timestamp))
+		sparkline = append(sparkline, newSparklineItem(stat.Score, stat.LastReview))
 	}
 
 	sort.Slice(

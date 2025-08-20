@@ -13,9 +13,14 @@ var ErrEmptyReview = errors.New("no cards in queue")
 // NewReview returns a new Review from a given a deck.
 // It gets the due cards from the deck a shuffle them.
 func NewReview(deck Deck, clock clock.Clock) Review {
+	return NewReviewWithScheduler(deck, clock, DefaultScheduler())
+}
+
+// NewReviewWithScheduler returns a new Review with a custom FSRS scheduler.
+func NewReviewWithScheduler(deck Deck, clock clock.Clock, scheduler *Scheduler) Review {
 	dueCards := deck.DueCards()
 	shuffle(dueCards)
-	return Review{queue: dueCards, Deck: deck, clock: clock}
+	return Review{queue: dueCards, Deck: deck, clock: clock, scheduler: scheduler}
 }
 
 func shuffle(cards []Card) {
@@ -27,6 +32,7 @@ type Review struct {
 	Deck      Deck
 	queue     []Card
 	clock     clock.Clock
+	scheduler *Scheduler
 	Completed int
 }
 
@@ -55,13 +61,18 @@ func (r Review) Rate(score ReviewScore) (Review, error) {
 		return Review{}, err
 	}
 
+	// For "Again" ratings, add card back to queue without advancing
 	if score == ReviewScoreAgain {
+		// Still advance the card to record the failed attempt
+		card = card.AdvanceWithScheduler(r.clock.Now(), score, r.scheduler)
 		r.queue = r.queue[1:]
 		r.queue = append(r.queue, card)
+		r.Deck = r.Deck.Change(card)
 		return r, nil
 	}
 
-	card = card.Advance(r.clock.Now(), score)
+	// Advance card using FSRS scheduler
+	card = card.AdvanceWithScheduler(r.clock.Now(), score, r.scheduler)
 	r.queue = r.queue[1:]
 	r.Completed++
 	r.Deck = r.Deck.Change(card)
