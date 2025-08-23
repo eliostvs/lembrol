@@ -3,7 +3,7 @@ package flashcard
 import (
 	"time"
 
-	fsrs "github.com/open-spaced-repetition/go-fsrs/v3"
+	"github.com/open-spaced-repetition/go-fsrs/v3"
 )
 
 // Scheduler wraps the FSRS algorithm for card scheduling.
@@ -24,33 +24,11 @@ func DefaultScheduler() *Scheduler {
 }
 
 // ScheduleCard schedules a card review with the given rating.
-func (s *Scheduler) ScheduleCard(card Card, now time.Time, rating fsrs.Rating) (Card, Stats) {
-	// Convert lembrol Card to FSRS Card
+func (s *Scheduler) ScheduleCard(card Card, now time.Time, rating fsrs.Rating) Card {
 	fsrsCard := s.cardToFSRS(card)
-
-	// Get scheduling info from FSRS
 	info := s.fsrs.Next(fsrsCard, now, rating)
-
-	// Convert back to lembrol Card
 	updatedCard := s.fsrsToCard(info.Card, card)
-
-	// Create stats record
-	stats := NewFSRSStats(now, rating, card, updatedCard)
-
-	return updatedCard, stats
-}
-
-// GetReviewOptions returns all possible review outcomes for a card.
-func (s *Scheduler) GetReviewOptions(card Card, now time.Time) map[fsrs.Rating]Card {
-	fsrsCard := s.cardToFSRS(card)
-	outcomes := s.fsrs.Repeat(fsrsCard, now)
-
-	options := make(map[fsrs.Rating]Card)
-	for rating, log := range outcomes {
-		options[rating] = s.fsrsToCard(log.Card, card)
-	}
-
-	return options
+	return updatedCard.AddStats(NewStats(now, rating, card, updatedCard))
 }
 
 // GetRetrievability returns the current retrievability of a card.
@@ -77,14 +55,10 @@ func (s *Scheduler) cardToFSRS(card Card) fsrs.Card {
 // fsrsToCard converts an FSRS Card back to a lembrol Card, preserving metadata.
 func (s *Scheduler) fsrsToCard(fsrsCard fsrs.Card, original Card) Card {
 	return Card{
-		// Preserve original metadata
 		ID:       original.ID,
 		Question: original.Question,
 		Answer:   original.Answer,
 		Stats:    original.Stats,
-
-		// Updated LastReview timestamp is handled by FSRS fields below
-
 		// FSRS fields
 		Due:           fsrsCard.Due,
 		Stability:     fsrsCard.Stability,
@@ -95,7 +69,6 @@ func (s *Scheduler) fsrsToCard(fsrsCard fsrs.Card, original Card) Card {
 		Lapses:        fsrsCard.Lapses,
 		State:         fsrsCard.State,
 		LastReview:    fsrsCard.LastReview,
-
 	}
 }
 

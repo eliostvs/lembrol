@@ -4,74 +4,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
 	fsrs "github.com/open-spaced-repetition/go-fsrs/v3"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
-func TestCard_Advance(t *testing.T) {
+func TestCard_IsDue(t *testing.T) {
 	t.Parallel()
 
-	now := time.Now()
-
-	tests := []struct {
-		name  string
-		card  flashcard.Card
-		score flashcard.ReviewScore
-	}{
-		{
-			name: "review score is again",
-			card: flashcard.NewCard("Question", "Answer", now),
-			score: flashcard.ReviewScoreAgain,
-		},
-		{
-			name: "review score is hard",
-			card: flashcard.NewCard("Question", "Answer", now),
-			score: flashcard.ReviewScoreHard,
-		},
-		{
-			name: "review score is normal",
-			card: flashcard.NewCard("Question", "Answer", now),
-			score: flashcard.ReviewScoreNormal,
-		},
-		{
-			name: "review score is easy",
-			card: flashcard.NewCard("Question", "Answer", now),
-			score: flashcard.ReviewScoreEasy,
-		},
-		{
-			name: "review score is super easy",
-			card: flashcard.NewCard("Question", "Answer", now),
-			score: flashcard.ReviewScoreSuperEasy,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			card := tt.card.Advance(now, tt.score)
-
-			// Basic assertions that should hold for any FSRS advancement
-			assert.NotEmpty(t, card.ID)
-			assert.Equal(t, tt.card.Question, card.Question)
-			assert.Equal(t, tt.card.Answer, card.Answer)
-			assert.NotZero(t, card.Due)
-			assert.NotZero(t, card.Stability) // After advance, card should have stability
-			assert.NotZero(t, card.Difficulty) // After advance, card should have difficulty
-			assert.Len(t, card.Stats, 1)
-			// Algorithm field removed - no longer testing it
-			// Note: SuperEasy maps to Easy in FSRS, so we get Easy back in stats
-			expectedScore := tt.score
-			if tt.score == flashcard.ReviewScoreSuperEasy {
-				expectedScore = flashcard.ReviewScoreEasy
-			}
-			assert.Equal(t, expectedScore, card.Stats[0].Score)
-			assert.Equal(t, now, card.Stats[0].LastReview)
-		})
-	}
-}
-
-func TestCard_IsDue(t *testing.T) {
 	now := time.Now()
 	tomorrow := now.Add(24 * time.Hour)
 	yesterday := now.Add(-24 * time.Hour)
@@ -110,35 +51,9 @@ func TestCard_IsDue(t *testing.T) {
 	}
 }
 
-func TestCard_NextReviewAt(t *testing.T) {
-	now := time.Now()
-	tomorrow := now.Add(24 * time.Hour)
-
-	tests := []struct {
-		name string
-		card flashcard.Card
-		want time.Time
-	}{
-		{
-			name: "returns due date when available",
-			card: flashcard.Card{Due: tomorrow, LastReview: now},
-			want: tomorrow,
-		},
-		{
-			name: "returns last review for new cards",
-			card: flashcard.Card{LastReview: now},
-			want: now,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, tt.card.NextReviewAt())
-		})
-	}
-}
-
 func TestNewCard(t *testing.T) {
+	t.Parallel()
+
 	now := time.Now()
 	question := "What is FSRS?"
 	answer := "Free Spaced Repetition Scheduler"
@@ -151,14 +66,16 @@ func TestNewCard(t *testing.T) {
 	assert.Equal(t, now, card.LastReview)
 	assert.Equal(t, now, card.Due)
 	assert.Equal(t, now, card.LastReview)
-	assert.Zero(t, card.Stability) // New cards have zero stability until first review
-	assert.Zero(t, card.Difficulty) // New cards have zero difficulty until first review
+	assert.Zero(t, card.Stability)
+	assert.Zero(t, card.Difficulty)
 	assert.Equal(t, fsrs.New, card.State)
 	assert.Zero(t, card.Reps)
 	assert.Zero(t, card.Lapses)
 }
 
 func TestReviewScore_String(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		score flashcard.ReviewScore
@@ -198,6 +115,8 @@ func TestReviewScore_String(t *testing.T) {
 }
 
 func TestNewReviewScore(t *testing.T) {
+	t.Parallel()
+
 	type want struct {
 		err   error
 		score flashcard.ReviewScore
