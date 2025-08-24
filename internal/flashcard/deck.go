@@ -53,10 +53,10 @@ func (d Deck) List() []Card {
 func (d Deck) sort(cards []Card) {
 	sort.Slice(
 		cards, func(i, j int) bool {
-			if cards[i].ReviewedAt.Equal(cards[j].ReviewedAt) {
+			if cards[i].LastReview.Equal(cards[j].LastReview) {
 				return cards[i].Question < cards[j].Question
 			}
-			return cards[i].ReviewedAt.After(cards[j].ReviewedAt)
+			return cards[i].LastReview.After(cards[j].LastReview)
 		},
 	)
 }

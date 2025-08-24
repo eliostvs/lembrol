@@ -141,7 +141,7 @@ func (c cardItem) Description() string {
 		due += " • due"
 	}
 
-	return fmt.Sprintf("Last review %s%s", naturalTime(c.ReviewedAt), due)
+	return fmt.Sprintf("Last review %s%s", naturalTime(c.LastReview), due)
 }
 
 func (c cardItem) FilterValue() string {

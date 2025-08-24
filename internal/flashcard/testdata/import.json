@@ -3,20 +3,30 @@
   "cards": [
     {
       "answer": "Answer 1",
-      "easiness_factor": 2.5,
-      "interval": 0.0,
       "question": "Question 1",
-      "repetitions": 0,
-      "reviewed_at": "2021-01-02T15:00:00Z",
+      "due": "2021-01-02T15:00:00Z",
+      "stability": 0.0,
+      "difficulty": 0.0,
+      "elapsed_days": 0,
+      "scheduled_days": 0,
+      "reps": 0,
+      "lapses": 0,
+      "state": 0,
+      "last_review": "2021-01-02T15:00:00Z",
       "stats": []
     },
     {
       "answer": "Answer 2",
-      "easiness_factor": 2.5,
-      "interval": 0.0,
       "question": "Question 2",
-      "repetitions": 0,
-      "reviewed_at": "2021-01-04T15:00:00Z",
+      "due": "2021-01-04T15:00:00Z",
+      "stability": 0.0,
+      "difficulty": 0.0,
+      "elapsed_days": 0,
+      "scheduled_days": 0,
+      "reps": 0,
+      "lapses": 0,
+      "state": 0,
+      "last_review": "2021-01-04T15:00:00Z",
       "stats": []
     }
   ]

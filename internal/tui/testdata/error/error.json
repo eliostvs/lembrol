@@ -5,11 +5,16 @@
     {
       "id": "1",
       "answer": "Error",
-      "easiness_factor": 2.5,
-      "interval": 0.0,
+      "due": "2021-01-08T15:04:05Z",
+      "stability": 0.0,
+      "difficulty": 0.0,
+      "elapsed_days": 0,
+      "scheduled_days": 0,
+      "reps": 0,
+      "lapses": 0,
+      "state": 0,
+      "last_review": "2021-01-08T15:04:05Z",
       "question": "Error",
-      "repetitions": 0,
-      "reviewed_at": "2021-01-08T15:04:05Z",
       "stats":  []
     }
   ]

@@ -5,11 +5,16 @@
     {
       "id": "1",
       "answer": "Maecenas condimentum neque nisl, eget pulvinar magna accumsan vitae. Quisque pretium nunc ipsum, volutpat tincidunt neque sagittis id. Phasellus ac dolor ac libero varius eleifend vel eu quam. Donec luctus suscipit ante vitae tincidunt. Praesent non purus blandit, molestie nisi id, gravida quam. Aliquam rutrum diam id libero fermentum dignissim",
-      "easiness_factor": 2.5,
-      "interval": 0.0,
+      "due": "2021-01-08T15:04:05Z",
+      "stability": 0.0,
+      "difficulty": 0.0,
+      "elapsed_days": 0,
+      "scheduled_days": 0,
+      "reps": 0,
+      "lapses": 0,
+      "state": 0,
+      "last_review": "2021-01-08T15:04:05Z",
       "question": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur",
-      "repetitions": 0,
-      "reviewed_at": "2021-01-08T15:04:05Z",
       "stats":  []
     }
   ]

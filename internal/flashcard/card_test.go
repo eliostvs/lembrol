@@ -4,192 +4,78 @@ import (
 	"testing"
 	"time"
 
+	"github.com/open-spaced-repetition/go-fsrs/v3"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
-func TestCard_Advance(t *testing.T) {
+func TestCard_IsDue(t *testing.T) {
 	t.Parallel()
 
 	now := time.Now()
-	tomorrow := now.Add(time.Hour * 24)
+	tomorrow := now.Add(24 * time.Hour)
+	yesterday := now.Add(-24 * time.Hour)
 
-	type args struct {
-		card  flashcard.Card
-		score flashcard.ReviewScore
-	}
-	type want struct {
-		repetitions    int
-		nextReview     time.Time
-		easinessFactor float64
-	}
-	tests := []struct {
-		name string
-		args
-		want
-	}{
-		{
-			name: "review score is again",
-			args: args{
-				card: flashcard.Card{
-					Repetitions: 10,
-				},
-				score: flashcard.ReviewScoreAgain,
-			},
-			want: want{
-				repetitions: 0,
-				nextReview:  tomorrow,
-			},
-		},
-		{
-			name: "review score is hard",
-			args: args{
-				card: flashcard.Card{
-					Repetitions: 10,
-				},
-				score: flashcard.ReviewScoreHard,
-			},
-			want: want{
-				repetitions: 0,
-				nextReview:  tomorrow,
-			},
-		},
-		{
-			name: "score is normal in the first repetition",
-			args: args{
-				card: flashcard.Card{
-					Repetitions: 0,
-				},
-				score: flashcard.ReviewScoreNormal,
-			},
-			want: want{
-				repetitions:    1,
-				nextReview:     tomorrow,
-				easinessFactor: 1.3,
-			},
-		},
-		{
-			name: "score is easy in the second repetition",
-			args: args{
-				card: flashcard.Card{
-					Repetitions: 1,
-				},
-				score: flashcard.ReviewScoreEasy,
-			},
-			want: want{
-				repetitions:    2,
-				nextReview:     now.Add(time.Hour * 24 * 6),
-				easinessFactor: 1.3,
-			},
-		},
-		{
-			name: "score is very easy in the third repetition",
-			args: args{
-				card: flashcard.Card{
-					Repetitions:    2,
-					Interval:       2,
-					EasinessFactor: 2,
-				},
-				score: flashcard.ReviewScoreEasy,
-			},
-			want: want{
-				repetitions:    3,
-				nextReview:     now.Add(time.Hour * 24 * 4),
-				easinessFactor: 2,
-			},
-		},
-		{
-			name: "score is normal lower the easiness factor",
-			args: args{
-				card: flashcard.Card{
-					Repetitions:    2,
-					Interval:       1,
-					EasinessFactor: 2,
-				},
-				score: flashcard.ReviewScoreNormal,
-			},
-			want: want{
-				repetitions:    3,
-				nextReview:     now.Add(time.Hour * 24 * 2),
-				easinessFactor: 1.9,
-			},
-		},
-		{
-			name: "score is easy keep the same easiness factor",
-			args: args{
-				card: flashcard.Card{
-					Repetitions:    2,
-					Interval:       1,
-					EasinessFactor: 2,
-				},
-				score: flashcard.ReviewScoreEasy,
-			},
-			want: want{
-				repetitions:    3,
-				nextReview:     now.Add(time.Hour * 24 * 2),
-				easinessFactor: 2,
-			},
-		},
-		{
-			name: "score is very easy rise the easiness factor",
-			args: args{
-				card: flashcard.Card{
-					Repetitions:    2,
-					Interval:       1,
-					EasinessFactor: 2,
-				},
-				score: flashcard.ReviewScoreSuperEasy,
-			},
-			want: want{
-				repetitions:    3,
-				nextReview:     now.Add(time.Hour * 24 * 2),
-				easinessFactor: 2.1,
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(
-			tt.name, func(t *testing.T) {
-				card := tt.card.Advance(now, tt.score)
-
-				assert.Equal(t, tt.want.repetitions, card.Repetitions)
-				assert.Equal(t, tt.want.nextReview, card.NextReviewAt())
-				assert.GreaterOrEqual(t, tt.want.easinessFactor, card.EasinessFactor)
-				assert.Equal(t, []flashcard.Stats{flashcard.NewStats(now, tt.score, tt.card)}, card.Stats)
-			},
-		)
-	}
-}
-
-func TestCard_Due(t *testing.T) {
-	now := time.Now()
 	tests := []struct {
 		name string
 		card flashcard.Card
 		want bool
 	}{
 		{
-			name: "returns true when card is due",
-			card: flashcard.Card{ReviewedAt: now.Add(-time.Hour)},
+			name: "returns true when card is due now",
+			card: flashcard.Card{Due: now},
 			want: true,
 		},
 		{
-			name: "returns true when card is due",
-			card: flashcard.Card{ReviewedAt: now.Add(time.Hour)},
+			name: "returns true when card was due yesterday",
+			card: flashcard.Card{Due: yesterday},
+			want: true,
+		},
+		{
+			name: "returns false when card is due tomorrow",
+			card: flashcard.Card{Due: tomorrow},
 			want: false,
 		},
+		{
+			name: "returns true for new cards with zero due date",
+			card: flashcard.Card{LastReview: now},
+			want: true,
+		},
 	}
+
 	for _, tt := range tests {
-		t.Run(
-			tt.name, func(t *testing.T) {
-				assert.Equal(t, tt.card.IsDue(now), tt.want)
-			},
-		)
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.card.IsDue(now))
+		})
 	}
 }
 
+func TestNewCard(t *testing.T) {
+	t.Parallel()
+
+	now := time.Now()
+	question := "What is FSRS?"
+	answer := "Free Spaced Repetition Scheduler"
+
+	card := flashcard.NewCard(question, answer, now)
+
+	assert.NotEmpty(t, card.ID)
+	assert.Equal(t, question, card.Question)
+	assert.Equal(t, answer, card.Answer)
+	assert.Equal(t, now, card.LastReview)
+	assert.Equal(t, now, card.Due)
+	assert.Equal(t, now, card.LastReview)
+	assert.Zero(t, card.Stability)
+	assert.Zero(t, card.Difficulty)
+	assert.Equal(t, fsrs.New, card.State)
+	assert.Zero(t, card.Reps)
+	assert.Zero(t, card.Lapses)
+}
+
 func TestReviewScore_String(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		score flashcard.ReviewScore
@@ -198,39 +84,34 @@ func TestReviewScore_String(t *testing.T) {
 		{
 			name:  "score again",
 			score: flashcard.ReviewScoreAgain,
-			want:  "0",
+			want:  "1",
 		},
 		{
 			name:  "score hard",
 			score: flashcard.ReviewScoreHard,
-			want:  "1",
+			want:  "2",
 		},
 		{
 			name:  "score normal",
-			score: flashcard.ReviewScoreNormal,
-			want:  "2",
+			score: flashcard.ReviewScoreGood,
+			want:  "3",
 		},
 		{
 			name:  "score easy",
 			score: flashcard.ReviewScoreEasy,
-			want:  "3",
-		},
-		{
-			name:  "score super easy",
-			score: flashcard.ReviewScoreSuperEasy,
 			want:  "4",
 		},
 	}
 	for _, tt := range tests {
-		t.Run(
-			tt.name, func(t *testing.T) {
-				assert.Equal(t, tt.want, tt.score.String())
-			},
-		)
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.score.String())
+		})
 	}
 }
 
 func TestNewReviewScore(t *testing.T) {
+	t.Parallel()
+
 	type want struct {
 		err   error
 		score flashcard.ReviewScore
@@ -242,31 +123,26 @@ func TestNewReviewScore(t *testing.T) {
 	}{
 		{
 			name: "score again",
-			args: "0",
+			args: "1",
 			want: want{score: flashcard.ReviewScoreAgain},
 		},
 		{
 			name: "score hard",
-			args: "1",
+			args: "2",
 			want: want{score: flashcard.ReviewScoreHard},
 		},
 		{
 			name: "score normal",
-			args: "2",
-			want: want{score: flashcard.ReviewScoreNormal},
+			args: "3",
+			want: want{score: flashcard.ReviewScoreGood},
 		},
 		{
 			name: "score easy",
-			args: "3",
+			args: "4",
 			want: want{score: flashcard.ReviewScoreEasy},
 		},
 		{
-			name: "score super easy",
-			args: "4",
-			want: want{score: flashcard.ReviewScoreSuperEasy},
-		},
-		{
-			name: "fails number bigger than score super easy",
+			name: "fails number bigger than score easy",
 			args: "5",
 			want: want{score: flashcard.ReviewScore(-1), err: flashcard.ErrInvalidScore},
 		},
@@ -282,14 +158,12 @@ func TestNewReviewScore(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(
-			tt.name, func(t *testing.T) {
-				got, err := flashcard.NewReviewScore(tt.args)
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := flashcard.NewReviewScore(tt.args)
 
-				assert.Equal(t, tt.want.err, err)
-				assert.Equal(t, tt.want.score, got)
-			},
-		)
+			assert.Equal(t, tt.want.err, err)
+			assert.Equal(t, tt.want.score, got)
+		})
 	}
 }
 
@@ -299,13 +173,14 @@ func TestNewReviewScore(t *testing.T) {
 
 var (
 	oldestCard = flashcard.Card{
-		Question:       "How do you delete a file?",
-		Answer:         "import \"os\"\n\nos.Remove(path) error",
-		EasinessFactor: 2.5,
-		Interval:       0,
-		Repetitions:    0,
-		ReviewedAt:     time.Date(2021, 1, 2, 15, 0, 0, 0, time.UTC),
+		Question:   "How do you delete a file?",
+		Answer:     "import \"os\"\n\nos.Remove(path) error",
+		LastReview: time.Date(2021, 1, 2, 15, 0, 0, 0, time.UTC),
+		Due:        time.Date(2021, 1, 2, 15, 0, 0, 0, time.UTC),
+		State:      fsrs.New,
+		Stability:  1.0,
+		Difficulty: 5.0,
 	}
-	afterOldestCard  = oldestCard.ReviewedAt.Add(24 * time.Hour)
-	beforeOldestCard = oldestCard.ReviewedAt.Add(-24 * time.Hour)
+	afterOldestCard  = oldestCard.LastReview.Add(24 * time.Hour)
+	beforeOldestCard = oldestCard.LastReview.Add(-24 * time.Hour)
 )

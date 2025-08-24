@@ -55,11 +55,11 @@ func TestCardsList(t *testing.T) {
 			assert.Contains(t, view, "Golang A")
 			assert.Contains(t, view, "6 items")
 			assert.Contains(t, view, activePrompt+latestCard.Question)
-			assert.Contains(t, view, fmt.Sprintf("%sLast review %s", activePrompt, humanize.Time(latestCard.ReviewedAt)))
+			assert.Contains(t, view, fmt.Sprintf("%sLast review %s", activePrompt, humanize.Time(latestCard.LastReview)))
 			assert.Contains(t, view, secondLatestCard.Question)
-			assert.Contains(t, view, fmt.Sprintf("Last review %s", humanize.Time(secondLatestCard.ReviewedAt)))
+			assert.Contains(t, view, fmt.Sprintf("Last review %s", humanize.Time(secondLatestCard.LastReview)))
 			assert.Contains(t, view, secondLatestCard.Question)
-			assert.Contains(t, view, fmt.Sprintf("Last review %s", humanize.Time(secondLatestCard.ReviewedAt)))
+			assert.Contains(t, view, fmt.Sprintf("Last review %s", humanize.Time(secondLatestCard.LastReview)))
 			assert.Contains(t, view, "••")
 			assert.Contains(t, view, "↑/k up • ↓/j down • / filter • a add • s study • q quit • ? more")
 		},
@@ -161,7 +161,7 @@ func TestCardsList(t *testing.T) {
 
 	t.Run(
 		"does not start review when it does not have due cards", func(t *testing.T) {
-			view := newTestModel(t, singleCardDeck, tui.WithClock(clock.Clock{Time: latestCard.ReviewedAt})).
+			view := newTestModel(t, singleCardDeck, tui.WithClock(clock.Clock{Time: latestCard.LastReview})).
 				Init().
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(studyKey).
@@ -477,7 +477,7 @@ func TestCardDelete(t *testing.T) {
 
 			assert.Contains(t, view, "Delete this card?")
 			assert.Contains(t, view, activePrompt+latestCard.Question)
-			assert.Contains(t, view, fmt.Sprintf("%sLast review %s", activePrompt, humanize.Time(latestCard.ReviewedAt)))
+			assert.Contains(t, view, fmt.Sprintf("%sLast review %s", activePrompt, humanize.Time(latestCard.LastReview)))
 		},
 	)
 

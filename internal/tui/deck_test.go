@@ -46,7 +46,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run(
 		"shows homepage with many decks", func(t *testing.T) {
-			m := newTestModel(t, manyDecks, tui.WithClock(clock.New(oldestCard.ReviewedAt.Add(24*time.Hour*4)))).
+			m := newTestModel(t, manyDecks, tui.WithClock(clock.New(oldestCard.LastReview.Add(48*time.Hour)))).
 				Init().
 				Get()
 
@@ -188,7 +188,7 @@ func TestDecksList(t *testing.T) {
 
 	t.Run(
 		"does not start review when it does not have due cards", func(t *testing.T) {
-			view := newTestModel(t, manyDecks, tui.WithClock(clock.Clock{Time: oldestCard.ReviewedAt})).
+			view := newTestModel(t, manyDecks, tui.WithClock(clock.Clock{Time: oldestCard.LastReview.Add(-time.Hour)})).
 				Init().
 				SendKeyRune(studyKey).
 				Get().
