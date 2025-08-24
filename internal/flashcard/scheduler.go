@@ -79,9 +79,9 @@ func ReviewScoreToFSRSRating(score ReviewScore) fsrs.Rating {
 		return fsrs.Again
 	case ReviewScoreHard:
 		return fsrs.Hard
-	case ReviewScoreNormal:
+	case ReviewScoreGood:
 		return fsrs.Good
-	case ReviewScoreEasy, ReviewScoreSuperEasy:
+	case ReviewScoreEasy:
 		return fsrs.Easy
 	default:
 		return fsrs.Good
@@ -96,10 +96,10 @@ func FSRSRatingToReviewScore(rating fsrs.Rating) ReviewScore {
 	case fsrs.Hard:
 		return ReviewScoreHard
 	case fsrs.Good:
-		return ReviewScoreNormal
+		return ReviewScoreGood
 	case fsrs.Easy:
 		return ReviewScoreEasy
 	default:
-		return ReviewScoreNormal
+		return ReviewScoreGood
 	}
 }

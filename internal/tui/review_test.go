@@ -131,7 +131,7 @@ func TestQuestion(t *testing.T) {
 				SendKeyType(tea.KeyDown).
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Get().
 				View()
 
@@ -149,7 +149,7 @@ func TestQuestion(t *testing.T) {
 				SendKeyType(tea.KeyDown).
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Peek(
 					func(m tea.Model) {
 						before = m.View()
@@ -252,17 +252,12 @@ func TestAnswer(t *testing.T) {
 				},
 				{
 					name: "score normal",
-					args: flashcard.ReviewScoreNormal,
+					args: flashcard.ReviewScoreGood,
 					want: "2 of 6",
 				},
 				{
 					name: "score easy",
 					args: flashcard.ReviewScoreEasy,
-					want: "2 of 6",
-				},
-				{
-					name: "score super easy",
-					args: flashcard.ReviewScoreSuperEasy,
 					want: "2 of 6",
 				},
 			}
@@ -291,7 +286,7 @@ func TestAnswer(t *testing.T) {
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Get().
 				View()
 
@@ -348,7 +343,7 @@ func TestAnswer(t *testing.T) {
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Get().
 				View()
 
@@ -389,7 +384,7 @@ func TestReview(t *testing.T) {
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Get().
 				View()
 
@@ -405,7 +400,7 @@ func TestReview(t *testing.T) {
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				SendKeyType(tea.KeyEsc).
 				Get().
 				View()
@@ -422,7 +417,7 @@ func TestReview(t *testing.T) {
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Peek(
 					func(m tea.Model) {
 						before = m.View()

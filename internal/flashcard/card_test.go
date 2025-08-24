@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	fsrs "github.com/open-spaced-repetition/go-fsrs/v3"
+	"github.com/open-spaced-repetition/go-fsrs/v3"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/eliostvs/lembrol/internal/flashcard"
@@ -84,26 +84,21 @@ func TestReviewScore_String(t *testing.T) {
 		{
 			name:  "score again",
 			score: flashcard.ReviewScoreAgain,
-			want:  "0",
+			want:  "1",
 		},
 		{
 			name:  "score hard",
 			score: flashcard.ReviewScoreHard,
-			want:  "1",
+			want:  "2",
 		},
 		{
 			name:  "score normal",
-			score: flashcard.ReviewScoreNormal,
-			want:  "2",
+			score: flashcard.ReviewScoreGood,
+			want:  "3",
 		},
 		{
 			name:  "score easy",
 			score: flashcard.ReviewScoreEasy,
-			want:  "3",
-		},
-		{
-			name:  "score super easy",
-			score: flashcard.ReviewScoreSuperEasy,
 			want:  "4",
 		},
 	}
@@ -128,31 +123,26 @@ func TestNewReviewScore(t *testing.T) {
 	}{
 		{
 			name: "score again",
-			args: "0",
+			args: "1",
 			want: want{score: flashcard.ReviewScoreAgain},
 		},
 		{
 			name: "score hard",
-			args: "1",
+			args: "2",
 			want: want{score: flashcard.ReviewScoreHard},
 		},
 		{
 			name: "score normal",
-			args: "2",
-			want: want{score: flashcard.ReviewScoreNormal},
+			args: "3",
+			want: want{score: flashcard.ReviewScoreGood},
 		},
 		{
 			name: "score easy",
-			args: "3",
+			args: "4",
 			want: want{score: flashcard.ReviewScoreEasy},
 		},
 		{
-			name: "score super easy",
-			args: "4",
-			want: want{score: flashcard.ReviewScoreSuperEasy},
-		},
-		{
-			name: "fails number bigger than score super easy",
+			name: "fails number bigger than score easy",
 			args: "5",
 			want: want{score: flashcard.ReviewScore(-1), err: flashcard.ErrInvalidScore},
 		},

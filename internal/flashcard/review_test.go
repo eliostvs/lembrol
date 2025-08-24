@@ -53,7 +53,7 @@ func TestReview_Rate(t *testing.T) {
 		"returns error when queue is empty", func(t *testing.T) {
 			review := newTestReview(t, smallDeck, testclock.New(beforeOldestCard))
 
-			newReview, err := review.Rate(flashcard.ReviewScoreNormal)
+			newReview, err := review.Rate(flashcard.ReviewScoreGood)
 
 			assert.Equal(t, flashcard.Review{}, newReview)
 			assert.ErrorIs(t, err, flashcard.ErrEmptyReview)
@@ -94,7 +94,7 @@ func TestReview_Rate(t *testing.T) {
 					args: args{
 						deck:  largeDeck,
 						time:  time.Now(),
-						score: flashcard.ReviewScoreNormal,
+						score: flashcard.ReviewScoreGood,
 					},
 					want: want{
 						total:     7,
@@ -108,7 +108,7 @@ func TestReview_Rate(t *testing.T) {
 					args: args{
 						deck:  singleDeck,
 						time:  time.Now(),
-						score: flashcard.ReviewScoreNormal,
+						score: flashcard.ReviewScoreGood,
 					},
 					want: want{
 						total:     1,
@@ -186,9 +186,8 @@ func TestReviewScoreToFSRSRating(t *testing.T) {
 	}{
 		{flashcard.ReviewScoreAgain, fsrs.Again},
 		{flashcard.ReviewScoreHard, fsrs.Hard},
-		{flashcard.ReviewScoreNormal, fsrs.Good},
+		{flashcard.ReviewScoreGood, fsrs.Good},
 		{flashcard.ReviewScoreEasy, fsrs.Easy},
-		{flashcard.ReviewScoreSuperEasy, fsrs.Easy}, // Maps to Easy
 	}
 
 	for _, tt := range tests {
@@ -206,7 +205,7 @@ func TestFSRSRatingToReviewScore(t *testing.T) {
 	}{
 		{fsrs.Again, flashcard.ReviewScoreAgain},
 		{fsrs.Hard, flashcard.ReviewScoreHard},
-		{fsrs.Good, flashcard.ReviewScoreNormal},
+		{fsrs.Good, flashcard.ReviewScoreGood},
 		{fsrs.Easy, flashcard.ReviewScoreEasy},
 	}
 

@@ -28,7 +28,7 @@ func NewReviewScore(s string) (ReviewScore, error) {
 }
 
 // ReviewScore defines grade for review attempts.
-// Review uses scores to calculate rating in range from [0, 4] inclusive.
+// Review uses scores to calculate rating in range from [1, 4] inclusive.
 type ReviewScore int
 
 func (s ReviewScore) String() string {
@@ -36,19 +36,17 @@ func (s ReviewScore) String() string {
 }
 
 const (
-	ReviewScoreAgain ReviewScore = iota
+	ReviewScoreAgain ReviewScore = iota + 1
 	ReviewScoreHard
-	ReviewScoreNormal
+	ReviewScoreGood
 	ReviewScoreEasy
-	ReviewScoreSuperEasy
 )
 
-var Scores = [5]ReviewScore{
+var Scores = [4]ReviewScore{
 	ReviewScoreAgain,
 	ReviewScoreHard,
-	ReviewScoreNormal,
+	ReviewScoreGood,
 	ReviewScoreEasy,
-	ReviewScoreSuperEasy,
 }
 
 // ErrEmptyReview indicates the review session has not more cards left to review.
