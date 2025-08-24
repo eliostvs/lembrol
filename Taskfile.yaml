@@ -45,6 +45,7 @@ tasks:
   test:
     desc: run tests
     cmds:
+      - mkdir -p dist
       - go test {{.CLI_ARGS}} -buildvcs -race -shuffle=on -cover -coverprofile=dist/coverage.out {{.PACKAGES}}
       - go tool cover -html=dist/coverage.out
 
