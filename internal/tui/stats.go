@@ -250,8 +250,8 @@ func cardStatsView(m statsModel) string {
 		Margin(0, 2).
 		Align(lipgloss.Left)
 	scoreTotals := make([]string, sections)
-	for score, value := range m.totals {
-		scoreTotals[score] = totalStyle.Render(strconv.Itoa(value))
+	for i := range sections {
+		scoreTotals[i] = totalStyle.Render(strconv.Itoa(m.totals[flashcard.ReviewScore(i)]))
 	}
 	totals := lipgloss.JoinHorizontal(lipgloss.Left, scoreTotals...)
 
