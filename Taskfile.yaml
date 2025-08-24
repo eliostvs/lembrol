@@ -6,6 +6,8 @@ vars:
   NAME: "lembrol"
   PACKAGES: "./..."
   GOLANGCI_LINT_VERSION: 2.3.1
+  VERSION:
+    sh: cat .bumpversion.cfg | grep current_version | awk '{print $3}'
 
 tasks:
   clean:
@@ -64,14 +66,12 @@ tasks:
     cmds:
       - go run github.com/goreleaser/goreleaser@latest build --clean --snapshot --single-target
 
-  release:
-    desc: create a new release
-    cmds:
-      - git flow init -d
-      - |
-        if ! grep -q '\[Unreleased\]' CHANGELOG.md; then
-          echo 'Create the [Unreleased] section in the changelog first!' && exit 1
-        fi
-      - bumpversion --verbose --tag --commit {{.CLI_ARGS}}
-      - git flow release start $(VERSION)
-      - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/$(VERSION)" -T $(VERSION) $(VERSION) -p
+  tasks:
+    release:
+      desc: create a release with git flow, bumpversion
+      cmds:
+        - git flow init -d
+        - grep -q '\[Unreleased\]' CHANGELOG.md || (echo 'Create the [Unreleased] section in the changelog first!' && exit 1)
+        - bumpversion --verbose --tag --commit {{.CLI_ARGS}}
+        - git flow release start {{.VERSION}}
+        - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/{{.VERSION}}" -T {{.VERSION}} {{.VERSION}} -p
