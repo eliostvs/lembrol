@@ -9,7 +9,7 @@ import (
 // Stats is the revised card statistics.
 type Stats struct {
 	Score         ReviewScore `json:"score" validate:"required"`
-	Rating        fsrs.Rating `json:"reating"`
+	Rating        fsrs.Rating `json:"rating"`
 	Stability     float64     `json:"stability"`
 	Difficulty    float64     `json:"difficulty"`
 	ElapsedDays   uint64      `json:"elapsed_days"`
