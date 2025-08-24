@@ -18,6 +18,10 @@ jobs:
           go-version: '>=1.21'
           cache: true
 
-      - name: test
+      - name: install task
         run: |
-          make test args=-short
+          go install github.com/go-task/task/v3/cmd/task@latest
+
+      - name: run test
+        run: |
+          task test -- -short
