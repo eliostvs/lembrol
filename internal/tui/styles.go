@@ -84,7 +84,7 @@ func NewStyles(lg *lipgloss.Renderer) *Styles {
 }
 
 func naturalTime(t time.Time) string {
-	if time.Now().Sub(t) < time.Minute {
+	if time.Since(t) < time.Minute {
 		return "just now"
 	}
 	return humanize.Time(t)
