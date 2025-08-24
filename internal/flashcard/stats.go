@@ -9,15 +9,15 @@ import (
 // Stats is the revised card statistics.
 type Stats struct {
 	Score         ReviewScore `json:"score" validate:"required"`
-	Rating        fsrs.Rating
-	Stability     float64    `json:"stability"`
-	Difficulty    float64    `json:"difficulty"`
-	ElapsedDays   uint64     `json:"elapsed_days"`
-	ScheduledDays uint64     `json:"scheduled_days"`
-	Reps          uint64     `json:"reps"`
-	Lapses        uint64     `json:"lapses"`
-	State         fsrs.State `json:"state"`
-	LastReview    time.Time  `json:"last_review"`
+	Rating        fsrs.Rating `json:"reating"`
+	Stability     float64     `json:"stability"`
+	Difficulty    float64     `json:"difficulty"`
+	ElapsedDays   uint64      `json:"elapsed_days"`
+	ScheduledDays uint64      `json:"scheduled_days"`
+	Reps          uint64      `json:"reps"`
+	Lapses        uint64      `json:"lapses"`
+	State         fsrs.State  `json:"state"`
+	LastReview    time.Time   `json:"last_review"`
 }
 
 // NewStats creates stats using FSRS data.

@@ -180,7 +180,7 @@ func TestAnswer(t *testing.T) {
 			assert.Contains(t, view, "Golang One")
 			assert.Contains(t, view, "1 of 1")
 			assert.Contains(t, view, latestCard.Answer)
-			assert.Contains(t, view, "1 hard • 2 normal • 3 easy • 4 very easy • q quit • ? more")
+			assert.Contains(t, view, "2 hard • 3 normal • 4 easy • q quit • ? more")
 		},
 	)
 
@@ -194,10 +194,9 @@ func TestAnswer(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "0 again    1 hard         q quit")
-			assert.Contains(t, view, "2 normal       ? close help")
-			assert.Contains(t, view, "3 easy")
-			assert.Contains(t, view, "4 very easy")
+			assert.Contains(t, view, "1 again    2 hard      q quit")
+			assert.Contains(t, view, "3 normal    ? close help")
+			assert.Contains(t, view, "4 easy")
 		},
 	)
 
@@ -211,11 +210,10 @@ func TestAnswer(t *testing.T) {
 				Get().
 				View()
 
-			assert.NotContains(t, view, "0 again")
-			assert.Contains(t, view, "1 hard         q quit")
-			assert.Contains(t, view, "2 normal       ? close help")
-			assert.Contains(t, view, "3 easy")
-			assert.Contains(t, view, "4 very easy")
+			assert.NotContains(t, view, "1 again")
+			assert.Contains(t, view, "2 hard      q quit")
+			assert.Contains(t, view, "3 normal    ? close help")
+			assert.Contains(t, view, "4 easy")
 		},
 	)
 

@@ -20,7 +20,7 @@ func NewReviewScore(s string) (ReviewScore, error) {
 		return ReviewScore(-1), ErrInvalidScore
 	}
 
-	if number < 0 || number > 4 {
+	if number < 1 || number > 4 {
 		return ReviewScore(-1), ErrInvalidScore
 	}
 

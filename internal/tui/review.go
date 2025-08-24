@@ -196,11 +196,11 @@ func (m questionPage) View() string {
 // Answer Page
 
 type answerKeyMap struct {
-	quit, score, again, workaround, hard, normal, easy, veryEasy, showFullHelp, closeFullHelp key.Binding
+	quit, score, again, workaround, hard, normal, easy, showFullHelp, closeFullHelp key.Binding
 }
 
 func (k answerKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.hard, k.normal, k.easy, k.veryEasy, k.quit, k.showFullHelp}
+	return []key.Binding{k.hard, k.normal, k.easy, k.quit, k.showFullHelp}
 }
 
 func (k answerKeyMap) FullHelp() [][]key.Binding {
@@ -214,7 +214,6 @@ func (k answerKeyMap) FullHelp() [][]key.Binding {
 			k.hard,
 			k.normal,
 			k.easy,
-			k.veryEasy,
 		},
 		{
 			k.quit,
@@ -228,12 +227,12 @@ func newAnswerPage(shared reviewShared) answerPage {
 		reviewShared: shared,
 		keyMap: answerKeyMap{
 			score: key.NewBinding(
-				key.WithKeys("0", "1", "2", "3", "4"),
+				key.WithKeys("1", "2", "3", "4"),
 				key.WithHelp("1", "score"),
 			),
 			again: key.NewBinding(
-				key.WithKeys("0"),
-				key.WithHelp("0", "again"),
+				key.WithKeys("1"),
+				key.WithHelp("1", "again"),
 			),
 			// hack to address the issue of the again key from merging with the score keys.
 			workaround: key.NewBinding(
@@ -241,20 +240,16 @@ func newAnswerPage(shared reviewShared) answerPage {
 				key.WithHelp("", ""),
 			),
 			hard: key.NewBinding(
-				key.WithKeys("1"),
-				key.WithHelp("1", "hard"),
+				key.WithKeys("2"),
+				key.WithHelp("2", "hard"),
 			),
 			normal: key.NewBinding(
-				key.WithKeys("2"),
-				key.WithHelp("2", "normal"),
+				key.WithKeys("3"),
+				key.WithHelp("3", "normal"),
 			),
 			easy: key.NewBinding(
-				key.WithKeys("3"),
-				key.WithHelp("3", "easy"),
-			),
-			veryEasy: key.NewBinding(
 				key.WithKeys("4"),
-				key.WithHelp("4", "very easy"),
+				key.WithHelp("4", "easy"),
 			),
 			showFullHelp: key.NewBinding(
 				key.WithKeys("?"),
