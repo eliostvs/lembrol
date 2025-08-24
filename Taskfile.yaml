@@ -47,6 +47,12 @@ tasks:
     cmds:
       - mkdir -p dist
       - go test {{.CLI_ARGS}} -buildvcs -race -shuffle=on -cover -coverprofile=dist/coverage.out {{.PACKAGES}}
+
+  test-coverage:
+    desc: run tests and generates the coverage
+    deps:
+      - test
+    cmds:
       - go tool cover -html=dist/coverage.out
 
   audit:
