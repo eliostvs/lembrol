@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -737,7 +736,7 @@ func (m cardPage) Init() tea.Cmd {
 }
 
 func (m cardPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("card: %T\n", msg)
+	m.Log(fmt.Sprintf("card: %T", msg))
 
 	var cmd tea.Cmd
 

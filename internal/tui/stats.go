@@ -1,7 +1,7 @@
 package tui
 
 import (
-	"log"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -104,7 +104,7 @@ func (m statsModel) Init() tea.Cmd {
 }
 
 func (m statsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("stats: %T\n", msg)
+	m.Log(fmt.Sprintf("stats: %T", msg))
 
 	var cmd tea.Cmd
 

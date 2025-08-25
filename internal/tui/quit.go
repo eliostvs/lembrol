@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,7 +26,7 @@ func (m quitModel) Init() tea.Cmd {
 }
 
 func (m quitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("quit: %T\n", msg)
+	m.Log(fmt.Sprintf("quit: %T", msg))
 
 	var cmd tea.Cmd
 

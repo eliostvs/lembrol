@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/charmbracelet/lipgloss"
 
@@ -451,7 +450,7 @@ func (m reviewPage) Init() tea.Cmd {
 }
 
 func (m reviewPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("review: %T\n", msg)
+	m.Log(fmt.Sprintf("review: %T", msg))
 
 	var cmd tea.Cmd
 

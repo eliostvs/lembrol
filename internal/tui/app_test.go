@@ -155,7 +155,7 @@ func newTestModel(t *testing.T, path string, opts ...tui.ModelOption) *testModel
 		),
 	}
 	return &testModel{
-		model: tui.NewModel(path, append(defaultOpts, opts...)...),
+		model: tui.NewModel(path, false, append(defaultOpts, opts...)...),
 		queue: newMsgQueue(),
 		ignoreMsg: map[string]struct{}{
 			"TickMsg":         {},
