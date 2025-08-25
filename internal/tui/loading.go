@@ -56,7 +56,8 @@ type loadingPage struct {
 }
 
 func (m loadingPage) Init() tea.Cmd {
-	m.Log("loading: Init")
+	m.Log("loading: init")
+
 	return m.spinner.Tick
 }
 
@@ -82,7 +83,7 @@ func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m loadingPage) View() string {
-	m.Log("loading: View")
+	m.Log("loading: view")
 
 	header := m.styles.Title.
 		Margin(1, 2).

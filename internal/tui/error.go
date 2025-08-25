@@ -45,7 +45,7 @@ type errorPage struct {
 }
 
 func (m errorPage) Init() tea.Cmd {
-	m.Log("error: Init")
+	m.Log("error: init")
 	return nil
 }
 
@@ -64,7 +64,8 @@ func (m errorPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m errorPage) View() string {
-	m.Log("error: View")
+	m.Log("error: view")
+
 	return errorView(m.Shared, m.keyMap, m.err.Error())
 }
 

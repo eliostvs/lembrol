@@ -93,6 +93,8 @@ type (
 // UPDATE
 
 func (m statsModel) Init() tea.Cmd {
+	m.Log("stats: init")
+
 	return tea.Batch(
 		tea.Tick(
 			time.Millisecond*500, func(time.Time) tea.Msg {
@@ -167,6 +169,8 @@ func loadStats(card flashcard.Card) tea.Msg {
 // VIEW
 
 func (m statsModel) View() string {
+	m.Log("stats: view")
+
 	switch m.state {
 	case statsLoading:
 		return m.loading.View()

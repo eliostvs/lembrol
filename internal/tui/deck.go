@@ -215,7 +215,7 @@ type deckBrowsePage struct {
 }
 
 func (m deckBrowsePage) Init() tea.Cmd {
-	m.Log("deck-browse: Init")
+	m.Log("deck-browse: init")
 	return nil
 }
 
@@ -288,7 +288,8 @@ func (m deckBrowsePage) checkKeyMap() deckBrowsePage {
 }
 
 func (m deckBrowsePage) View() string {
-	m.Log("deck-browse: View")
+	m.Log("deck-browse: view")
+
 	return m.styles.List.Render(m.list.View())
 }
 
@@ -408,7 +409,8 @@ type deckAddPage struct {
 }
 
 func (m deckAddPage) Init() tea.Cmd {
-	m.Log("deck-add: Init")
+	m.Log("deck-add: init")
+
 	return m.form.Init()
 }
 
@@ -433,7 +435,7 @@ func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckAddPage) View() string {
-	m.Log("deck-add: View")
+	m.Log("deck-add: view")
 
 	header := m.styles.Title.
 		Margin(2, 0, 0, 2).
@@ -462,7 +464,8 @@ type deckEditPage struct {
 }
 
 func (m deckEditPage) Init() tea.Cmd {
-	m.Log("deck-update: Init")
+	m.Log("deck-update: init")
+
 	return m.form.Init()
 }
 
@@ -487,7 +490,8 @@ func (m deckEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckEditPage) View() string {
-	m.Log("deck-update: View")
+	m.Log("deck-update: view")
+
 	header := m.styles.Title.
 		Margin(2, 0, 0, 2).
 		Render("Decks")
@@ -565,7 +569,8 @@ type deckDeletePage struct {
 }
 
 func (m deckDeletePage) Init() tea.Cmd {
-	m.Log("deck-delete: Init")
+	m.Log("deck-delete: init")
+
 	return nil
 }
 
@@ -597,7 +602,8 @@ func (m deckDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckDeletePage) View() string {
-	m.Log("deck-delete: View")
+	m.Log("deck-delete: view")
+
 	return m.styles.List.Render(m.list.View())
 }
 
@@ -633,7 +639,8 @@ type deckPage struct {
 }
 
 func (m deckPage) Init() tea.Cmd {
-	m.Log("deck: Init")
+	m.Log("deck: init")
+
 	return m.page.Init()
 }
 
@@ -695,6 +702,7 @@ func (m deckPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckPage) View() string {
-	m.Log("deck: View")
+	m.Log("deck: view")
+
 	return m.page.View()
 }
