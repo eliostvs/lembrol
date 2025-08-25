@@ -450,7 +450,7 @@ func newReviewPage(shared Shared, review flashcard.Review) reviewPage {
 
 	return reviewPage{
 		reviewShared: rs,
-		page:         newLoadingPage(shared, "Review", "Preparing question..."),
+		page:         newLoadingPage(shared, "Review", "Preparing questions..."),
 	}
 }
 
