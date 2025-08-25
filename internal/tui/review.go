@@ -123,12 +123,15 @@ type questionPage struct {
 }
 
 func (m questionPage) Init() tea.Cmd {
+	m.Log("question: Init")
 	return func() tea.Msg {
 		return setupQuestionMsg{}
 	}
 }
 
 func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("question: %T", msg))
+
 	switch msg := msg.(type) {
 	case setupQuestionMsg:
 		m.keyMap.skip.SetEnabled(m.review.Current() != m.review.Total())
@@ -155,6 +158,8 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m questionPage) View() string {
+	m.Log("question: View")
+
 	header := m.styles.Title.
 		Margin(1, 2).
 		Render("Question")
@@ -273,12 +278,15 @@ type answerPage struct {
 }
 
 func (m answerPage) Init() tea.Cmd {
+	m.Log("answer: Init")
 	return func() tea.Msg {
 		return setupAnswerPageMsg{}
 	}
 }
 
 func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("answer: %T", msg))
+
 	switch msg := msg.(type) {
 	case setupAnswerPageMsg:
 		m.keyMap.again.SetEnabled(m.review.Total() > 1)
@@ -309,6 +317,8 @@ func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m answerPage) View() string {
+	m.Log("answer: View")
+
 	header := m.styles.Title.
 		Margin(1, 2).
 		Render("Answer")
@@ -379,10 +389,13 @@ type reviewSummaryPage struct {
 }
 
 func (m reviewSummaryPage) Init() tea.Cmd {
+	m.Log("review-summary: Init")
 	return nil
 }
 
 func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("review-summary: %T", msg))
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
@@ -399,6 +412,8 @@ func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m reviewSummaryPage) View() string {
+	m.Log("review-summary: View")
+
 	header := m.styles.Title.
 		Margin(1, 2).
 		Render("Congratulations!")
@@ -444,6 +459,7 @@ type reviewPage struct {
 }
 
 func (m reviewPage) Init() tea.Cmd {
+	m.Log("review: Init")
 	return func() tea.Msg {
 		return showQuestionMsg{m.review}
 	}
@@ -480,5 +496,6 @@ func (m reviewPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m reviewPage) View() string {
+	m.Log("review: View")
 	return m.page.View()
 }

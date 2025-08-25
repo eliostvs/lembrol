@@ -19,6 +19,7 @@ type quitModel struct {
 }
 
 func (m quitModel) Init() tea.Cmd {
+	m.Log("quit: Init")
 	return func() tea.Msg {
 		m.clock.Sleep(time.Second)
 		return tea.Quit()
@@ -40,6 +41,8 @@ func (m quitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m quitModel) View() string {
+	m.Log("quit: View")
+
 	header := m.styles.Title.
 		Margin(1, 2).
 		Render("Bye")

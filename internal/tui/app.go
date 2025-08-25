@@ -161,6 +161,7 @@ func quit() tea.Msg {
 // UPDATE
 
 func (m Model) Init() tea.Cmd {
+	m.Log("app: Init")
 	return tea.Batch(
 		func() tea.Msg {
 			repo, err := m.repositoryFactory(m.clock)
@@ -220,5 +221,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // VIEW
 
 func (m Model) View() string {
+	m.Log("app: View")
 	return m.page.View()
 }
