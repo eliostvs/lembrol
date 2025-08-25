@@ -217,6 +217,21 @@ func TestAnswer(t *testing.T) {
 		},
 	)
 
+	t.Run("do not show again option in the last card", func(t *testing.T) {
+		view := newTestModel(t, fewDecks).
+			Init().
+			SendKeyRune(keyDown).
+			SendKeyRune(studyKey).
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune("3").
+			SendKeyType(tea.KeyEnter).
+			Get().
+			View()
+
+		assert.NotContains(t, view, "1 again")
+		assert.Contains(t, view, "2 hard • 3 normal • 4 easy • q quit • ? more")
+	})
+
 	t.Run(
 		"goes to deck page when the review is canceled", func(t *testing.T) {
 			view := newTestModel(t, manyDecks).

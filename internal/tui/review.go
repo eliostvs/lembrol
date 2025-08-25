@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 
@@ -123,18 +124,19 @@ type questionPage struct {
 }
 
 func (m questionPage) Init() tea.Cmd {
-	m.Log("question: Init")
+	m.Log("question: init")
+
 	return func() tea.Msg {
 		return setupQuestionMsg{}
 	}
 }
 
 func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("question: %T", msg))
+	m.Log(fmt.Sprintf("question: update msg=%T", msg))
 
 	switch msg := msg.(type) {
 	case setupQuestionMsg:
-		m.keyMap.skip.SetEnabled(m.review.Current() != m.review.Total())
+		m.keyMap.skip.SetEnabled(m.review.Left() > 1)
 		return m, nil
 
 	case tea.WindowSizeMsg:
@@ -143,7 +145,7 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, m.keyMap.skip) && m.review.Total() > 1:
+		case key.Matches(msg, m.keyMap.skip) && m.review.Left() > 1:
 			return m, skipCard(m.review)
 
 		case key.Matches(msg, m.keyMap.answer):
@@ -158,7 +160,7 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m questionPage) View() string {
-	m.Log("question: View")
+	m.Log("question: view")
 
 	header := m.styles.Title.
 		Margin(1, 2).
@@ -204,7 +206,7 @@ type answerKeyMap struct {
 }
 
 func (k answerKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.hard, k.normal, k.easy, k.quit, k.showFullHelp}
+	return []key.Binding{k.again, k.hard, k.normal, k.easy, k.quit, k.showFullHelp}
 }
 
 func (k answerKeyMap) FullHelp() [][]key.Binding {
@@ -278,18 +280,19 @@ type answerPage struct {
 }
 
 func (m answerPage) Init() tea.Cmd {
-	m.Log("answer: Init")
+	m.Log("answer: init")
+
 	return func() tea.Msg {
 		return setupAnswerPageMsg{}
 	}
 }
 
 func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("answer: %T", msg))
+	m.Log(fmt.Sprintf("answer: update msg=%T total=%d", msg, m.review.Total()))
 
 	switch msg := msg.(type) {
 	case setupAnswerPageMsg:
-		m.keyMap.again.SetEnabled(m.review.Total() > 1)
+		m.keyMap.again.SetEnabled(m.review.Left() > 1)
 		return m, nil
 
 	case tea.WindowSizeMsg:
@@ -299,7 +302,10 @@ func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.score):
-			return m, tea.Batch(showLoading("Review", "Scoring card..."), scoreCard(msg.String(), m.review, m.repository))
+			return m, tea.Batch(
+				showLoading("Review", "Scoring card..."),
+				scoreCard(msg.String(), m.review, m.repository),
+			)
 
 		case key.Matches(msg, m.keyMap.showFullHelp):
 			fallthrough
@@ -317,7 +323,7 @@ func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m answerPage) View() string {
-	m.Log("answer: View")
+	m.Log("answer: view")
 
 	header := m.styles.Title.
 		Margin(1, 2).
@@ -389,12 +395,12 @@ type reviewSummaryPage struct {
 }
 
 func (m reviewSummaryPage) Init() tea.Cmd {
-	m.Log("review-summary: Init")
+	m.Log("review-summary: init")
 	return nil
 }
 
 func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("review-summary: %T", msg))
+	m.Log(fmt.Sprintf("review-summary: update msg=%T", msg))
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -412,7 +418,7 @@ func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m reviewSummaryPage) View() string {
-	m.Log("review-summary: View")
+	m.Log("review-summary: view")
 
 	header := m.styles.Title.
 		Margin(1, 2).
@@ -444,7 +450,7 @@ func newReviewPage(shared Shared, review flashcard.Review) reviewPage {
 
 	return reviewPage{
 		reviewShared: rs,
-		page:         newQuestionPage(rs),
+		page:         newLoadingPage(shared, "Review", "Preparing question..."),
 	}
 }
 
@@ -459,14 +465,19 @@ type reviewPage struct {
 }
 
 func (m reviewPage) Init() tea.Cmd {
-	m.Log("review: Init")
-	return func() tea.Msg {
-		return showQuestionMsg{m.review}
-	}
+	m.Log("review: init")
+
+	return tea.Batch(
+		m.page.Init(),
+		func() tea.Msg {
+			time.Sleep(time.Second)
+			return showQuestionMsg{m.review}
+		},
+	)
 }
 
 func (m reviewPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("review: %T", msg))
+	m.Log(fmt.Sprintf("review: update msg=%T", msg))
 
 	var cmd tea.Cmd
 
@@ -496,6 +507,7 @@ func (m reviewPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m reviewPage) View() string {
-	m.Log("review: View")
+	m.Log("review: view")
+
 	return m.page.View()
 }
