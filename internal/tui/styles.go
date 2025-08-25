@@ -93,7 +93,6 @@ func naturalTime(t time.Time) string {
 func RenderMarkdown(text string, width int) (string, error) {
 	r, _ := glamour.NewTermRenderer(
 		glamour.WithWordWrap(width),
-		glamour.WithEnvironmentConfig(),
 	)
 
 	lines, err := r.Render(breakLines(text))
