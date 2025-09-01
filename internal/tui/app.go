@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -89,7 +88,7 @@ type Shared struct {
 
 func (s *Shared) Log(msg string) {
 	if s.debug {
-		log.Printf(msg)
+		println(msg)
 	}
 }
 

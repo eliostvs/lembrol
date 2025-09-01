@@ -41,12 +41,8 @@ type Deck struct {
 // List returns a collection of cards order by the time of the last review and question.
 func (d Deck) List() []Card {
 	cards := make([]Card, 0, len(d.Cards))
-	for _, card := range d.Cards {
-		cards = append(cards, card)
-	}
-
+	cards = append(cards, d.Cards...)
 	d.sort(cards)
-
 	return cards
 }
 
