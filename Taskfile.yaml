@@ -73,12 +73,11 @@ tasks:
     cmds:
       - go run github.com/goreleaser/goreleaser@latest build --clean --snapshot --single-target
 
-  tasks:
-    release:
-      desc: create a release with git flow, bumpversion
-      cmds:
-        - git flow init -d
-        - grep -q '\[Unreleased\]' CHANGELOG.md || (echo 'Create the [Unreleased] section in the changelog first!' && exit 1)
-        - bumpversion --verbose --tag --commit {{.CLI_ARGS}}
-        - git flow release start {{.VERSION}}
-        - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/{{.VERSION}}" -T {{.VERSION}} {{.VERSION}} -p
+  release:
+    desc: create a release with git flow, bumpversion
+    cmds:
+      - git flow init -d
+      - grep -q '\[Unreleased\]' CHANGELOG.md || (echo 'Create the [Unreleased] section in the changelog first!' && exit 1)
+      - bumpversion --verbose --tag --commit {{.CLI_ARGS}}
+      - git flow release start {{.VERSION}}
+      - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/{{.VERSION}}" -T {{.VERSION}} {{.VERSION}} -p
