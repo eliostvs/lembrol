@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -57,11 +56,13 @@ type loadingPage struct {
 }
 
 func (m loadingPage) Init() tea.Cmd {
+	m.Log("loading: init")
+
 	return m.spinner.Tick
 }
 
 func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("loading: %T\n", msg)
+	m.Log(fmt.Sprintf("loading: %T", msg))
 
 	var cmd tea.Cmd
 
@@ -82,6 +83,8 @@ func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m loadingPage) View() string {
+	m.Log("loading: view")
+
 	header := m.styles.Title.
 		Margin(1, 2).
 		Render(m.title)

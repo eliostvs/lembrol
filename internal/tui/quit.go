@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -20,6 +19,8 @@ type quitModel struct {
 }
 
 func (m quitModel) Init() tea.Cmd {
+	m.Log("quit: init")
+
 	return func() tea.Msg {
 		m.clock.Sleep(time.Second)
 		return tea.Quit()
@@ -27,7 +28,7 @@ func (m quitModel) Init() tea.Cmd {
 }
 
 func (m quitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("quit: %T\n", msg)
+	m.Log(fmt.Sprintf("quit: %T", msg))
 
 	var cmd tea.Cmd
 
@@ -41,6 +42,8 @@ func (m quitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m quitModel) View() string {
+	m.Log("quit: view")
+
 	header := m.styles.Title.
 		Margin(1, 2).
 		Render("Bye")

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/open-spaced-repetition/go-fsrs/v3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -52,7 +53,7 @@ func TestReview_Rate(t *testing.T) {
 		"returns error when queue is empty", func(t *testing.T) {
 			review := newTestReview(t, smallDeck, testclock.New(beforeOldestCard))
 
-			newReview, err := review.Rate(flashcard.ReviewScoreNormal)
+			newReview, err := review.Rate(flashcard.ReviewScoreGood)
 
 			assert.Equal(t, flashcard.Review{}, newReview)
 			assert.ErrorIs(t, err, flashcard.ErrEmptyReview)
@@ -93,7 +94,7 @@ func TestReview_Rate(t *testing.T) {
 					args: args{
 						deck:  largeDeck,
 						time:  time.Now(),
-						score: flashcard.ReviewScoreNormal,
+						score: flashcard.ReviewScoreGood,
 					},
 					want: want{
 						total:     7,
@@ -107,7 +108,7 @@ func TestReview_Rate(t *testing.T) {
 					args: args{
 						deck:  singleDeck,
 						time:  time.Now(),
-						score: flashcard.ReviewScoreNormal,
+						score: flashcard.ReviewScoreGood,
 					},
 					want: want{
 						total:     1,
@@ -128,11 +129,7 @@ func TestReview_Rate(t *testing.T) {
 						newReview, err := review.Rate(tt.args.score)
 
 						newCard := getCard(newReview.Deck, card.ID)
-						if tt.args.score == flashcard.ReviewScoreAgain {
-							assert.Equal(t, card.Stats, newCard.Stats)
-						} else {
-							assert.Greater(t, len(newCard.Stats), len(card.Stats))
-						}
+						assert.Greater(t, len(newCard.Stats), len(card.Stats))
 
 						assert.NoError(t, err)
 						assert.Equal(t, tt.want.left, newReview.Left())
@@ -180,6 +177,44 @@ func TestReview_Skip(t *testing.T) {
 			assert.Equal(t, card, nextCard)
 		},
 	)
+}
+
+func TestReviewScoreToFSRSRating(t *testing.T) {
+	tests := []struct {
+		score    flashcard.ReviewScore
+		expected fsrs.Rating
+	}{
+		{flashcard.ReviewScoreAgain, fsrs.Again},
+		{flashcard.ReviewScoreHard, fsrs.Hard},
+		{flashcard.ReviewScoreGood, fsrs.Good},
+		{flashcard.ReviewScoreEasy, fsrs.Easy},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.score.String(), func(t *testing.T) {
+			result := flashcard.ReviewScoreToFSRSRating(tt.score)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestFSRSRatingToReviewScore(t *testing.T) {
+	tests := []struct {
+		rating   fsrs.Rating
+		expected flashcard.ReviewScore
+	}{
+		{fsrs.Again, flashcard.ReviewScoreAgain},
+		{fsrs.Hard, flashcard.ReviewScoreHard},
+		{fsrs.Good, flashcard.ReviewScoreGood},
+		{fsrs.Easy, flashcard.ReviewScoreEasy},
+	}
+
+	for _, tt := range tests {
+		t.Run(string(rune('0'+int(tt.rating))), func(t *testing.T) {
+			result := flashcard.FSRSRatingToReviewScore(tt.rating)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
 }
 
 /*

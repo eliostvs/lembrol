@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -43,10 +45,13 @@ type errorPage struct {
 }
 
 func (m errorPage) Init() tea.Cmd {
+	m.Log("error: init")
 	return nil
 }
 
 func (m errorPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("error: %T", msg))
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -59,6 +64,8 @@ func (m errorPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m errorPage) View() string {
+	m.Log("error: view")
+
 	return errorView(m.Shared, m.keyMap, m.err.Error())
 }
 

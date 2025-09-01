@@ -1,0 +1,83 @@
+version: "3"
+
+silent: true
+
+vars:
+  NAME: "lembrol"
+  PACKAGES: "./..."
+  GOLANGCI_LINT_VERSION: 2.3.1
+  VERSION:
+    sh: cat .bumpversion.cfg | grep current_version | awk '{print $3}'
+
+tasks:
+  clean:
+    desc: delete binary and development environment
+    cmds:
+      - rm coverage* 2> /dev/null || true
+      - rm *.log 2> /dev/null || true
+      - go clean -cache -testcache -modcache
+
+  dev:
+    desc: prepare development environment
+    cmds: 
+      - go mod download
+      - mkdir -p dist
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b dist/ v{{.GOLANGCI_LINT_VERSION}}
+
+  upgrade:
+    desc: list direct dependencies that have upgrades available
+    cmds:
+      - go run github.com/oligot/go-mod-upgrade@latest
+      - go mod tidy
+
+  format:
+    desc: format files
+    cmds:
+      - go run golang.org/x/tools/cmd/goimports@latest -l -w .
+      - go run mvdan.cc/gofumpt@latest -l -w .
+      - go mod tidy -v
+
+  lint:
+    desc: run static checks
+    cmds:
+      - ./dist/golangci-lint run
+
+  test:
+    desc: run tests
+    cmds:
+      - mkdir -p dist
+      - go test {{.CLI_ARGS}} -buildvcs -race -shuffle=on -cover -coverprofile=dist/coverage.out {{.PACKAGES}}
+
+  test-coverage:
+    desc: run tests and generates the coverage
+    deps:
+      - test
+    cmds:
+      - go tool cover -html=dist/coverage.out
+
+  audit:
+    desc: run quality control checks
+    cmds:
+      - go mod verify
+      - go vet {{.PACKAGES}}
+      - go run honnef.co/go/tools/cmd/staticcheck@latest -checks=all,-ST1000,-U1000 {{.PACKAGES}}
+      - go run golang.org/x/vuln/cmd/govulncheck@latest {{.PACKAGES}}
+
+  run:
+    desc: run the application
+    cmds:
+      - go run ./cmd/lembrol --debug {{.CLI_ARGS}}
+
+  build:
+    desc: create snapshot release
+    cmds:
+      - go run github.com/goreleaser/goreleaser@latest build --clean --snapshot --single-target
+
+  release:
+    desc: create a release with git flow, bumpversion
+    cmds:
+      - git flow init -d
+      - grep -q '\[Unreleased\]' CHANGELOG.md || (echo 'Create the [Unreleased] section in the changelog first!' && exit 1)
+      - bumpversion --verbose --no-tag --commit {{.CLI_ARGS}}
+      - git flow release start {{.VERSION}}
+      - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/{{.VERSION}}" -T {{.VERSION}} {{.VERSION}} -p

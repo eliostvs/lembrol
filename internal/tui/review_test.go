@@ -131,7 +131,7 @@ func TestQuestion(t *testing.T) {
 				SendKeyType(tea.KeyDown).
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Get().
 				View()
 
@@ -149,7 +149,7 @@ func TestQuestion(t *testing.T) {
 				SendKeyType(tea.KeyDown).
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Peek(
 					func(m tea.Model) {
 						before = m.View()
@@ -180,7 +180,7 @@ func TestAnswer(t *testing.T) {
 			assert.Contains(t, view, "Golang One")
 			assert.Contains(t, view, "1 of 1")
 			assert.Contains(t, view, latestCard.Answer)
-			assert.Contains(t, view, "1 hard • 2 normal • 3 easy • 4 very easy • q quit • ? more")
+			assert.Contains(t, view, "2 hard • 3 normal • 4 easy • q quit • ? more")
 		},
 	)
 
@@ -194,10 +194,9 @@ func TestAnswer(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "0 again    1 hard         q quit")
-			assert.Contains(t, view, "2 normal       ? close help")
-			assert.Contains(t, view, "3 easy")
-			assert.Contains(t, view, "4 very easy")
+			assert.Contains(t, view, "1 again    2 hard      q quit")
+			assert.Contains(t, view, "3 normal    ? close help")
+			assert.Contains(t, view, "4 easy")
 		},
 	)
 
@@ -211,13 +210,27 @@ func TestAnswer(t *testing.T) {
 				Get().
 				View()
 
-			assert.NotContains(t, view, "0 again")
-			assert.Contains(t, view, "1 hard         q quit")
-			assert.Contains(t, view, "2 normal       ? close help")
-			assert.Contains(t, view, "3 easy")
-			assert.Contains(t, view, "4 very easy")
+			assert.NotContains(t, view, "1 again")
+			assert.Contains(t, view, "2 hard      q quit")
+			assert.Contains(t, view, "3 normal    ? close help")
+			assert.Contains(t, view, "4 easy")
 		},
 	)
+
+	t.Run("do not show again option in the last card", func(t *testing.T) {
+		view := newTestModel(t, fewDecks).
+			Init().
+			SendKeyRune(keyDown).
+			SendKeyRune(studyKey).
+			SendKeyType(tea.KeyEnter).
+			SendKeyRune("3").
+			SendKeyType(tea.KeyEnter).
+			Get().
+			View()
+
+		assert.NotContains(t, view, "1 again")
+		assert.Contains(t, view, "2 hard • 3 normal • 4 easy • q quit • ? more")
+	})
 
 	t.Run(
 		"goes to deck page when the review is canceled", func(t *testing.T) {
@@ -252,17 +265,12 @@ func TestAnswer(t *testing.T) {
 				},
 				{
 					name: "score normal",
-					args: flashcard.ReviewScoreNormal,
+					args: flashcard.ReviewScoreGood,
 					want: "2 of 6",
 				},
 				{
 					name: "score easy",
 					args: flashcard.ReviewScoreEasy,
-					want: "2 of 6",
-				},
-				{
-					name: "score super easy",
-					args: flashcard.ReviewScoreSuperEasy,
 					want: "2 of 6",
 				},
 			}
@@ -291,7 +299,7 @@ func TestAnswer(t *testing.T) {
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Get().
 				View()
 
@@ -348,7 +356,7 @@ func TestAnswer(t *testing.T) {
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Get().
 				View()
 
@@ -389,7 +397,7 @@ func TestReview(t *testing.T) {
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Get().
 				View()
 
@@ -405,7 +413,7 @@ func TestReview(t *testing.T) {
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				SendKeyType(tea.KeyEsc).
 				Get().
 				View()
@@ -422,7 +430,7 @@ func TestReview(t *testing.T) {
 				Init().
 				SendKeyRune(studyKey).
 				SendKeyType(tea.KeyEnter).
-				SendKeyRune(flashcard.ReviewScoreNormal.String()).
+				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Peek(
 					func(m tea.Model) {
 						before = m.View()

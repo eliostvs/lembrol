@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -216,11 +215,14 @@ type deckBrowsePage struct {
 }
 
 func (m deckBrowsePage) Init() tea.Cmd {
+	m.Log("deck-browse: init")
 	return nil
 }
 
 //nolint:cyclop
 func (m deckBrowsePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("deck-browse: %T", msg))
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -286,6 +288,8 @@ func (m deckBrowsePage) checkKeyMap() deckBrowsePage {
 }
 
 func (m deckBrowsePage) View() string {
+	m.Log("deck-browse: view")
+
 	return m.styles.List.Render(m.list.View())
 }
 
@@ -405,10 +409,14 @@ type deckAddPage struct {
 }
 
 func (m deckAddPage) Init() tea.Cmd {
+	m.Log("deck-add: init")
+
 	return m.form.Init()
 }
 
 func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("deck-add: %T", msg))
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -427,6 +435,8 @@ func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckAddPage) View() string {
+	m.Log("deck-add: view")
+
 	header := m.styles.Title.
 		Margin(2, 0, 0, 2).
 		Render("Decks")
@@ -454,10 +464,13 @@ type deckEditPage struct {
 }
 
 func (m deckEditPage) Init() tea.Cmd {
+	m.Log("deck-update: init")
+
 	return m.form.Init()
 }
 
 func (m deckEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("deck-update: %T", msg))
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -477,6 +490,8 @@ func (m deckEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckEditPage) View() string {
+	m.Log("deck-update: view")
+
 	header := m.styles.Title.
 		Margin(2, 0, 0, 2).
 		Render("Decks")
@@ -554,10 +569,14 @@ type deckDeletePage struct {
 }
 
 func (m deckDeletePage) Init() tea.Cmd {
+	m.Log("deck-delete: init")
+
 	return nil
 }
 
 func (m deckDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("deck-delete: %T", msg))
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -583,6 +602,8 @@ func (m deckDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckDeletePage) View() string {
+	m.Log("deck-delete: view")
+
 	return m.styles.List.Render(m.list.View())
 }
 
@@ -618,11 +639,13 @@ type deckPage struct {
 }
 
 func (m deckPage) Init() tea.Cmd {
+	m.Log("deck: init")
+
 	return m.page.Init()
 }
 
 func (m deckPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("deck: %T\n", msg)
+	m.Log(fmt.Sprintf("deck: %T", msg))
 
 	var cmd tea.Cmd
 
@@ -679,5 +702,7 @@ func (m deckPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckPage) View() string {
+	m.Log("deck: view")
+
 	return m.page.View()
 }

@@ -1,7 +1,7 @@
 package tui
 
 import (
-	"log"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -58,9 +58,9 @@ func newStatsModel(shared Shared, msg setStatsPageMsg) statsModel {
 	}
 }
 
-func newSparklineItem(score flashcard.ReviewScore, timestamp time.Time) sparklineItem {
+func newSparklineItem(s flashcard.ReviewScore, timestamp time.Time) sparklineItem {
 	return sparklineItem{
-		level:     string(levels[score-1]),
+		level:     string(rune(levels[s-1])),
 		timestamp: timestamp,
 	}
 }
@@ -93,6 +93,8 @@ type (
 // UPDATE
 
 func (m statsModel) Init() tea.Cmd {
+	m.Log("stats: init")
+
 	return tea.Batch(
 		tea.Tick(
 			time.Millisecond*500, func(time.Time) tea.Msg {
@@ -104,7 +106,7 @@ func (m statsModel) Init() tea.Cmd {
 }
 
 func (m statsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("stats: %T\n", msg)
+	m.Log(fmt.Sprintf("stats: %T", msg))
 
 	var cmd tea.Cmd
 
@@ -148,7 +150,7 @@ func createSparkline(stats []flashcard.Stats) []sparklineItem {
 	sparkline := make([]sparklineItem, 0, len(stats))
 
 	for _, stat := range stats {
-		sparkline = append(sparkline, newSparklineItem(stat.Score, stat.Timestamp))
+		sparkline = append(sparkline, newSparklineItem(stat.Score, stat.LastReview))
 	}
 
 	sort.Slice(
@@ -167,6 +169,8 @@ func loadStats(card flashcard.Card) tea.Msg {
 // VIEW
 
 func (m statsModel) View() string {
+	m.Log("stats: view")
+
 	switch m.state {
 	case statsLoading:
 		return m.loading.View()
@@ -210,7 +214,7 @@ func notStatsView(m statsModel) string {
 }
 
 func cardStatsView(m statsModel) string {
-	sections := len(flashcard.Scores)
+	sections := 5
 	width := min(m.width/sections, 12)
 
 	title := m.styles.Title.
@@ -240,7 +244,7 @@ func cardStatsView(m statsModel) string {
 		Foreground(darkFuchsia).
 		Align(lipgloss.Left)
 	scoreLabels := make([]string, sections)
-	for i, label := range []string{"TOTAL", "VERY EASY", "EASY", "NORMAL", "HARD"} {
+	for i, label := range []string{"TOTAL", "AGAIN", "HARD", "GOOD", "EASY"} {
 		scoreLabels[i] = headerStyle.Render(label)
 	}
 	totalLabels := lipgloss.JoinHorizontal(lipgloss.Left, scoreLabels...)
@@ -250,8 +254,8 @@ func cardStatsView(m statsModel) string {
 		Margin(0, 2).
 		Align(lipgloss.Left)
 	scoreTotals := make([]string, sections)
-	for i, score := range flashcard.Scores {
-		scoreTotals[i] = totalStyle.Render(strconv.Itoa(m.totals[score]))
+	for i := range sections {
+		scoreTotals[i] = totalStyle.Render(strconv.Itoa(m.totals[flashcard.ReviewScore(i)]))
 	}
 	totals := lipgloss.JoinHorizontal(lipgloss.Left, scoreTotals...)
 

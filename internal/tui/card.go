@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -141,7 +140,7 @@ func (c cardItem) Description() string {
 		due += " • due"
 	}
 
-	return fmt.Sprintf("Last review %s%s", naturalTime(c.ReviewedAt), due)
+	return fmt.Sprintf("Last review %s%s", naturalTime(c.LastReview), due)
 }
 
 func (c cardItem) FilterValue() string {
@@ -221,11 +220,14 @@ type cardBrowsePage struct {
 }
 
 func (m cardBrowsePage) Init() tea.Cmd {
+	m.Log("card-browse: init")
 	return nil
 }
 
 //nolint:cyclop
 func (m cardBrowsePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("card-browse: %T", msg))
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -265,6 +267,8 @@ func (m cardBrowsePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m cardBrowsePage) View() string {
+	m.Log("card-browse: view")
+
 	return m.styles.List.Render(m.list.View())
 }
 
@@ -518,10 +522,14 @@ type cardAddPage struct {
 }
 
 func (m cardAddPage) Init() tea.Cmd {
+	m.Log("card-add: init")
+
 	return m.form.Init()
 }
 
 func (m cardAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("card-add: %T", msg))
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -540,6 +548,8 @@ func (m cardAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m cardAddPage) View() string {
+	m.Log("card-add: view")
+
 	header := m.styles.Title.
 		Margin(1, 0, 0, 2).
 		Render(m.deck.Name)
@@ -567,10 +577,13 @@ type cardEditPage struct {
 }
 
 func (m cardEditPage) Init() tea.Cmd {
+	m.Log("card-edit: init")
 	return nil
 }
 
 func (m cardEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("card-edit: %T", msg))
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -592,6 +605,8 @@ func (m cardEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m cardEditPage) View() string {
+	m.Log("card-edit: view")
+
 	header := m.styles.Title.
 		Margin(1, 0, 0, 2).
 		Render(m.deck.Name)
@@ -668,10 +683,13 @@ type cardDeletePage struct {
 }
 
 func (m cardDeletePage) Init() tea.Cmd {
+	m.Log("card-delete: init")
 	return nil
 }
 
 func (m cardDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("card-delete: %T", msg))
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -697,6 +715,8 @@ func (m cardDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m cardDeletePage) View() string {
+	m.Log("card-delete: view")
+
 	return m.styles.List.Render(m.list.View())
 }
 
@@ -733,11 +753,13 @@ type cardPage struct {
 }
 
 func (m cardPage) Init() tea.Cmd {
+	m.Log("card: init")
+
 	return m.page.Init()
 }
 
 func (m cardPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("card: %T\n", msg)
+	m.Log(fmt.Sprintf("card: %T", msg))
 
 	var cmd tea.Cmd
 
@@ -797,5 +819,7 @@ func (m cardPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m cardPage) View() string {
+	m.Log("card: view")
+
 	return m.page.View()
 }

@@ -2,7 +2,7 @@ package tui
 
 import (
 	"fmt"
-	"log"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 
@@ -124,15 +124,19 @@ type questionPage struct {
 }
 
 func (m questionPage) Init() tea.Cmd {
+	m.Log("question: init")
+
 	return func() tea.Msg {
 		return setupQuestionMsg{}
 	}
 }
 
 func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("question: update msg=%T", msg))
+
 	switch msg := msg.(type) {
 	case setupQuestionMsg:
-		m.keyMap.skip.SetEnabled(m.review.Current() != m.review.Total())
+		m.keyMap.skip.SetEnabled(m.review.Left() > 1)
 		return m, nil
 
 	case tea.WindowSizeMsg:
@@ -141,7 +145,7 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, m.keyMap.skip) && m.review.Total() > 1:
+		case key.Matches(msg, m.keyMap.skip) && m.review.Left() > 1:
 			return m, skipCard(m.review)
 
 		case key.Matches(msg, m.keyMap.answer):
@@ -156,6 +160,8 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m questionPage) View() string {
+	m.Log("question: view")
+
 	header := m.styles.Title.
 		Margin(1, 2).
 		Render("Question")
@@ -196,11 +202,11 @@ func (m questionPage) View() string {
 // Answer Page
 
 type answerKeyMap struct {
-	quit, score, again, workaround, hard, normal, easy, veryEasy, showFullHelp, closeFullHelp key.Binding
+	quit, score, again, workaround, hard, normal, easy, showFullHelp, closeFullHelp key.Binding
 }
 
 func (k answerKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.hard, k.normal, k.easy, k.veryEasy, k.quit, k.showFullHelp}
+	return []key.Binding{k.again, k.hard, k.normal, k.easy, k.quit, k.showFullHelp}
 }
 
 func (k answerKeyMap) FullHelp() [][]key.Binding {
@@ -214,7 +220,6 @@ func (k answerKeyMap) FullHelp() [][]key.Binding {
 			k.hard,
 			k.normal,
 			k.easy,
-			k.veryEasy,
 		},
 		{
 			k.quit,
@@ -228,12 +233,12 @@ func newAnswerPage(shared reviewShared) answerPage {
 		reviewShared: shared,
 		keyMap: answerKeyMap{
 			score: key.NewBinding(
-				key.WithKeys("0", "1", "2", "3", "4"),
+				key.WithKeys("1", "2", "3", "4"),
 				key.WithHelp("1", "score"),
 			),
 			again: key.NewBinding(
-				key.WithKeys("0"),
-				key.WithHelp("0", "again"),
+				key.WithKeys("1"),
+				key.WithHelp("1", "again"),
 			),
 			// hack to address the issue of the again key from merging with the score keys.
 			workaround: key.NewBinding(
@@ -241,20 +246,16 @@ func newAnswerPage(shared reviewShared) answerPage {
 				key.WithHelp("", ""),
 			),
 			hard: key.NewBinding(
-				key.WithKeys("1"),
-				key.WithHelp("1", "hard"),
+				key.WithKeys("2"),
+				key.WithHelp("2", "hard"),
 			),
 			normal: key.NewBinding(
-				key.WithKeys("2"),
-				key.WithHelp("2", "normal"),
+				key.WithKeys("3"),
+				key.WithHelp("3", "normal"),
 			),
 			easy: key.NewBinding(
-				key.WithKeys("3"),
-				key.WithHelp("3", "easy"),
-			),
-			veryEasy: key.NewBinding(
 				key.WithKeys("4"),
-				key.WithHelp("4", "very easy"),
+				key.WithHelp("4", "easy"),
 			),
 			showFullHelp: key.NewBinding(
 				key.WithKeys("?"),
@@ -279,15 +280,19 @@ type answerPage struct {
 }
 
 func (m answerPage) Init() tea.Cmd {
+	m.Log("answer: init")
+
 	return func() tea.Msg {
 		return setupAnswerPageMsg{}
 	}
 }
 
 func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("answer: update msg=%T total=%d", msg, m.review.Total()))
+
 	switch msg := msg.(type) {
 	case setupAnswerPageMsg:
-		m.keyMap.again.SetEnabled(m.review.Total() > 1)
+		m.keyMap.again.SetEnabled(m.review.Left() > 1)
 		return m, nil
 
 	case tea.WindowSizeMsg:
@@ -297,7 +302,10 @@ func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.score):
-			return m, tea.Batch(showLoading("Review", "Scoring card..."), scoreCard(msg.String(), m.review, m.repository))
+			return m, tea.Batch(
+				showLoading("Review", "Scoring card..."),
+				scoreCard(msg.String(), m.review, m.repository),
+			)
 
 		case key.Matches(msg, m.keyMap.showFullHelp):
 			fallthrough
@@ -315,6 +323,8 @@ func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m answerPage) View() string {
+	m.Log("answer: view")
+
 	header := m.styles.Title.
 		Margin(1, 2).
 		Render("Answer")
@@ -385,10 +395,13 @@ type reviewSummaryPage struct {
 }
 
 func (m reviewSummaryPage) Init() tea.Cmd {
+	m.Log("review-summary: init")
 	return nil
 }
 
 func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.Log(fmt.Sprintf("review-summary: update msg=%T", msg))
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
@@ -405,6 +418,8 @@ func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m reviewSummaryPage) View() string {
+	m.Log("review-summary: view")
+
 	header := m.styles.Title.
 		Margin(1, 2).
 		Render("Congratulations!")
@@ -435,7 +450,7 @@ func newReviewPage(shared Shared, review flashcard.Review) reviewPage {
 
 	return reviewPage{
 		reviewShared: rs,
-		page:         newQuestionPage(rs),
+		page:         newLoadingPage(shared, "Review", "Preparing questions..."),
 	}
 }
 
@@ -450,13 +465,19 @@ type reviewPage struct {
 }
 
 func (m reviewPage) Init() tea.Cmd {
-	return func() tea.Msg {
-		return showQuestionMsg{m.review}
-	}
+	m.Log("review: init")
+
+	return tea.Batch(
+		m.page.Init(),
+		func() tea.Msg {
+			time.Sleep(time.Second)
+			return showQuestionMsg{m.review}
+		},
+	)
 }
 
 func (m reviewPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("review: %T\n", msg)
+	m.Log(fmt.Sprintf("review: update msg=%T", msg))
 
 	var cmd tea.Cmd
 
@@ -486,5 +507,7 @@ func (m reviewPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m reviewPage) View() string {
+	m.Log("review: view")
+
 	return m.page.View()
 }

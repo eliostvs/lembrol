@@ -16,9 +16,9 @@ import (
 
 func CLI(args []string, stdout io.Writer, stderr io.Writer) int {
 	const (
-		logEnabledFlag = "log"
-		logFileFlag    = "log-file"
-		decksPath      = "decks"
+		debugFlag   = "debug"
+		logFileFlag = "log-file"
+		decksPath   = "decks"
 	)
 
 	cmd := &cli.Command{
@@ -28,7 +28,7 @@ func CLI(args []string, stdout io.Writer, stderr io.Writer) int {
 		ErrWriter: stderr,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:  logEnabledFlag,
+				Name:  debugFlag,
 				Value: false,
 				Usage: "enable logs",
 			},
@@ -44,7 +44,7 @@ func CLI(args []string, stdout io.Writer, stderr io.Writer) int {
 			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			if cmd.Bool(logEnabledFlag) {
+			if cmd.Bool(debugFlag) {
 				file, err := tea.LogToFile(cmd.String(logFileFlag), appName)
 				if err != nil {
 					return fmt.Errorf("failed to configure logging: %w", err)
@@ -52,7 +52,7 @@ func CLI(args []string, stdout io.Writer, stderr io.Writer) int {
 				defer file.Close()
 			}
 
-			program := tea.NewProgram(NewModel(cmd.String(decksPath)), tea.WithAltScreen())
+			program := tea.NewProgram(NewModel(cmd.String(decksPath), cmd.Bool(debugFlag)), tea.WithAltScreen())
 			_, err := program.Run()
 			return err
 		},

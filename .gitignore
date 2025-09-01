@@ -1,5 +1,5 @@
 coverage*
-.mise.toml
+mise.toml
 .idea
 .env
 ./remember

@@ -1,27 +1,57 @@
+version: "2"
 linters:
+  enable:
+    - asciicheck
+    - bidichk
+    - cyclop
+    - gocheckcompilerdirectives
+    - gocognit
+    - gocyclo
+    - godot
+    - godox
+    - gomoddirectives
+    - gomodguard
+    - maintidx
+    - misspell
+    - nestif
+    - prealloc
+    - testableexamples
+    - testpackage
   disable:
+    - contextcheck
+    - depguard
+    - dupword
+    - errcheck
     - exhaustive
     - funlen
-    - contextcheck
-    - wastedassign
-    - gci
-    - depguard
+    - govet
+    - staticcheck
     - tagalign
-    - dupword
-  presets:
-    - bugs
-    - comment
-    - complexity
-    - error
-    - format
-    - import
-    - metalinter
-    - module
-    - performance
-    - test
     - unused
-  fast: true
-linters-settings:
-  gosec:
-    config:
-      G306: "0644"
+    - wastedassign
+  settings:
+    gosec:
+      config:
+        G306: "0644"
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

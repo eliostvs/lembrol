@@ -84,7 +84,7 @@ func NewStyles(lg *lipgloss.Renderer) *Styles {
 }
 
 func naturalTime(t time.Time) string {
-	if time.Now().Sub(t) < time.Minute {
+	if time.Since(t) < time.Minute {
 		return "just now"
 	}
 	return humanize.Time(t)
@@ -93,7 +93,6 @@ func naturalTime(t time.Time) string {
 func RenderMarkdown(text string, width int) (string, error) {
 	r, _ := glamour.NewTermRenderer(
 		glamour.WithWordWrap(width),
-		glamour.WithEnvironmentConfig(),
 	)
 
 	lines, err := r.Render(breakLines(text))

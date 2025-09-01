@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -55,10 +56,11 @@ type createdRepositoryMsg struct {
 }
 
 // NewModel creates a new model instance given a decks location.
-func NewModel(path string, opts ...ModelOption) Model {
+func NewModel(path string, debug bool, opts ...ModelOption) Model {
 	shared := Shared{
 		clock:  clock.New(),
 		styles: NewStyles(lipgloss.DefaultRenderer()),
+		debug:  debug,
 	}
 	m := Model{
 		page: newLoadingPage(shared, appName, "Loading..."),
@@ -82,6 +84,13 @@ type Shared struct {
 	width      int
 	height     int
 	styles     *Styles
+	debug      bool
+}
+
+func (s *Shared) Log(msg string) {
+	if s.debug {
+		log.Printf(msg)
+	}
 }
 
 type Model struct {
@@ -152,6 +161,8 @@ func quit() tea.Msg {
 // UPDATE
 
 func (m Model) Init() tea.Cmd {
+	m.Log("app: init")
+
 	return tea.Batch(
 		func() tea.Msg {
 			repo, err := m.repositoryFactory(m.clock)
@@ -165,7 +176,7 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("app: %T\n", msg)
+	m.Log(fmt.Sprintf("app: %T", msg))
 
 	var cmd tea.Cmd
 
@@ -211,5 +222,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // VIEW
 
 func (m Model) View() string {
+	m.Log("app: view")
+
 	return m.page.View()
 }

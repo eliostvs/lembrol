@@ -2,6 +2,7 @@ name: Lint
 
 permissions:
   contents: read
+  pull-requests: read
 
 on:
   push:
@@ -22,7 +23,6 @@ jobs:
           go-version: '>=1.21'
           cache: true
 
-      - uses: golangci/golangci-lint-action@v6
+      - uses: golangci/golangci-lint-action@v8
         with:
-          args: --issues-exit-code=0
           only-new-issues: true

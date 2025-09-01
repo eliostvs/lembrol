@@ -63,19 +63,19 @@ var (
 	latestCard = flashcard.Card{
 		Question:   "Question A",
 		Answer:     "Answer A",
-		ReviewedAt: time.Date(2021, 1, 8, 15, 4, 0, 0, time.UTC),
+		LastReview: time.Date(2021, 1, 8, 15, 0, 0, 0, time.UTC),
 	}
 
 	secondLatestCard = flashcard.Card{
 		Question:   "Question B",
 		Answer:     "Answer B",
-		ReviewedAt: time.Date(2021, 1, 6, 15, 4, 0, 0, time.UTC),
+		LastReview: time.Date(2021, 1, 6, 15, 0, 0, 0, time.UTC),
 	}
 
 	oldestCard = flashcard.Card{
 		Question:   "Question F",
 		Answer:     "Answer F",
-		ReviewedAt: time.Date(2021, 1, 2, 15, 4, 0, 0, time.UTC),
+		LastReview: time.Date(2021, 1, 2, 15, 0, 0, 0, time.UTC),
 	}
 )
 
@@ -155,7 +155,7 @@ func newTestModel(t *testing.T, path string, opts ...tui.ModelOption) *testModel
 		),
 	}
 	return &testModel{
-		model: tui.NewModel(path, append(defaultOpts, opts...)...),
+		model: tui.NewModel(path, false, append(defaultOpts, opts...)...),
 		queue: newMsgQueue(),
 		ignoreMsg: map[string]struct{}{
 			"TickMsg":         {},
