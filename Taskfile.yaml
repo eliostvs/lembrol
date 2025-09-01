@@ -78,6 +78,6 @@ tasks:
     cmds:
       - git flow init -d
       - grep -q '\[Unreleased\]' CHANGELOG.md || (echo 'Create the [Unreleased] section in the changelog first!' && exit 1)
-      - bumpversion --verbose --tag --commit {{.CLI_ARGS}}
+      - bumpversion --verbose --no-tag --commit {{.CLI_ARGS}}
       - git flow release start {{.VERSION}}
       - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/{{.VERSION}}" -T {{.VERSION}} {{.VERSION}} -p
