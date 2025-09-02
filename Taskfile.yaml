@@ -40,6 +40,8 @@ tasks:
   lint:
     desc: run static checks
     cmds:
+      - go mod verify
+      - go vet {{.PACKAGES}}
       - ./dist/golangci-lint run
 
   test:
@@ -58,9 +60,6 @@ tasks:
   audit:
     desc: run quality control checks
     cmds:
-      - go mod verify
-      - go vet {{.PACKAGES}}
-      - go run honnef.co/go/tools/cmd/staticcheck@latest -checks=all,-ST1000,-U1000 {{.PACKAGES}}
       - go run golang.org/x/vuln/cmd/govulncheck@latest {{.PACKAGES}}
 
   run:
