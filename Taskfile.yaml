@@ -68,9 +68,16 @@ tasks:
       - go run ./cmd/lembrol --debug {{.CLI_ARGS}}
 
   build:
-    desc: create snapshot release
+    desc: build the application
+    deps:
+      - build-css
     cmds:
-      - go run github.com/goreleaser/goreleaser@latest build --clean --snapshot --single-target
+      - mkdir -p dist
+      - go build -ldflags='-s -w -extldflags "-static"' -o dist/{{.NAME}} ./cmd/web/
+    env:
+      CGO_ENABLED: 0
+      GOOS: "{{.GOOS}}"
+      GOARCH: "{{.GOARCH}}"
 
   release:
     desc: create a release with git flow, bumpversion
@@ -80,3 +87,8 @@ tasks:
       - bumpversion --verbose --no-tag --commit {{.CLI_ARGS}}
       - git flow release start {{.VERSION}}
       - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/{{.VERSION}}" -T {{.VERSION}} {{.VERSION}} -p
+
+  goreleaser:
+    desc: create snapshot release
+    cmds:
+      - go run github.com/goreleaser/goreleaser@latest build --clean --snapshot --single-target
