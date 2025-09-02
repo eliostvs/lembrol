@@ -11,7 +11,7 @@ vars:
 
 tasks:
   clean:
-    desc: delete binary and development environment
+    desc: delete development files
     cmds:
       - rm coverage* 2> /dev/null || true
       - rm *.log 2> /dev/null || true
