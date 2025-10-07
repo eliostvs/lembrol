@@ -65,15 +65,13 @@ tasks:
   run:
     desc: run the application
     cmds:
-      - go run ./cmd/lembrol --debug {{.CLI_ARGS}}
+      - go run ./cmd/{{.NAME}} --debug {{.CLI_ARGS}}
 
   build:
     desc: build the application
-    deps:
-      - build-css
     cmds:
       - mkdir -p dist
-      - go build -ldflags='-s -w -extldflags "-static"' -o dist/{{.NAME}} ./cmd/web/
+      - go build -ldflags='-s -w -extldflags "-static"' -o dist/{{.NAME}} ./cmd/{{.NAME}}/
     env:
       CGO_ENABLED: 0
       GOOS: "{{.GOOS}}"
