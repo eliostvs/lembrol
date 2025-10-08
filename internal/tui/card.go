@@ -232,7 +232,7 @@ func (m cardBrowsePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.list.SetSize(msg.Width, msg.Height)
+		m.list.SetSize(msg.Width, msg.Height-m.styles.List.GetVerticalPadding())
 		return m, nil
 
 	case tea.KeyMsg:
