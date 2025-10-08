@@ -215,7 +215,7 @@ type deckBrowsePage struct {
 }
 
 func (m deckBrowsePage) Init() tea.Cmd {
-	m.Log("deck-browse: init")
+	m.Log("deckBrowse init")
 	return nil
 }
 
