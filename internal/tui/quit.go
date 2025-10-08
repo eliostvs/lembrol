@@ -28,7 +28,7 @@ func (m quitModel) Init() tea.Cmd {
 }
 
 func (m quitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("quit: %T", msg))
+	m.Log("quit update: %T", msg)
 
 	var cmd tea.Cmd
 

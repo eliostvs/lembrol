@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -87,9 +86,9 @@ type Shared struct {
 	debug      bool
 }
 
-func (s *Shared) Log(msg string) {
+func (s *Shared) Log(msg string, v ...any) {
 	if s.debug {
-		log.Println(msg)
+		log.Printf(msg, v...)
 	}
 }
 
@@ -176,7 +175,7 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("app: %T", msg))
+	m.Log("app update: %T", msg)
 
 	var cmd tea.Cmd
 
@@ -222,7 +221,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // VIEW
 
 func (m Model) View() string {
-	m.Log("app: view")
+	m.Log("app view: width=%d height=%d", m.width, m.height)
 
 	return m.page.View()
 }
