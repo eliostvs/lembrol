@@ -380,7 +380,7 @@ func TestCardEdit(t *testing.T) {
 			assert.Contains(t, view, "Edit")
 			assert.Contains(t, view, "┃ "+latestCard.Question)
 			assert.Contains(t, view, "┃ "+latestCard.Answer)
-			assert.Contains(t, view, "↓ down • ↑ up • ctrl+s confirm • esc cancel")
+			assert.Contains(t, view, "tab down • shift+tab up • ctrl+s confirm • esc cancel")
 		},
 	)
 
@@ -434,9 +434,9 @@ func TestCardEdit(t *testing.T) {
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(editKey).
 				SendKeyRune("--").
-				SendKeyType(tea.KeyDown).
+				SendKeyType(tea.KeyTab).
 				SendKeyRune("--").
-				SendKeyType(tea.KeyUp).
+				SendKeyType(tea.KeyShiftTab).
 				SendKeyType(tea.KeyBackspace).
 				SendKeyType(tea.KeyTab).
 				SendKeyType(tea.KeyBackspace).

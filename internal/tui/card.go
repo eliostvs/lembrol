@@ -353,12 +353,12 @@ func newCardForm(question, answer string, shared Shared) cardForm {
 			key.WithHelp("esc", "cancel"),
 		),
 		previous: key.NewBinding(
-			key.WithKeys("up", "shift+tab"),
-			key.WithHelp("↑", "up"),
+			key.WithKeys("shift+tab"),
+			key.WithHelp("shift+tab", "up"),
 		),
 		next: key.NewBinding(
-			key.WithKeys("down", "tab"),
-			key.WithHelp("↓", "down"),
+			key.WithKeys("tab"),
+			key.WithHelp("tab", "down"),
 		),
 	}
 
