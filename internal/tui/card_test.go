@@ -241,7 +241,7 @@ func TestCardAdd(t *testing.T) {
 			assert.Contains(t, view, "Add")
 			assert.Contains(t, view, "nter a question")
 			assert.Contains(t, view, "Enter an answer")
-			assert.Contains(t, view, "↓ down • ↑ up • ctrl+s confirm • esc cancel")
+			assert.Contains(t, view, "tab down • shift+tab up • ctrl+s confirm • esc cancel")
 		},
 	)
 
@@ -285,13 +285,13 @@ func TestCardAdd(t *testing.T) {
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(createKey).
 				SendKeyRune("New").
-				SendKeyType(tea.KeyDown).
+				SendKeyType(tea.KeyTab).
 				SendKeyRune("New").
 				SendKeyType(tea.KeyShiftTab).
 				SendKeyRune(" question").
-				SendKeyType(tea.KeyDown).
+				SendKeyType(tea.KeyTab).
 				SendKeyRune(" answer").
-				SendKeyType(tea.KeyUp).
+				SendKeyType(tea.KeyShiftTab).
 				SendKeyRune("?").
 				SendKeyRune(saveKey).
 				Peek(
@@ -318,7 +318,7 @@ func TestCardAdd(t *testing.T) {
 				SendKeyType(tea.KeyEnter).
 				SendKeyRune(createKey).
 				SendKeyRune("Answer").
-				SendKeyType(tea.KeyDown).
+				SendKeyType(tea.KeyTab).
 				SendKeyRune("Question").
 				SendKeyType(tea.KeyEnter).
 				Get().
@@ -336,7 +336,7 @@ func TestCardAdd(t *testing.T) {
 						Init().
 						SendKeyType(tea.KeyEnter).
 						SendKeyRune(createKey).
-						SendKeyType(tea.KeyDown).
+						SendKeyType(tea.KeyTab).
 						SendKeyRune("Answer").
 						SendKeyType(tea.KeyEnter).
 						Get().
