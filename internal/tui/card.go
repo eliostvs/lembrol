@@ -447,6 +447,8 @@ func (m cardForm) next() (cardForm, tea.Cmd) {
 
 // Update the cardForm fields inner state.
 func (m cardForm) Update(msg tea.Msg) (cardForm, tea.Cmd) {
+	m.Log("cardForm update: %T", msg)
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
@@ -492,18 +494,23 @@ func (m cardForm) View() string {
 		Margin(1, 2).
 		Render(renderHelp(m.keyMap, m.width, false))
 
+	height := m.height - lipgloss.Height(footer)
+
 	input := lipgloss.NewStyle().
-		Height(m.height - lipgloss.Height(footer)).
+		Height(height).
 		Width(m.width).
-		Render(m.fieldsView())
+		Render(m.view(height))
 
 	return lipgloss.JoinVertical(lipgloss.Top, input, footer)
 }
 
-func (m cardForm) fieldsView() string {
+func (m cardForm) view(height int) string {
 	content := make([]string, len(m.fields))
+	// each input will have 30% of the available height
+	inputHeight := max(5, height/(len(m.fields)+1))
 
 	for i, field := range m.fields {
+		field.SetHeight(inputHeight)
 		content[i] = field.View()
 	}
 
@@ -587,6 +594,9 @@ func (m cardEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+
 	case submittedFormMsg[cardForm]:
 		m.card.Answer = msg.data.Value("answer")
 		m.card.Question = msg.data.Value("question")
