@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -106,7 +105,7 @@ func (m statsModel) Init() tea.Cmd {
 }
 
 func (m statsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("stats: %T", msg))
+	m.Log("stats update: %T", msg)
 
 	var cmd tea.Cmd
 
@@ -244,7 +243,7 @@ func cardStatsView(m statsModel) string {
 		Foreground(darkFuchsia).
 		Align(lipgloss.Left)
 	scoreLabels := make([]string, sections)
-	for i, label := range []string{"TOTAL", "AGAIN", "HARD", "GOOD", "EASY"} {
+	for i, label := range []string{"TOTAL", "AGAIN", "HARD", "NORMAL", "EASY"} {
 		scoreLabels[i] = headerStyle.Render(label)
 	}
 	totalLabels := lipgloss.JoinHorizontal(lipgloss.Left, scoreLabels...)

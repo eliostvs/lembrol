@@ -215,19 +215,19 @@ type deckBrowsePage struct {
 }
 
 func (m deckBrowsePage) Init() tea.Cmd {
-	m.Log("deck-browse: init")
+	m.Log("deckBrowse init")
 	return nil
 }
 
 //nolint:cyclop
 func (m deckBrowsePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("deck-browse: %T", msg))
+	m.Log("deckBrowse update: %T", msg)
 
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.list.SetSize(msg.Width, msg.Height)
+		m.list.SetSize(msg.Width, msg.Height-m.styles.List.GetVerticalPadding())
 		return m, nil
 
 	case tea.KeyMsg:
@@ -288,7 +288,7 @@ func (m deckBrowsePage) checkKeyMap() deckBrowsePage {
 }
 
 func (m deckBrowsePage) View() string {
-	m.Log("deck-browse: view")
+	m.Log("deckBrowse view: width=%d height=%d", m.width, m.height)
 
 	return m.styles.List.Render(m.list.View())
 }
@@ -415,7 +415,7 @@ func (m deckAddPage) Init() tea.Cmd {
 }
 
 func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("deck-add: %T", msg))
+	m.Log("deckAdd update: %T", msg)
 
 	var cmd tea.Cmd
 
@@ -435,7 +435,7 @@ func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckAddPage) View() string {
-	m.Log("deck-add: view")
+	m.Log("deckAdd view: width=%d height=%d", m.width, m.height)
 
 	header := m.styles.Title.
 		Margin(2, 0, 0, 2).
@@ -470,10 +470,14 @@ func (m deckEditPage) Init() tea.Cmd {
 }
 
 func (m deckEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("deck-update: %T", msg))
+	m.Log("deckEdit update: %T", msg)
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+
 	case submittedFormMsg[textinput.Model]:
 		m.deck.Name = msg.data.Value()
 		return m, tea.Batch(
@@ -490,7 +494,7 @@ func (m deckEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckEditPage) View() string {
-	m.Log("deck-update: view")
+	m.Log("deckEdit view: width=%d height=%d", m.width, m.height)
 
 	header := m.styles.Title.
 		Margin(2, 0, 0, 2).
@@ -575,7 +579,7 @@ func (m deckDeletePage) Init() tea.Cmd {
 }
 
 func (m deckDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("deck-delete: %T", msg))
+	m.Log("deckDelete update: %T", msg)
 
 	var cmd tea.Cmd
 
@@ -602,7 +606,7 @@ func (m deckDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckDeletePage) View() string {
-	m.Log("deck-delete: view")
+	m.Log("deckDelete view: width=%d height=%d", m.width, m.height)
 
 	return m.styles.List.Render(m.list.View())
 }
@@ -645,11 +649,14 @@ func (m deckPage) Init() tea.Cmd {
 }
 
 func (m deckPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("deck: %T", msg))
+	m.Log("deck update: %T", msg)
 
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+
 	case showLoadingMsg:
 		m.page = newLoadingPage(m.Shared, msg.title, msg.description)
 		return m, m.page.Init()
@@ -702,7 +709,7 @@ func (m deckPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m deckPage) View() string {
-	m.Log("deck: view")
+	m.Log("deck view: width=%d height=%d", m.width, m.height)
 
 	return m.page.View()
 }

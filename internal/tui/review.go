@@ -132,7 +132,7 @@ func (m questionPage) Init() tea.Cmd {
 }
 
 func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("question: update msg=%T", msg))
+	m.Log("question update: msg=%T", msg)
 
 	switch msg := msg.(type) {
 	case setupQuestionMsg:
@@ -160,7 +160,7 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m questionPage) View() string {
-	m.Log("question: view")
+	m.Log("question view: width=%d height=%d", m.width, m.height)
 
 	header := m.styles.Title.
 		Margin(1, 2).
@@ -288,7 +288,7 @@ func (m answerPage) Init() tea.Cmd {
 }
 
 func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("answer: update msg=%T total=%d", msg, m.review.Total()))
+	m.Log("answer update: msg=%T total=%d", msg, m.review.Total())
 
 	switch msg := msg.(type) {
 	case setupAnswerPageMsg:
@@ -323,7 +323,7 @@ func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m answerPage) View() string {
-	m.Log("answer: view")
+	m.Log("answer view: width=%d height=%d", m.width, m.height)
 
 	header := m.styles.Title.
 		Margin(1, 2).
@@ -400,7 +400,7 @@ func (m reviewSummaryPage) Init() tea.Cmd {
 }
 
 func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("review-summary: update msg=%T", msg))
+	m.Log("reviewSummary update: msg=%T", msg)
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -477,11 +477,14 @@ func (m reviewPage) Init() tea.Cmd {
 }
 
 func (m reviewPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("review: update msg=%T", msg))
+	m.Log("review update: msg=%T", msg)
 
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+
 	case showLoadingMsg:
 		m.page = newLoadingPage(m.Shared, msg.title, msg.description)
 		return m, m.page.Init()
@@ -507,7 +510,7 @@ func (m reviewPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m reviewPage) View() string {
-	m.Log("review: view")
+	m.Log("review view: width=%d height=%d", m.width, m.height)
 
 	return m.page.View()
 }

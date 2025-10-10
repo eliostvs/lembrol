@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.0
+
+### Fixed
+
+- The debug log is printing to standard output instead of the debug file.
+- Adjust the window size when the terminal size changes.
+
+### Changed
+
+- Higher card form fields.
+- Stats report headers.
+- Stop using the up and down arrows to switch between card form fields.
+
 ## 1.0.0
 
 - Use FSRS scheduler algorithm instead of Super Memo 2.

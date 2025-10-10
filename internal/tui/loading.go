@@ -62,7 +62,7 @@ func (m loadingPage) Init() tea.Cmd {
 }
 
 func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("loading: %T", msg))
+	m.Log("loading update: %T", msg)
 
 	var cmd tea.Cmd
 

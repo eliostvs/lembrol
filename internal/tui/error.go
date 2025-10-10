@@ -1,8 +1,6 @@
 package tui
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -50,7 +48,7 @@ func (m errorPage) Init() tea.Cmd {
 }
 
 func (m errorPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.Log(fmt.Sprintf("error: %T", msg))
+	m.Log("error update: %T", msg)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:

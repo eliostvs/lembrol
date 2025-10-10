@@ -11,7 +11,7 @@ vars:
 
 tasks:
   clean:
-    desc: delete binary and development environment
+    desc: delete development files
     cmds:
       - rm coverage* 2> /dev/null || true
       - rm *.log 2> /dev/null || true
@@ -40,14 +40,15 @@ tasks:
   lint:
     desc: run static checks
     cmds:
+      - go mod verify
+      - go vet {{.PACKAGES}}
       - ./dist/golangci-lint run
 
   test:
     desc: run tests
     cmds:
       - mkdir -p dist
-      - go test {{.CLI_ARGS}} -buildvcs -race -shuffle=on -cover -coverprofile=dist/coverage.out {{.PACKAGES}}
-
+      - go test -buildvcs -race -shuffle=on -cover -coverprofile=dist/coverage.out {{.PACKAGES}} {{.CLI_ARGS}} 
   test-coverage:
     desc: run tests and generates the coverage
     deps:
@@ -58,20 +59,22 @@ tasks:
   audit:
     desc: run quality control checks
     cmds:
-      - go mod verify
-      - go vet {{.PACKAGES}}
-      - go run honnef.co/go/tools/cmd/staticcheck@latest -checks=all,-ST1000,-U1000 {{.PACKAGES}}
       - go run golang.org/x/vuln/cmd/govulncheck@latest {{.PACKAGES}}
 
   run:
     desc: run the application
     cmds:
-      - go run ./cmd/lembrol --debug {{.CLI_ARGS}}
+      - go run ./cmd/{{.NAME}} --debug {{.CLI_ARGS}}
 
   build:
-    desc: create snapshot release
+    desc: build the application
     cmds:
-      - go run github.com/goreleaser/goreleaser@latest build --clean --snapshot --single-target
+      - mkdir -p dist
+      - go build -ldflags='-s -w -extldflags "-static"' -o dist/{{.NAME}} ./cmd/{{.NAME}}/
+    env:
+      CGO_ENABLED: 0
+      GOOS: "{{.GOOS}}"
+      GOARCH: "{{.GOARCH}}"
 
   release:
     desc: create a release with git flow, bumpversion
@@ -81,3 +84,8 @@ tasks:
       - bumpversion --verbose --no-tag --commit {{.CLI_ARGS}}
       - git flow release start {{.VERSION}}
       - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/{{.VERSION}}" -T {{.VERSION}} {{.VERSION}} -p
+
+  goreleaser:
+    desc: create snapshot release
+    cmds:
+      - go run github.com/goreleaser/goreleaser@latest build --clean --snapshot --single-target
