@@ -5,7 +5,7 @@ silent: true
 vars:
   NAME: "lembrol"
   PACKAGES: "./..."
-  GOLANGCI_LINT_VERSION: 2.3.1
+  GOLANGCI_LINT_VERSION: 2.5.0
   VERSION:
     sh: cat .bumpversion.cfg | grep current_version | awk '{print $3}'
 
@@ -83,7 +83,7 @@ tasks:
       - grep -q '\[Unreleased\]' CHANGELOG.md || (echo 'Create the [Unreleased] section in the changelog first!' && exit 1)
       - bumpversion --verbose --no-tag --commit {{.CLI_ARGS}}
       - git flow release start {{.VERSION}}
-      - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/{{.VERSION}}" -T {{.VERSION}} {{.VERSION}} -p
+      - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/v{{.VERSION}}" -T v{{.VERSION}} {{.VERSION}} -p
 
   goreleaser:
     desc: create snapshot release
