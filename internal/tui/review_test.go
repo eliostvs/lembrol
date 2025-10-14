@@ -180,7 +180,7 @@ func TestAnswer(t *testing.T) {
 			assert.Contains(t, view, "Golang One")
 			assert.Contains(t, view, "1 of 1")
 			assert.Contains(t, view, latestCard.Answer)
-			assert.Contains(t, view, "2 hard • 3 normal • 4 easy • q quit • ? more")
+			assert.Contains(t, view, "2 hard • 3 good • 4 easy • q quit • ? more")
 		},
 	)
 
@@ -194,8 +194,8 @@ func TestAnswer(t *testing.T) {
 				Get().
 				View()
 
-			assert.Contains(t, view, "1 again    2 hard      q quit")
-			assert.Contains(t, view, "3 normal    ? close help")
+			assert.Contains(t, view, "1 again    2 hard    q quit")
+			assert.Contains(t, view, "3 good    ? close help")
 			assert.Contains(t, view, "4 easy")
 		},
 	)
@@ -211,8 +211,8 @@ func TestAnswer(t *testing.T) {
 				View()
 
 			assert.NotContains(t, view, "1 again")
-			assert.Contains(t, view, "2 hard      q quit")
-			assert.Contains(t, view, "3 normal    ? close help")
+			assert.Contains(t, view, "2 hard    q quit")
+			assert.Contains(t, view, "3 good    ? close help")
 			assert.Contains(t, view, "4 easy")
 		},
 	)
@@ -229,7 +229,7 @@ func TestAnswer(t *testing.T) {
 			View()
 
 		assert.NotContains(t, view, "1 again")
-		assert.Contains(t, view, "2 hard • 3 normal • 4 easy • q quit • ? more")
+		assert.Contains(t, view, "2 hard • 3 good • 4 easy • q quit • ? more")
 	})
 
 	t.Run(
@@ -264,7 +264,7 @@ func TestAnswer(t *testing.T) {
 					want: "2 of 6",
 				},
 				{
-					name: "score normal",
+					name: "score good",
 					args: flashcard.ReviewScoreGood,
 					want: "2 of 6",
 				},

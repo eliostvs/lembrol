@@ -202,11 +202,11 @@ func (m questionPage) View() string {
 // Answer Page
 
 type answerKeyMap struct {
-	quit, score, again, workaround, hard, normal, easy, showFullHelp, closeFullHelp key.Binding
+	quit, score, again, workaround, hard, good, easy, showFullHelp, closeFullHelp key.Binding
 }
 
 func (k answerKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.again, k.hard, k.normal, k.easy, k.quit, k.showFullHelp}
+	return []key.Binding{k.again, k.hard, k.good, k.easy, k.quit, k.showFullHelp}
 }
 
 func (k answerKeyMap) FullHelp() [][]key.Binding {
@@ -218,7 +218,7 @@ func (k answerKeyMap) FullHelp() [][]key.Binding {
 		},
 		{
 			k.hard,
-			k.normal,
+			k.good,
 			k.easy,
 		},
 		{
@@ -249,9 +249,9 @@ func newAnswerPage(shared reviewShared) answerPage {
 				key.WithKeys("2"),
 				key.WithHelp("2", "hard"),
 			),
-			normal: key.NewBinding(
+			good: key.NewBinding(
 				key.WithKeys("3"),
-				key.WithHelp("3", "normal"),
+				key.WithHelp("3", "good"),
 			),
 			easy: key.NewBinding(
 				key.WithKeys("4"),
