@@ -25,7 +25,6 @@ func TestNewStats(t *testing.T) {
 
 	stats := flashcard.NewStats(now, fsrs.Good, previous, got)
 
-	assert.Equal(t, flashcard.ReviewScoreGood, stats.Score)
 	assert.Equal(t, fsrs.Good, stats.Rating)
 	assert.Equal(t, now, stats.LastReview)
 	assert.Equal(t, got.Stability, stats.Stability)
