@@ -140,7 +140,7 @@ func calculateTotals(stats []flashcard.Stats) map[flashcard.ReviewScore]int {
 	totals := make(map[flashcard.ReviewScore]int, 5)
 	for _, stat := range stats {
 		totals[flashcard.ReviewScore(0)]++ // total
-		totals[stat.Score]++
+		totals[flashcard.ReviewScore(stat.Rating)]++
 	}
 	return totals
 }
@@ -149,7 +149,7 @@ func createSparkline(stats []flashcard.Stats) []sparklineItem {
 	sparkline := make([]sparklineItem, 0, len(stats))
 
 	for _, stat := range stats {
-		sparkline = append(sparkline, newSparklineItem(stat.Score, stat.LastReview))
+		sparkline = append(sparkline, newSparklineItem(flashcard.ReviewScore(stat.Rating), stat.LastReview))
 	}
 
 	sort.Slice(
@@ -243,7 +243,7 @@ func cardStatsView(m statsModel) string {
 		Foreground(darkFuchsia).
 		Align(lipgloss.Left)
 	scoreLabels := make([]string, sections)
-	for i, label := range []string{"TOTAL", "AGAIN", "HARD", "NORMAL", "EASY"} {
+	for i, label := range []string{"TOTAL", "AGAIN", "HARD", "GOOD", "EASY"} {
 		scoreLabels[i] = headerStyle.Render(label)
 	}
 	totalLabels := lipgloss.JoinHorizontal(lipgloss.Left, scoreLabels...)
