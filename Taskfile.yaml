@@ -3,15 +3,15 @@ version: "3"
 silent: true
 
 vars:
-  NAME: "lembrol"
-  PACKAGES: "./..."
+  NAME: lembrol
   GOLANGCI_LINT_VERSION: 2.5.0
+  PACKAGES: "./..."
   VERSION:
     sh: cat .bumpversion.cfg | grep current_version | awk '{print $3}'
 
 tasks:
   clean:
-    desc: delete development files
+    desc: delete binary and development environment
     cmds:
       - rm coverage* 2> /dev/null || true
       - rm *.log 2> /dev/null || true
@@ -25,7 +25,7 @@ tasks:
       - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b dist/ v{{.GOLANGCI_LINT_VERSION}}
 
   upgrade:
-    desc: list direct dependencies that have upgrades available
+    desc: upgrade dependencies
     cmds:
       - go run github.com/oligot/go-mod-upgrade@latest
       - go mod tidy
@@ -44,22 +44,23 @@ tasks:
       - go vet {{.PACKAGES}}
       - ./dist/golangci-lint run
 
+  audit:
+    desc: run security checks
+    cmds:
+      - go run golang.org/x/vuln/cmd/govulncheck@latest {{.PACKAGES}}
+
   test:
     desc: run tests
     cmds:
       - mkdir -p dist
       - go test -buildvcs -race -shuffle=on -cover -coverprofile=dist/coverage.out {{.PACKAGES}} {{.CLI_ARGS}} 
+
   test-coverage:
     desc: run tests and generates the coverage
     deps:
       - test
     cmds:
       - go tool cover -html=dist/coverage.out
-
-  audit:
-    desc: run quality control checks
-    cmds:
-      - go run golang.org/x/vuln/cmd/govulncheck@latest {{.PACKAGES}}
 
   run:
     desc: run the application
@@ -77,13 +78,13 @@ tasks:
       GOARCH: "{{.GOARCH}}"
 
   release:
-    desc: create a release with git flow, bumpversion
+    desc: create a release
     cmds:
       - git flow init -d
       - grep -q '\[Unreleased\]' CHANGELOG.md || (echo 'Create the [Unreleased] section in the changelog first!' && exit 1)
-      - bumpversion --verbose --no-tag --commit {{.CLI_ARGS}}
+      - bumpversion --verbose --tag --commit {{.CLI_ARGS}}
       - git flow release start {{.VERSION}}
-      - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/v{{.VERSION}}" -T v{{.VERSION}} {{.VERSION}} -p
+      - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/{{.VERSION}}" -T {{.VERSION}} {{.VERSION}} -p
 
   goreleaser:
     desc: create snapshot release
