@@ -13,7 +13,7 @@ require (
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/open-spaced-repetition/go-fsrs/v3 v3.3.1
 	github.com/stretchr/testify v1.11.1
-	github.com/urfave/cli/v3 v3.5.0
+	github.com/urfave/cli/v3 v3.6.0
 )
 
 require (
