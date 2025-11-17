@@ -10,6 +10,11 @@ vars:
     sh: cat .bumpversion.cfg | grep current_version | awk '{print $3}'
 
 tasks:
+  default:
+    desc: show all available tasks
+    cmds:
+      - task --list
+
   clean:
     desc: Remove build artifacts and cached data
     cmds:
@@ -19,7 +24,7 @@ tasks:
 
   dev:
     desc: Prepare development environment and tooling
-    cmds: 
+    cmds:
       - go mod download
       - mkdir -p dist
       - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b dist v{{.GOLANGCI_LINT_VERSION}}
@@ -53,7 +58,7 @@ tasks:
     desc: Run tests with coverage
     cmds:
       - mkdir -p dist
-      - go test -buildvcs -race -shuffle=on -cover -coverprofile=dist/coverage.out {{.PACKAGES}} {{.CLI_ARGS}} 
+      - go test -buildvcs -race -shuffle=on -cover -coverprofile=dist/coverage.out {{.PACKAGES}} {{.CLI_ARGS}}
 
   test-coverage:
     desc: Open HTML coverage report
