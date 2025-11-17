@@ -47,6 +47,7 @@ const (
 
 	createKey    = "a"
 	saveKey      = "ctrl+s"
+	cancelKey    = "ctrl+c"
 	quitKey      = "q"
 	studyKey     = "s"
 	skipKey      = "s"

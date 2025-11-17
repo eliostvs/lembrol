@@ -241,7 +241,7 @@ func TestCardAdd(t *testing.T) {
 			assert.Contains(t, view, "Add")
 			assert.Contains(t, view, "nter a question")
 			assert.Contains(t, view, "Enter an answer")
-			assert.Contains(t, view, "tab down • shift+tab up • ctrl+s confirm • esc cancel")
+			assert.Contains(t, view, "tab down • shift+tab up • ctrl+s confirm • ctrl+c cancel")
 		},
 	)
 
@@ -252,12 +252,12 @@ func TestCardAdd(t *testing.T) {
 				SendKeyType(tea.KeyEnter).
 				SendKeyType(tea.KeyDown).
 				SendKeyRune(createKey).
-				SendKeyType(tea.KeyEsc).
+				SendKeyRune(cancelKey).
 				Get().
 				View()
 
 			assert.Contains(t, view, activePrompt+"Question B")
-			assert.NotContains(t, view, "enter confirm • esc cancel")
+			assert.NotContains(t, view, "ctrl+s confirm")
 		},
 	)
 
@@ -380,7 +380,7 @@ func TestCardEdit(t *testing.T) {
 			assert.Contains(t, view, "Edit")
 			assert.Contains(t, view, "┃ "+latestCard.Question)
 			assert.Contains(t, view, "┃ "+latestCard.Answer)
-			assert.Contains(t, view, "tab down • shift+tab up • ctrl+s confirm • esc cancel")
+			assert.Contains(t, view, "tab down • shift+tab up • ctrl+s confirm • ctrl+c cancel")
 		},
 	)
 
@@ -391,12 +391,12 @@ func TestCardEdit(t *testing.T) {
 				SendKeyType(tea.KeyEnter).
 				SendKeyType(tea.KeyDown).
 				SendKeyRune(editKey).
-				SendKeyType(tea.KeyEsc).
+				SendKeyRune(cancelKey).
 				Get().
 				View()
 
 			assert.Contains(t, view, activePrompt+"Question B")
-			assert.NotContains(t, view, "enter confirm • esc cancel")
+			assert.NotContains(t, view, "enter confirm")
 		},
 	)
 
