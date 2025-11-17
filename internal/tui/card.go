@@ -349,8 +349,8 @@ func newCardForm(question, answer string, shared Shared) cardForm {
 			key.WithHelp("ctrl+s", "confirm"),
 		),
 		cancel: key.NewBinding(
-			key.WithKeys("esc"),
-			key.WithHelp("esc", "cancel"),
+			key.WithKeys("ctrl+c"),
+			key.WithHelp("ctrl+c", "cancel"),
 		),
 		previous: key.NewBinding(
 			key.WithKeys("shift+tab"),

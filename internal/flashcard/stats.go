@@ -8,7 +8,6 @@ import (
 
 // Stats is the revised card statistics.
 type Stats struct {
-	Score         ReviewScore `json:"score" validate:"required"`
 	Rating        fsrs.Rating `json:"rating"`
 	Stability     float64     `json:"stability"`
 	Difficulty    float64     `json:"difficulty"`
@@ -23,7 +22,6 @@ type Stats struct {
 // NewStats creates stats using FSRS data.
 func NewStats(ts time.Time, rating fsrs.Rating, previous, updated Card) Stats {
 	return Stats{
-		Score:         FSRSRatingToReviewScore(rating),
 		Rating:        rating,
 		Stability:     updated.Stability,
 		Difficulty:    updated.Difficulty,

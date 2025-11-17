@@ -3,71 +3,77 @@ version: "3"
 silent: true
 
 vars:
-  NAME: "lembrol"
-  PACKAGES: "./..."
+  NAME: lembrol
   GOLANGCI_LINT_VERSION: 2.5.0
+  PACKAGES: ./...
   VERSION:
     sh: cat .bumpversion.cfg | grep current_version | awk '{print $3}'
 
 tasks:
-  clean:
-    desc: delete development files
+  default:
+    desc: show all available tasks
     cmds:
-      - rm coverage* 2> /dev/null || true
-      - rm *.log 2> /dev/null || true
+      - task --list
+
+  clean:
+    desc: Remove build artifacts and cached data
+    cmds:
+      - rm -rf dist
+      - rm -f coverage* *.log
       - go clean -cache -testcache -modcache
 
   dev:
-    desc: prepare development environment
-    cmds: 
+    desc: Prepare development environment and tooling
+    cmds:
       - go mod download
       - mkdir -p dist
-      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b dist/ v{{.GOLANGCI_LINT_VERSION}}
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b dist v{{.GOLANGCI_LINT_VERSION}}
 
   upgrade:
-    desc: list direct dependencies that have upgrades available
+    desc: Upgrade dependencies
     cmds:
       - go run github.com/oligot/go-mod-upgrade@latest
       - go mod tidy
 
   format:
-    desc: format files
+    desc: Format source files
     cmds:
       - go run golang.org/x/tools/cmd/goimports@latest -l -w .
       - go run mvdan.cc/gofumpt@latest -l -w .
       - go mod tidy -v
 
   lint:
-    desc: run static checks
+    desc: Run static analysis checks
     cmds:
       - go mod verify
       - go vet {{.PACKAGES}}
       - ./dist/golangci-lint run
 
+  audit:
+    desc: Scan dependencies for known vulnerabilities
+    cmds:
+      - go run golang.org/x/vuln/cmd/govulncheck@latest {{.PACKAGES}}
+
   test:
-    desc: run tests
+    desc: Run tests with coverage
     cmds:
       - mkdir -p dist
-      - go test -buildvcs -race -shuffle=on -cover -coverprofile=dist/coverage.out {{.PACKAGES}} {{.CLI_ARGS}} 
+      - go test -buildvcs -race -shuffle=on -cover -coverprofile=dist/coverage.out {{.PACKAGES}} {{.CLI_ARGS}}
+
   test-coverage:
-    desc: run tests and generates the coverage
+    desc: Open HTML coverage report
     deps:
       - test
     cmds:
       - go tool cover -html=dist/coverage.out
 
-  audit:
-    desc: run quality control checks
-    cmds:
-      - go run golang.org/x/vuln/cmd/govulncheck@latest {{.PACKAGES}}
-
   run:
-    desc: run the application
+    desc: Run the application in development mode
     cmds:
       - go run ./cmd/{{.NAME}} --debug {{.CLI_ARGS}}
 
   build:
-    desc: build the application
+    desc: Build the binary
     cmds:
       - mkdir -p dist
       - go build -ldflags='-s -w -extldflags "-static"' -o dist/{{.NAME}} ./cmd/{{.NAME}}/
@@ -77,15 +83,15 @@ tasks:
       GOARCH: "{{.GOARCH}}"
 
   release:
-    desc: create a release with git flow, bumpversion
+    desc: Create a tagged release
     cmds:
       - git flow init -d
       - grep -q '\[Unreleased\]' CHANGELOG.md || (echo 'Create the [Unreleased] section in the changelog first!' && exit 1)
-      - bumpversion --verbose --no-tag --commit {{.CLI_ARGS}}
+      - bumpversion --verbose --tag --commit {{.CLI_ARGS}}
       - git flow release start {{.VERSION}}
-      - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/v{{.VERSION}}" -T v{{.VERSION}} {{.VERSION}} -p
+      - GIT_MERGE_AUTOEDIT=no git flow release finish -m "Merge branch release/{{.VERSION}}" -T {{.VERSION}} {{.VERSION}} -p
 
   goreleaser:
-    desc: create snapshot release
+    desc: Create a snapshot build via GoReleaser
     cmds:
       - go run github.com/goreleaser/goreleaser@latest build --clean --snapshot --single-target

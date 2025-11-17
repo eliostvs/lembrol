@@ -274,7 +274,7 @@ func TestDeckCreate(t *testing.T) {
 				View()
 
 			assert.Contains(t, view, "Add")
-			assert.Contains(t, view, "ctrl+s confirm • esc cancel")
+			assert.Contains(t, view, "ctrl+s confirm • ctrl+c cancel")
 		},
 	)
 
@@ -284,13 +284,13 @@ func TestDeckCreate(t *testing.T) {
 				Init().
 				SendKeyType(tea.KeyDown).
 				SendKeyRune(createKey).
-				SendKeyType(tea.KeyEsc).
+				SendKeyRune(cancelKey).
 				Get().
 				View()
 
 			assert.Contains(t, view, "Decks")
 			assert.Contains(t, view, activePrompt+"Golang B")
-			assert.NotContains(t, view, "Add")
+			assert.NotContains(t, view, "ctrl+s confirm")
 		},
 	)
 
@@ -370,7 +370,7 @@ func TestDeckEdit(t *testing.T) {
 				View()
 
 			assert.Contains(t, view, "Edit")
-			assert.Contains(t, view, "ctrl+s confirm • esc cancel")
+			assert.Contains(t, view, "ctrl+s confirm • ctrl+c cancel")
 		},
 	)
 
@@ -380,13 +380,13 @@ func TestDeckEdit(t *testing.T) {
 				Init().
 				SendKeyType(tea.KeyDown).
 				SendKeyRune(editKey).
-				SendKeyType(tea.KeyEsc).
+				SendKeyRune(cancelKey).
 				Get().
 				View()
 
 			assert.Contains(t, view, "Decks")
 			assert.Contains(t, view, activePrompt+"Golang B")
-			assert.NotContains(t, view, "Edit")
+			assert.NotContains(t, view, "ctrl+s confirm")
 		},
 	)
 
