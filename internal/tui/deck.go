@@ -324,8 +324,8 @@ func newDeckForm(name string, shared Shared) deckForm {
 			key.WithHelp("ctrl+s", "confirm"),
 		),
 		cancel: key.NewBinding(
-			key.WithKeys("esc"),
-			key.WithHelp("esc", "cancel"),
+			key.WithKeys("ctrl+c"),
+			key.WithHelp("ctrl+c", "cancel"),
 		),
 	}
 
