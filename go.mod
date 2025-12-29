@@ -9,7 +9,7 @@ require (
 	github.com/charmbracelet/glamour v0.10.0
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
 	github.com/dustin/go-humanize v1.0.1
-	github.com/go-playground/validator/v10 v10.30.0
+	github.com/go-playground/validator/v10 v10.30.1
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/open-spaced-repetition/go-fsrs/v3 v3.3.1
 	github.com/stretchr/testify v1.11.1
