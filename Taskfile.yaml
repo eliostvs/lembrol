@@ -4,7 +4,7 @@ silent: true
 
 vars:
   NAME: lembrol
-  GOLANGCI_LINT_VERSION: 2.5.0
+  GOLANGCI_LINT_VERSION: 2.6.2
   PACKAGES: ./...
   VERSION:
     sh: cat .bumpversion.cfg | grep current_version | awk '{print $3}'
