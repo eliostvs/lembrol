@@ -45,7 +45,7 @@ type Card struct {
 	Reps          uint64     `json:"reps"`
 	Lapses        uint64     `json:"lapses"`
 	State         fsrs.State `json:"state"`
-	LastReview    time.Time  `json:"last_review,omitempty" validate:"required"`
+	LastReview    time.Time  `json:"last_review,omitzero" validate:"required"`
 }
 
 func (c Card) AddStats(s Stats) Card {
