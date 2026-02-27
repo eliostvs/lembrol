@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 func newQuitModel(s Shared) quitModel {
@@ -41,7 +41,7 @@ func (m quitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m quitModel) View() string {
+func (m quitModel) View() tea.View {
 	m.Log("quit: view")
 
 	header := m.styles.Title.
@@ -54,5 +54,5 @@ func (m quitModel) View() string {
 		Height(m.height - lipgloss.Height(header)).
 		Render(fmt.Sprintf("Thanks for using %s!", appName))
 
-	return lipgloss.JoinVertical(lipgloss.Top, header, content)
+	return tea.NewView(lipgloss.JoinVertical(lipgloss.Top, header, content))
 }

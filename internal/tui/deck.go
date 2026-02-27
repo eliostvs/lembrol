@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/list"
 
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
@@ -230,7 +230,7 @@ func (m deckBrowsePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.SetSize(msg.Width, msg.Height-m.styles.List.GetVerticalPadding())
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		// Don't match any of the keys below if we're actively filtering.
 		if m.list.FilterState() == list.Filtering {
 			break
@@ -287,10 +287,10 @@ func (m deckBrowsePage) checkKeyMap() deckBrowsePage {
 	return m
 }
 
-func (m deckBrowsePage) View() string {
+func (m deckBrowsePage) View() tea.View {
 	m.Log("deckBrowse view: width=%d height=%d", m.width, m.height)
 
-	return m.styles.List.Render(m.list.View())
+	return tea.NewView(m.styles.List.Render(m.list.View()))
 }
 
 // Form Deck
@@ -350,7 +350,7 @@ func (m deckForm) Update(msg tea.Msg) (deckForm, tea.Cmd) {
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.cancel):
 			return m, cancelForm()
@@ -434,7 +434,7 @@ func (m deckAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m deckAddPage) View() string {
+func (m deckAddPage) View() tea.View {
 	m.Log("deckAdd view: width=%d height=%d", m.width, m.height)
 
 	header := m.styles.Title.
@@ -448,7 +448,7 @@ func (m deckAddPage) View() string {
 	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
 	form := m.styles.Text.Render(m.form.View())
 
-	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form)
+	return tea.NewView(lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form))
 }
 
 // Edit Deck
@@ -493,7 +493,7 @@ func (m deckEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m deckEditPage) View() string {
+func (m deckEditPage) View() tea.View {
 	m.Log("deckEdit view: width=%d height=%d", m.width, m.height)
 
 	header := m.styles.Title.
@@ -507,7 +507,7 @@ func (m deckEditPage) View() string {
 	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
 	form := m.styles.Text.Render(m.form.View())
 
-	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form)
+	return tea.NewView(lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form))
 }
 
 // Delete Deck
@@ -534,7 +534,7 @@ func (k deckDeleteKeyMap) FullHelp() []key.Binding {
 func newDeleteDeckPage(shared deckShared) deckDeletePage {
 	keyMap := deckDeleteKeyMap{
 		cancel: key.NewBinding(
-			key.WithKeys(tea.KeyEsc.String()),
+			key.WithKeys("esc"),
 			key.WithHelp("esc", "cancel"),
 		),
 		confirm: key.NewBinding(
@@ -588,7 +588,7 @@ func (m deckDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.SetSize(msg.Width, msg.Height)
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.confirm):
 			return m, tea.Batch(
@@ -605,10 +605,10 @@ func (m deckDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m deckDeletePage) View() string {
+func (m deckDeletePage) View() tea.View {
 	m.Log("deckDelete view: width=%d height=%d", m.width, m.height)
 
-	return m.styles.List.Render(m.list.View())
+	return tea.NewView(m.styles.List.Render(m.list.View()))
 }
 
 // Deck Page
@@ -708,7 +708,7 @@ func (m deckPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m deckPage) View() string {
+func (m deckPage) View() tea.View {
 	m.Log("deck view: width=%d height=%d", m.width, m.height)
 
 	return m.page.View()

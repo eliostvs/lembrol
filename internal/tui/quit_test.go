@@ -3,7 +3,7 @@ package tui_test
 import (
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/eliostvs/lembrol/internal/tui"
 	"github.com/stretchr/testify/assert"
 )
@@ -32,7 +32,7 @@ func TestQuit(t *testing.T) {
 				SendKeyRune(quitKey).
 				Peek(
 					func(m tea.Model) {
-						before = m.View()
+						before = viewText(m)
 					},
 				).
 				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight / 2}).

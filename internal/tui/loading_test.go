@@ -3,8 +3,8 @@ package tui_test
 import (
 	"testing"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
 	"github.com/eliostvs/lembrol/internal/tui"
 	"github.com/stretchr/testify/assert"
 )
@@ -61,7 +61,7 @@ func TestLoading(t *testing.T) {
 			after := newTestModel(t, manyDecks).
 				Peek(
 					func(m tea.Model) {
-						before = m.View()
+						before = viewText(m)
 					},
 				).
 				ForceUpdate(spinner.TickMsg{}).
@@ -79,7 +79,7 @@ func TestLoading(t *testing.T) {
 			after := newTestModel(t, emptyDeck, tui.WithWindowSize(testWidth, testHeight*2)).
 				Peek(
 					func(m tea.Model) {
-						before = m.View()
+						before = viewText(m)
 					},
 				).
 				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight / 2}).

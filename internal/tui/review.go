@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
@@ -143,7 +143,7 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.skip) && m.review.Left() > 1:
 			return m, skipCard(m.review)
@@ -159,7 +159,7 @@ func (m questionPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m questionPage) View() string {
+func (m questionPage) View() tea.View {
 	m.Log("question view: width=%d height=%d", m.width, m.height)
 
 	header := m.styles.Title.
@@ -178,11 +178,11 @@ func (m questionPage) View() string {
 
 	card, err := m.review.Card()
 	if err != nil {
-		return errorView(m.Shared, newErrorKeyMap(), err.Error())
+		return tea.NewView(errorView(m.Shared, newErrorKeyMap(), err.Error()))
 	}
 	markdown, err := RenderMarkdown(card.Question, m.width-m.styles.Markdown.GetHorizontalFrameSize())
 	if err != nil {
-		return errorView(m.Shared, newErrorKeyMap(), err.Error())
+		return tea.NewView(errorView(m.Shared, newErrorKeyMap(), err.Error()))
 	}
 
 	footer := lipgloss.
@@ -196,7 +196,7 @@ func (m questionPage) View() string {
 		Margin(0, 2).
 		Render(markdown)
 
-	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, position, content, footer)
+	return tea.NewView(lipgloss.JoinVertical(lipgloss.Top, header, subTitle, position, content, footer))
 }
 
 // Answer Page
@@ -299,7 +299,7 @@ func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.score):
 			return m, tea.Batch(
@@ -322,7 +322,7 @@ func (m answerPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m answerPage) View() string {
+func (m answerPage) View() tea.View {
 	m.Log("answer view: width=%d height=%d", m.width, m.height)
 
 	header := m.styles.Title.
@@ -341,11 +341,11 @@ func (m answerPage) View() string {
 
 	card, err := m.review.Card()
 	if err != nil {
-		return errorView(m.Shared, newErrorKeyMap(), err.Error())
+		return tea.NewView(errorView(m.Shared, newErrorKeyMap(), err.Error()))
 	}
 	markdown, err := RenderMarkdown(card.Answer, m.width-m.styles.Markdown.GetHorizontalFrameSize())
 	if err != nil {
-		return errorView(m.Shared, newErrorKeyMap(), err.Error())
+		return tea.NewView(errorView(m.Shared, newErrorKeyMap(), err.Error()))
 	}
 
 	footer := lipgloss.
@@ -360,7 +360,7 @@ func (m answerPage) View() string {
 		Margin(0, 2).
 		Render(markdown)
 
-	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, position, content, footer)
+	return tea.NewView(lipgloss.JoinVertical(lipgloss.Top, header, subTitle, position, content, footer))
 }
 
 // Review Summary Page
@@ -407,7 +407,7 @@ func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.quit):
 			return m, showDecks(0)
@@ -417,7 +417,7 @@ func (m reviewSummaryPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m reviewSummaryPage) View() string {
+func (m reviewSummaryPage) View() tea.View {
 	m.Log("review-summary: view")
 
 	header := m.styles.Title.
@@ -437,7 +437,7 @@ func (m reviewSummaryPage) View() string {
 		Margin(0, 2).
 		Render(fmt.Sprintf("%d card%s reviewed.", completed, pluralize(completed, "s")))
 
-	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, footer)
+	return tea.NewView(lipgloss.JoinVertical(lipgloss.Top, header, subTitle, footer))
 }
 
 // Review SubPage
@@ -509,7 +509,7 @@ func (m reviewPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m reviewPage) View() string {
+func (m reviewPage) View() tea.View {
 	m.Log("review view: width=%d height=%d", m.width, m.height)
 
 	return m.page.View()

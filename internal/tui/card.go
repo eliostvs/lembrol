@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/textarea"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/list"
+	"charm.land/bubbles/v2/textarea"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/eliostvs/lembrol/internal/clock"
 	"github.com/eliostvs/lembrol/internal/flashcard"
@@ -235,7 +235,7 @@ func (m cardBrowsePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.SetSize(msg.Width, msg.Height-m.styles.List.GetVerticalPadding())
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		// Don't match any of the keys below if we're actively filtering.
 		if m.list.FilterState() == list.Filtering {
 			break
@@ -266,10 +266,10 @@ func (m cardBrowsePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m.checkKeyMap(), cmd
 }
 
-func (m cardBrowsePage) View() string {
+func (m cardBrowsePage) View() tea.View {
 	m.Log("cardBrowse view: width=%d height=%d", m.width, m.height)
 
-	return m.styles.List.Render(m.list.View())
+	return tea.NewView(m.styles.List.Render(m.list.View()))
 }
 
 func (m cardBrowsePage) checkKeyMap() cardBrowsePage {
@@ -454,7 +454,7 @@ func (m cardForm) Update(msg tea.Msg) (cardForm, tea.Cmd) {
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.previous):
 			return m.prev()
@@ -554,7 +554,7 @@ func (m cardAddPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m cardAddPage) View() string {
+func (m cardAddPage) View() tea.View {
 	m.Log("cardAdd view: width=%d height=%d", m.width, m.height)
 
 	header := m.styles.Title.
@@ -568,7 +568,7 @@ func (m cardAddPage) View() string {
 	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
 	form := m.styles.Text.Render(m.form.View())
 
-	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form)
+	return tea.NewView(lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form))
 }
 
 // Edit Card
@@ -614,7 +614,7 @@ func (m cardEditPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m cardEditPage) View() string {
+func (m cardEditPage) View() tea.View {
 	m.Log("cardEdit view: width=%d height=%d", m.width, m.height)
 
 	header := m.styles.Title.
@@ -628,7 +628,7 @@ func (m cardEditPage) View() string {
 	m.form.height = m.height - lipgloss.Height(header) - lipgloss.Height(subTitle)
 	form := m.styles.Text.Render(m.form.View())
 
-	return lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form)
+	return tea.NewView(lipgloss.JoinVertical(lipgloss.Top, header, subTitle, form))
 }
 
 // Delete Card
@@ -655,7 +655,7 @@ func (k cardDeleteKeyMap) FullHelp() []key.Binding {
 func newDeleteCardPage(shared cardShared) cardDeletePage {
 	keyMap := cardDeleteKeyMap{
 		cancel: key.NewBinding(
-			key.WithKeys(tea.KeyEsc.String()),
+			key.WithKeys("esc"),
 			key.WithHelp("esc", "cancel"),
 		),
 		confirm: key.NewBinding(
@@ -707,7 +707,7 @@ func (m cardDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.SetSize(msg.Width, msg.Height)
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.confirm):
 			return m, tea.Batch(
@@ -724,10 +724,10 @@ func (m cardDeletePage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m cardDeletePage) View() string {
+func (m cardDeletePage) View() tea.View {
 	m.Log("cardDelete view: width=%d height=%d", m.width, m.height)
 
-	return m.styles.List.Render(m.list.View())
+	return tea.NewView(m.styles.List.Render(m.list.View()))
 }
 
 // Card Page
@@ -831,7 +831,7 @@ func (m cardPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m cardPage) View() string {
+func (m cardPage) View() tea.View {
 	m.Log("card view: width=%d height=%d", m.width, m.height)
 
 	return m.page.View()

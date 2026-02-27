@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/dustin/go-humanize"
 	"github.com/stretchr/testify/assert"
 
@@ -122,17 +122,17 @@ func TestCardsList(t *testing.T) {
 			}{
 				{
 					name: "moves up, down using arrow keyMap",
-					keys: []string{tea.KeyDown.String(), tea.KeyUp.String()},
+					keys: []string{"down", "up"},
 					want: activePrompt + latestCard.Question,
 				},
 				{
 					name: "moves down, up, up",
-					keys: []string{tea.KeyDown.String(), keyDown, keyDown},
+					keys: []string{"down", keyDown, keyDown},
 					want: activePrompt + "Question D",
 				},
 				{
 					name: "moves right, left using arrow keyMap",
-					keys: []string{tea.KeyRight.String(), tea.KeyLeft.String()},
+					keys: []string{"right", "left"},
 					want: activePrompt + latestCard.Question,
 				},
 			}
@@ -142,7 +142,7 @@ func TestCardsList(t *testing.T) {
 					tt.name, func(t *testing.T) {
 						var batch []tea.Msg
 						for _, key := range tt.keys {
-							batch = append(batch, tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(key)})
+							batch = append(batch, keyPressMsg(key))
 						}
 
 						view := newTestModel(t, manyDecks).
@@ -194,7 +194,7 @@ func TestCardsList(t *testing.T) {
 				SendKeyRune("C").
 				Peek(
 					func(m tea.Model) {
-						view := m.View()
+						view := viewText(m)
 						assert.NotContains(t, view, "a add")
 						assert.Contains(t, view, "Filter: C")
 						assert.Contains(t, view, "1 item • 5 filtered")
@@ -203,7 +203,7 @@ func TestCardsList(t *testing.T) {
 				SendKeyType(tea.KeyEnter).
 				Peek(
 					func(m tea.Model) {
-						view := m.View()
+						view := viewText(m)
 						assert.NotContains(t, view, "a add")
 						assert.Contains(t, view, "“C” 1 item • 5 filtered")
 					},
@@ -276,7 +276,7 @@ func TestCardAdd(t *testing.T) {
 			newTestModel(t, emptyDeck).
 				WithObserver(
 					func(m tea.Model) {
-						if strings.Contains(m.View(), "Creating card...") {
+						if strings.Contains(viewText(m), "Creating card...") {
 							showLoading = true
 						}
 					},
@@ -287,16 +287,16 @@ func TestCardAdd(t *testing.T) {
 				SendKeyRune("New").
 				SendKeyType(tea.KeyTab).
 				SendKeyRune("New").
-				SendKeyType(tea.KeyShiftTab).
+				SendKeyRune("shift+tab").
 				SendKeyRune(" question").
 				SendKeyType(tea.KeyTab).
 				SendKeyRune(" answer").
-				SendKeyType(tea.KeyShiftTab).
+				SendKeyRune("shift+tab").
 				SendKeyRune("?").
 				SendKeyRune(saveKey).
 				Peek(
 					func(m tea.Model) {
-						assertCardCreated(m.View())
+						assertCardCreated(viewText(m))
 						assert.True(t, showLoading)
 					},
 				).
@@ -305,7 +305,7 @@ func TestCardAdd(t *testing.T) {
 				SendKeyRune(quitKey).
 				Peek(
 					func(m tea.Model) {
-						assertCardCreated(m.View())
+						assertCardCreated(viewText(m))
 					},
 				)
 		},
@@ -425,7 +425,7 @@ func TestCardEdit(t *testing.T) {
 			newTestModel(t, manyDecks).
 				WithObserver(
 					func(m tea.Model) {
-						if strings.Contains(m.View(), "Updating card...") {
+						if strings.Contains(viewText(m), "Updating card...") {
 							showLoading = true
 						}
 					},
@@ -436,18 +436,18 @@ func TestCardEdit(t *testing.T) {
 				SendKeyRune("--").
 				SendKeyType(tea.KeyTab).
 				SendKeyRune("--").
-				SendKeyType(tea.KeyShiftTab).
+				SendKeyRune("shift+tab").
 				SendKeyType(tea.KeyBackspace).
 				SendKeyType(tea.KeyTab).
 				SendKeyType(tea.KeyBackspace).
-				SendKeyType(tea.KeyShiftTab).
+				SendKeyRune("shift+tab").
 				SendKeyRune("q").
 				SendKeyType(tea.KeyTab).
 				SendKeyRune("q").
 				SendKeyRune(saveKey).
 				Peek(
 					func(m tea.Model) {
-						assertCardChanged(m.View())
+						assertCardChanged(viewText(m))
 						assert.True(t, showLoading)
 					},
 				).
@@ -456,7 +456,7 @@ func TestCardEdit(t *testing.T) {
 				SendKeyRune(quitKey).
 				Peek(
 					func(m tea.Model) {
-						assertCardChanged(m.View())
+						assertCardChanged(viewText(m))
 					},
 				)
 		},
@@ -589,7 +589,7 @@ func TestCardDelete(t *testing.T) {
 			m := newTestModel(t, errorDeck).
 				WithObserver(
 					func(m tea.Model) {
-						if strings.Contains(m.View(), "Deleting card...") {
+						if strings.Contains(viewText(m), "Deleting card...") {
 							showLoading = true
 						}
 					},
@@ -619,14 +619,14 @@ func TestCardDelete(t *testing.T) {
 				SendKeyType(tea.KeyEnter).
 				Peek(
 					func(m tea.Model) {
-						assertCardDeleted(m.View())
+						assertCardDeleted(viewText(m))
 					},
 				).
 				SendKeyType(tea.KeyEnter).
 				SendKeyType(tea.KeyEsc).
 				Peek(
 					func(m tea.Model) {
-						assertCardDeleted(m.View())
+						assertCardDeleted(viewText(m))
 					},
 				)
 		},

@@ -4,8 +4,7 @@ import (
 	"log"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/eliostvs/lembrol/internal/clock"
 	"github.com/eliostvs/lembrol/internal/flashcard"
@@ -58,7 +57,7 @@ type createdRepositoryMsg struct {
 func NewModel(path string, debug bool, opts ...ModelOption) Model {
 	shared := Shared{
 		clock:  clock.New(),
-		styles: NewStyles(lipgloss.DefaultRenderer()),
+		styles: NewStyles(),
 		debug:  debug,
 	}
 	m := Model{
@@ -220,8 +219,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // VIEW
 
-func (m Model) View() string {
+func (m Model) View() tea.View {
 	m.Log("app view: width=%d height=%d", m.width, m.height)
 
-	return m.page.View()
+	view := m.page.View()
+	view.AltScreen = true
+	return view
 }

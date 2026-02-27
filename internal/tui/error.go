@@ -1,10 +1,10 @@
 package tui
 
 import (
-	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/help"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 func newErrorKeyMap() errorKeyMap {
@@ -51,7 +51,7 @@ func (m errorPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.Log("error update: %T", msg)
 
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.quit):
 			return m, quit
@@ -61,10 +61,10 @@ func (m errorPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m errorPage) View() string {
+func (m errorPage) View() tea.View {
 	m.Log("error: view")
 
-	return errorView(m.Shared, m.keyMap, m.err.Error())
+	return tea.NewView(errorView(m.Shared, m.keyMap, m.err.Error()))
 }
 
 func errorView(m Shared, keyMap help.KeyMap, err string) string {

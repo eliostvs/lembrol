@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/help"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/eliostvs/lembrol/internal/flashcard"
 )
 
@@ -49,7 +49,7 @@ func newStatsModel(shared Shared, msg setStatsPageMsg) statsModel {
 		state:     statsLoading,
 		keyMap: statsKeyMap{
 			key.NewBinding(
-				key.WithKeys("q", tea.KeyEsc.String()),
+				key.WithKeys("q", "esc"),
 				key.WithHelp("q", "quit"),
 			),
 		},
@@ -127,7 +127,7 @@ func (m statsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.totals = calculateTotals(msg.stats)
 		return m, cmd
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		if key.Matches(msg, m.keyMap.cancel) {
 			return m, showCards(m.cardIndex, m.deck)
 		}
@@ -167,7 +167,7 @@ func loadStats(card flashcard.Card) tea.Msg {
 
 // VIEW
 
-func (m statsModel) View() string {
+func (m statsModel) View() tea.View {
 	m.Log("stats: view")
 
 	switch m.state {
@@ -176,12 +176,12 @@ func (m statsModel) View() string {
 
 	case statsLoaded:
 		if len(m.sparkline) > 0 {
-			return cardStatsView(m)
+			return tea.NewView(cardStatsView(m))
 		}
-		return notStatsView(m)
+		return tea.NewView(notStatsView(m))
 
 	default:
-		return ""
+		return tea.NewView("")
 	}
 }
 
@@ -196,7 +196,7 @@ func notStatsView(m statsModel) string {
 
 	v := help.New()
 	v.ShowAll = false
-	v.Width = m.width
+	v.SetWidth(m.width)
 	footer := lipgloss.
 		NewStyle().
 		Width(m.width).

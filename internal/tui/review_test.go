@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/eliostvs/lembrol/internal/flashcard"
@@ -100,23 +100,23 @@ func TestQuestion(t *testing.T) {
 				SendKeyRune(studyKey).
 				Peek(
 					func(m tea.Model) {
-						assert.Contains(t, m.View(), "1 of 2")
-						nextQuestion = choose(m.View())
+						assert.Contains(t, viewText(m), "1 of 2")
+						nextQuestion = choose(viewText(m))
 					},
 				).
 				SendKeyRune(skipKey).
 				Peek(
 					func(m tea.Model) {
-						view := m.View()
+						view := viewText(m)
 						assert.Contains(t, view, "1 of 2")
 						assert.Contains(t, view, nextQuestion)
-						nextQuestion = choose(m.View())
+						nextQuestion = choose(viewText(m))
 					},
 				).
 				SendKeyRune(skipKey).
 				Peek(
 					func(m tea.Model) {
-						view := m.View()
+						view := viewText(m)
 						assert.Contains(t, view, "1 of 2")
 						assert.Contains(t, view, nextQuestion)
 					},
@@ -152,7 +152,7 @@ func TestQuestion(t *testing.T) {
 				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Peek(
 					func(m tea.Model) {
-						before = m.View()
+						before = viewText(m)
 					},
 				).
 				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight / 2}).
@@ -348,7 +348,7 @@ func TestAnswer(t *testing.T) {
 			view := newTestModel(t, singleCardDeck).
 				WithObserver(
 					func(m tea.Model) {
-						if strings.Contains(m.View(), "Scoring card...") {
+						if strings.Contains(viewText(m), "Scoring card...") {
 							showLoading = true
 						}
 					},
@@ -376,7 +376,7 @@ func TestAnswer(t *testing.T) {
 				SendKeyType(tea.KeyEnter).
 				Peek(
 					func(m tea.Model) {
-						before = m.View()
+						before = viewText(m)
 					},
 				).
 				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight / 2}).
@@ -433,7 +433,7 @@ func TestReview(t *testing.T) {
 				SendKeyRune(flashcard.ReviewScoreGood.String()).
 				Peek(
 					func(m tea.Model) {
-						before = m.View()
+						before = viewText(m)
 					},
 				).
 				SendMsg(tea.WindowSizeMsg{Width: testWidth, Height: testHeight / 2}).

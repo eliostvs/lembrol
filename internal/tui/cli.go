@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/urfave/cli/v3"
 
 	"github.com/eliostvs/lembrol/internal/version"
@@ -52,7 +52,7 @@ func CLI(args []string, stdout io.Writer, stderr io.Writer) int {
 				defer file.Close()
 			}
 
-			program := tea.NewProgram(NewModel(cmd.String(decksPath), cmd.Bool(debugFlag)), tea.WithAltScreen())
+			program := tea.NewProgram(NewModel(cmd.String(decksPath), cmd.Bool(debugFlag)))
 			_, err := program.Run()
 			return err
 		},

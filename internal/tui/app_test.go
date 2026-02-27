@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/eliostvs/lembrol/internal/test"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
+	"github.com/charmbracelet/x/ansi"
 
 	"github.com/eliostvs/lembrol/internal/clock"
 	"github.com/eliostvs/lembrol/internal/flashcard"
@@ -20,8 +22,10 @@ import (
 
 func TestMain(m *testing.M) {
 	_ = os.Setenv("GLAMOUR_STYLE", "ascii")
+	_ = os.Setenv("NO_COLOR", "1")
 	defer func() {
 		_ = os.Unsetenv("GLAMOUR_STYLE")
+		_ = os.Unsetenv("NO_COLOR")
 	}()
 
 	exitVal := m.Run()
@@ -245,15 +249,31 @@ func (m *testModel) SendBatch(msgs []tea.Msg) *testModel {
 }
 
 func (m *testModel) SendKeyRune(r string) *testModel {
-	return m.SendMsg(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(r)})
+	return m.SendMsg(keyPressMsg(r))
 }
 
-func (m *testModel) SendKeyType(t tea.KeyType) *testModel {
-	return m.SendMsg(tea.KeyMsg{Type: t})
+func (m *testModel) SendKeyType(t rune) *testModel {
+	return m.SendMsg(tea.KeyPressMsg{Code: t})
 }
 
-func (m *testModel) Get() tea.Model {
+type renderedModel struct {
+	model tea.Model
+}
+
+func (m renderedModel) View() string {
+	return ansi.Strip(m.model.View().Content)
+}
+
+func (m renderedModel) Raw() tea.Model {
 	return m.model
+}
+
+func viewText(m tea.Model) string {
+	return ansi.Strip(m.View().Content)
+}
+
+func (m *testModel) Get() renderedModel {
+	return renderedModel{model: m.model}
 }
 
 func (m *testModel) Peek(fn func(tea.Model)) *testModel {
@@ -262,7 +282,7 @@ func (m *testModel) Peek(fn func(tea.Model)) *testModel {
 }
 
 func (m *testModel) Print() *testModel {
-	return m.Peek(func(m tea.Model) { fmt.Println(m.View()) })
+	return m.Peek(func(m tea.Model) { fmt.Println(viewText(m)) })
 }
 
 func (m *testModel) WithObserver(fn func(tea.Model)) *testModel {
@@ -273,4 +293,32 @@ func (m *testModel) WithObserver(fn func(tea.Model)) *testModel {
 func (m *testModel) ForceUpdate(msg tea.Msg) *testModel {
 	m.model, m.cmd = m.model.Update(msg)
 	return m
+}
+
+func keyPressMsg(input string) tea.KeyPressMsg {
+	switch strings.ToLower(input) {
+	case "up":
+		return tea.KeyPressMsg{Code: tea.KeyUp}
+	case "down":
+		return tea.KeyPressMsg{Code: tea.KeyDown}
+	case "left":
+		return tea.KeyPressMsg{Code: tea.KeyLeft}
+	case "right":
+		return tea.KeyPressMsg{Code: tea.KeyRight}
+	case "enter":
+		return tea.KeyPressMsg{Code: tea.KeyEnter}
+	case "esc", "escape":
+		return tea.KeyPressMsg{Code: tea.KeyEsc}
+	case "tab":
+		return tea.KeyPressMsg{Code: tea.KeyTab}
+	case "shift+tab":
+		return tea.KeyPressMsg{Code: tea.KeyTab, Mod: tea.ModShift}
+	}
+
+	runes := []rune(input)
+	if len(runes) == 1 {
+		return tea.KeyPressMsg{Text: input, Code: runes[0]}
+	}
+
+	return tea.KeyPressMsg{Text: input, Code: tea.KeyExtended}
 }

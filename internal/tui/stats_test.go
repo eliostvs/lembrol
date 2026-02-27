@@ -3,7 +3,7 @@ package tui_test
 import (
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -52,7 +52,7 @@ func TestCardStats(t *testing.T) {
 			}{
 				{
 					name: "when esc key is pressed",
-					key:  tea.KeyEsc.String(),
+					key:  "esc",
 				},
 				{
 					name: "when quit key is pressed",

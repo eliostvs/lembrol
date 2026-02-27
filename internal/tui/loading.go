@@ -3,10 +3,10 @@ package tui
 import (
 	"fmt"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 func showLoading(title, description string) tea.Cmd {
@@ -71,7 +71,7 @@ func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width, m.height = msg.Width, msg.Height
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.forceQuit):
 			return m, quit
@@ -82,7 +82,7 @@ func (m loadingPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m loadingPage) View() string {
+func (m loadingPage) View() tea.View {
 	m.Log("loading: view")
 
 	header := m.styles.Title.
@@ -101,5 +101,5 @@ func (m loadingPage) View() string {
 		Height(m.height - lipgloss.Height(header) - lipgloss.Height(footer)).
 		Render(fmt.Sprintf("%s %s", m.spinner.View(), m.description))
 
-	return lipgloss.JoinVertical(lipgloss.Top, header, content, footer)
+	return tea.NewView(lipgloss.JoinVertical(lipgloss.Top, header, content, footer))
 }
