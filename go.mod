@@ -9,7 +9,7 @@ require (
 	github.com/avelino/slugify v0.0.0-20180501145920-855f152bd774
 	github.com/charmbracelet/glamour v1.0.0
 	github.com/charmbracelet/x/ansi v0.11.8
-	github.com/dustin/go-humanize v1.0.1
+	github.com/dustin/go-humanize v1.1.0
 	github.com/go-playground/validator/v10 v10.30.4
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/open-spaced-repetition/go-fsrs/v3 v3.3.1
